@@ -41,12 +41,21 @@ module testbench();
 	end
 
 	//Instantiation of Device Under Test
-	// hook up the sine wave generators
-DDS DUT   (.clock(clk_50), 
+	// Hookup all integrators
+	XYZIntegrator DUT   (
+		.clock(clk_50), 
         .reset(reset),
-				.increment({18'h02000, 14'b0}), 
-				.phase(8'd0),
-				.sine_out(testbench_out));
+		.x (),
+		.y (),
+		.z (),
+		.p (),
+		.b (),
+		.s (),
+		.dt (),
+		.x_out (),
+		.y_out (),
+		.z_out()
+	);
 	
 endmodule
 
@@ -59,12 +68,39 @@ endmodule
 // Here accumulator_bit_length is 32 bits
 // Phase is measured in samples out of 256/cycle. e.g. 64 input is 90 degrees
 
-module DDS (clock, reset, increment, phase, sine_out);
+module XYZIntegrator (
+	clock, 
+	reset,
+	x    ,
+	y    ,
+	z    ,
+	p    ,
+	b    ,
+	s    ,
+	dt   ,
+	x_out,
+	y_out,
+	z_out
+);
+
 input clock, reset;
-input [31:0] increment ;
-input [7:0]  phase;
-output wire signed [15:0] sine_out;
-reg [31:0]	accumulator;
+
+// declare inputs
+
+input signed [26:0] x;
+input signed [26:0] y;
+input signed [26:0] z;
+
+input signed [26:0] p;
+input signed [26:0] b;
+input signed [26:0] s;
+input signed [26:0] dt;
+
+// declare outputs
+
+output wire  signed [26:0] x;
+output wire  signed [26:0] y;
+output wire  signed [26:0] z;
 
 always@(posedge clock) begin
   if (reset) accumulator <= 0 ;
