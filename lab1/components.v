@@ -51,22 +51,18 @@ endmodule
 
 //////////////////////////////////////////////////
 
-module adder (
+module subtractor (
   a,
   b,
-  cin,
-  sum,
+  sum
 );
-  // could probably make this better by hardcoding
-  // cin to 1?
-  // I removed cout?
-  
+  // does the operation a- b in twos complement
+
   input wire [26:0] a;
   input wire [26:0] b;
-  input wire  cin;
   output wire [26:0] sum;
 
-  assign sum = a + b + cin;
+  assign sum = a + ~b + 27'd1;
 
 endmodule
 

@@ -13,9 +13,6 @@ module XYZIntegrator (
 	x_out,
 	y_out,
 	z_out
-
-  // MIGHT NEED ADDITIONAL SIGNALS FOR INITIAL CONDITIONS
-  // X Y Z MAY NOT BE INITIAL CONDITIONS?
 );
 
   input clock, reset;
@@ -43,6 +40,7 @@ module XYZIntegrator (
   always @ (posedge clock) begin
           count <= count + 1; 
   end	
+  wire AnalogClock;
   assign AnalogClock = (count==0);
 
   //-----------------------------------------------------
@@ -51,11 +49,10 @@ module XYZIntegrator (
 
   wire [26:0] y_minus_x;
 
-  adder y_minus_x 
+  subtractor y_minus_x_adder 
   (
     .a    (y_out),
     .b    (x_out),
-    .cin  (1'b1),
     .sum  (y_minus_x)
   );
   
@@ -92,11 +89,10 @@ module XYZIntegrator (
 
   wire [26:0] p_minus_z;
 
-  adder p_minus_z 
+  subtractor p_minus_z_adder 
   (
     .a    (p),
-    .b    (~z_out),
-    .cin  (1'b1),
+    .b    (z_out),
     .sum  (p_minus_z)
   );
 
@@ -111,11 +107,10 @@ module XYZIntegrator (
   
   wire [26:0] x_minus_y;
 
-  adder x_minus_y 
+  subtractor x_minus_y_adder 
   (
     .a    (zp_times_x),
-    .b    (~y_out),
-    .cin  (1'b1),
+    .b    (y_out),
     .sum  (x_minus_y)
   );
   
@@ -143,7 +138,7 @@ module XYZIntegrator (
 
   wire [26:0] x_times_y;
 
-  signed_mult z_p 
+  signed_mult x_y 
   (
     .a   (x_out),
     .b   (y_out),
@@ -152,7 +147,7 @@ module XYZIntegrator (
   
   wire [26:0] b_times_z;
 
-  signed_mult z_p 
+  signed_mult b_z
   (
     .a   (b),
     .b   (z_out),
@@ -161,17 +156,16 @@ module XYZIntegrator (
 
   wire [26:0] xy_minus_zb;
 
-  adder x_minus_y 
+  subtractor xy_minus_ab_adder 
   (
     .a    (x_times_y),
-    .b    (~b_times_z),
-    .cin  (1'b1),
+    .b    (b_times_z),
     .sum  (xy_minus_zb)
   );
 
   wire [26:0] z_final_mul_out;
 
-  signed_mult y_mul 
+  signed_mult z_mul 
   (
     .a   (xy_minus_zb),
     .b   (dt),
