@@ -1,4 +1,10 @@
-module integrator(out,funct,InitialOut,clk,reset);
+module integrator(
+  out,
+  funct,
+  InitialOut,
+  clk,
+  reset
+);
   
   output signed [26:0] out;       // the state variable V
   input signed [26:0] funct;      // the dV/dt function
@@ -24,7 +30,11 @@ endmodule
 //// signed mult of 7.20 format 2'comp////////////
 //////////////////////////////////////////////////
 
-module signed_mult (out, a, b);
+module signed_mult (
+  out, 
+  a, 
+  b
+);
   
   output  signed  [26:0]  out;
   input   signed  [26:0]  a;
@@ -40,3 +50,23 @@ module signed_mult (out, a, b);
 endmodule
 
 //////////////////////////////////////////////////
+
+module adder (
+  a,
+  b,
+  cin,
+  sum,
+);
+  // could probably make this better by hardcoding
+  // cin to 1?
+  // I removed cout?
+  
+  input wire [26:0] a;
+  input wire [26:0] b;
+  input wire  cin;
+  output wire [26:0] sum;
+
+  assign sum = a + b + cin;
+
+endmodule
+
