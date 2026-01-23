@@ -53,8 +53,8 @@ module XYZIntegrator (
 
   adder y_minus_x 
   (
-    .a    (~x),
-    .b    (y),
+    .a    (y_out),
+    .b    (x_out),
     .cin  (1'b1),
     .sum  (y_minus_x)
   );
@@ -83,7 +83,7 @@ module XYZIntegrator (
     .reset      (reset), 
     .funct      (x_final_mul_out),
     .out        (x_out),
-    .InitialOut ()
+    .InitialOut (x)
   );
 
   //-----------------------------------------------------
@@ -92,10 +92,10 @@ module XYZIntegrator (
 
   wire [26:0] p_minus_z;
 
-  adder x_minus_y 
+  adder p_minus_z 
   (
     .a    (p),
-    .b    (~z),
+    .b    (~z_out),
     .cin  (1'b1),
     .sum  (p_minus_z)
   );
@@ -105,7 +105,7 @@ module XYZIntegrator (
   signed_mult z_p 
   (
     .a   (p_minus_z),
-    .b   (x),
+    .b   (x_out),
     .out (zp_times_x)
   );
   
@@ -114,7 +114,7 @@ module XYZIntegrator (
   adder x_minus_y 
   (
     .a    (zp_times_x),
-    .b    (~y),
+    .b    (~y_out),
     .cin  (1'b1),
     .sum  (x_minus_y)
   );
@@ -134,7 +134,7 @@ module XYZIntegrator (
     .reset      (reset), 
     .funct      (y_final_mul_out),
     .out        (y_out),
-    .InitialOut ()
+    .InitialOut (y)
   );
 
   //-----------------------------------------------------
@@ -145,8 +145,8 @@ module XYZIntegrator (
 
   signed_mult z_p 
   (
-    .a   (x),
-    .b   (y),
+    .a   (x_out),
+    .b   (y_out),
     .out (x_times_y)
   );
   
@@ -155,7 +155,7 @@ module XYZIntegrator (
   signed_mult z_p 
   (
     .a   (b),
-    .b   (z),
+    .b   (z_out),
     .out (b_times_z)
   );
 
@@ -184,7 +184,7 @@ module XYZIntegrator (
     .reset      (reset), 
     .funct      (z_final_mul_out),
     .out        (z_out),
-    .InitialOut ()
+    .InitialOut (z)
   );
 
 endmodule
