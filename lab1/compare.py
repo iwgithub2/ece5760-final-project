@@ -237,7 +237,7 @@ def main():
     ax.set_zlabel('z')
     ax.set_title('Lorenz System Trajectory (Verilog Simulation)')
     plt.tight_layout()
-    plt.savefig('lorenz_3d_trajectory.png', dpi=150)
+    plt.savefig('build/lorenz_3d_trajectory.png', dpi=150)
     print("Saved: lorenz_3d_trajectory.png")
     
     # Plot 2: Time series for x, y, z
@@ -262,7 +262,7 @@ def main():
     axes[2].grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('lorenz_time_series.png', dpi=150)
+    plt.savefig('build/lorenz_time_series.png', dpi=150)
     print("Saved: lorenz_time_series.png")
     
     # Check if simulation is maintaining oscillations
