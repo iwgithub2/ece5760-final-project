@@ -15,7 +15,7 @@ module integrator(
   reg signed	[26:0] v1 ;
 
   always @ (posedge clk) begin
-    if (reset==0)
+    if (reset==1)
       v1 <= InitialOut;
     else 
       v1 <= v1new;

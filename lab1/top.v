@@ -34,14 +34,14 @@ module XYZIntegrator (
   output wire  signed [26:0] y_out;
   output wire  signed [26:0] z_out;
 
-  // clock divider to slow system down for testing
-  reg [4:0] count;
-  // analog update divided clock
-  always @ (posedge clock) begin
-          count <= count + 1; 
-  end	
-  wire AnalogClock;
-  assign AnalogClock = (count==0);
+  // // clock divider to slow system down for testing
+  // reg [4:0] count;
+  // // analog update divided clock
+  // always @ (posedge clock) begin
+  //         count <= count + 1; 
+  // end	
+  // wire AnalogClock;
+  // assign AnalogClock = (count==0);
 
   //-----------------------------------------------------
   // X out
@@ -76,7 +76,7 @@ module XYZIntegrator (
   
   integrator x_integrator 
   (
-    .clk        (AnalogClock),
+    .clk        (clock),
     .reset      (reset), 
     .funct      (x_final_mul_out),
     .out        (x_out),
@@ -125,7 +125,7 @@ module XYZIntegrator (
 
   integrator y_integrator 
   (
-    .clk        (AnalogClock),
+    .clk        (clock),
     .reset      (reset), 
     .funct      (y_final_mul_out),
     .out        (y_out),
@@ -174,7 +174,7 @@ module XYZIntegrator (
 
   integrator z_integrator 
   (
-    .clk        (AnalogClock),
+    .clk        (clock),
     .reset      (reset), 
     .funct      (z_final_mul_out),
     .out        (z_out),
