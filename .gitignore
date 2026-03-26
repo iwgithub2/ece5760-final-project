@@ -1,0 +1,19 @@
+.\#*
+admin/work
+
+# build*/
+app/build*
+sim/build*
+asic/build*
+
+autom4te.cache/
+__pycache__/
+*/.pytest_cache
+*.py[cod]
+.DS_Store
+.cache/
+*~
+*.*.swp
+
+# etc.
+.claude/
