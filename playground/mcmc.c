@@ -3,12 +3,16 @@
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 
 #define DATASET_NAME "asia"
-#define NUM_NODES 8 // Example: 8 nodes for the Asia network, cancer: 5, 
+#define NUM_NODES 8 // Example: 8 nodes for the Asia network, cancer: 5, earthquake: 5, sachs: 11, survey: 6
 #define MAX_PARENTS_PER_NODE 64 // Depends on your pre-computation
 
 char node_names[NUM_NODES][64]; // Stores up to 8 names, 63 chars each
+
+struct timespec start, end;
+double time_spent;
 
 // 1. Data Structures for the Database
 typedef struct {
@@ -251,7 +255,13 @@ int main() {
     int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
 
     // 2. Run Pre-computation
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
     precompute_fixed_k(dataset, num_samples);
+
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    time_spent = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("Pre-computation took %f seconds\n", time_spent);
     
     // 4. Software MCMC (The Golden Model)
     // Initialize random order
@@ -268,6 +278,7 @@ int main() {
         current_order[j] = temp;
     }
 
+    clock_gettime(CLOCK_MONOTONIC, &start);
     float current_score = score_order(current_order);
     
     // Simple Metropolis-Hastings Loop
@@ -303,6 +314,9 @@ int main() {
             current_score = proposed_score;
         }
     }
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    time_spent = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("MCMC Loop took %f seconds\n", time_spent);
     
     printf("Final order: ");
     for (int i = 0; i < NUM_NODES; i++) {
