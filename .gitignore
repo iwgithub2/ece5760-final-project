@@ -17,3 +17,7 @@ __pycache__/
 
 # etc.
 .claude/
+
+# Playground C build artifacts
+playground/fixed_point_experiment
+playground/test_fixed_point_logadd

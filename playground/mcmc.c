@@ -1,391 +1,481 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#define DATASET_NAME "asia"
-#define NUM_NODES 8 // Example: 8 nodes for the Asia network, cancer: 5, earthquake: 5, sachs: 11, survey: 6
-#define MAX_PARENTS_PER_NODE 64 // Depends on your pre-computation
+#include "mcmc_core.h"
 
-char node_names[NUM_NODES][64]; // Stores up to 8 names, 63 chars each
+#define MAX_PATH_LEN 256
 
-struct timespec start, end;
-double time_spent;
+typedef enum {
+    SCORE_BACKEND_FLOAT = 0,
+    SCORE_BACKEND_FIXED = 1
+} ScoreBackendKind;
 
-// 1. Data Structures for the Database
 typedef struct {
-    unsigned int parent_bitmask; // One-hot encoded parent set
-    float local_score;           // Pre-computed BDe score
-} ParentSet;
+    ScoreBackendKind kind;
+    FxLogAdd fx;
+    FILE* x_log;
+    long x_log_limit;
+    long x_log_count;
+} ScoreBackend;
 
-ParentSet precomputed_db[NUM_NODES][MAX_PARENTS_PER_NODE];
-int num_candidates[NUM_NODES]; // How many candidate sets each node actually has
+typedef struct {
+    char samples_path[MAX_PATH_LEN];
+    char edges_path[MAX_PATH_LEN];
+    char x_log_path[MAX_PATH_LEN];
+    char trace_path[MAX_PATH_LEN];
+    int iterations;
+    unsigned int seed;
+    bool quiet;
+    bool compare;
+    ScoreBackendKind backend_kind;
+    FxLutMode fx_mode;
+    FxLutMode compare_mode;
+    int fx_total_bits;
+    int fx_int_bits;
+    int lut_total_bits;
+    int lut_int_bits;
+    int lut_entries;
+    double lut_min;
+    double lut_max;
+    long x_log_limit;
+} AppConfig;
 
-// 2. Pre-computation Phase (Run once on ARM)
-// V1: Fixed K (max parents per node)
+typedef struct {
+    int accepted;
+    double final_score;
+    double elapsed_sec;
+} RunStats;
 
-// Helper to count how many bits are set to 1 in the mask (number of parents)
-int count_set_bits(unsigned int n) {
-    int count = 0;
-    while (n) {
-        count += n & 1;
-        n >>= 1;
-    }
-    return count;
+static double elapsed_seconds(struct timespec start, struct timespec end) {
+    return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
 }
 
-// Computes the BDeu score for a single node given a specific parent set
-float calculate_bde_score(int** dataset, int num_samples, int target_node, unsigned int parent_mask) {
-    // Equivalent Sample Size (Hyperparameter, usually 1.0)
-    float alpha = 1.0f; 
-    
-    int num_parents = count_set_bits(parent_mask);
-    
-    // Extract which specific nodes are the parents into an array for easy looping
-    int parent_indices[32]; 
-    int p_idx = 0;
-    for (int i = 0; i < NUM_NODES; i++) {
-        if (parent_mask & (1 << i)) {
-            parent_indices[p_idx++] = i;
-        }
+static double log_add_reference(double score_cur, double ls_next) {
+    if (!isfinite(score_cur)) {
+        return ls_next;
+    }
+    if (!isfinite(ls_next)) {
+        return score_cur;
+    }
+    return score_cur + fx_log1pexp_reference(ls_next - score_cur);
+}
+
+static void log_x_value(ScoreBackend* backend, double x) {
+    if (!backend->x_log) {
+        return;
+    }
+    if (backend->x_log_limit > 0 && backend->x_log_count >= backend->x_log_limit) {
+        return;
+    }
+    fprintf(backend->x_log, "%.9f\n", x);
+    backend->x_log_count++;
+}
+
+static int init_backend(ScoreBackend* backend, const AppConfig* cfg, ScoreBackendKind kind, FxLutMode fx_mode) {
+    memset(backend, 0, sizeof(*backend));
+    backend->kind = kind;
+    backend->x_log_limit = cfg->x_log_limit;
+
+    if (kind == SCORE_BACKEND_FIXED &&
+        fx_logadd_init(&backend->fx, cfg->fx_total_bits, cfg->fx_int_bits,
+                       cfg->lut_total_bits, cfg->lut_int_bits, cfg->lut_min,
+                       cfg->lut_max, cfg->lut_entries, fx_mode) != 0) {
+        return -1;
     }
 
-    // q = Number of possible states the parent group can be in (2^num_parents for binary)
-    int q = 1 << num_parents; 
-    
-    // The Dirichlet priors
-    float alpha_ij = alpha / (float)q;
-    float alpha_ijk = alpha_ij / 2.0f; // 2 because the target node has 2 states (0 or 1)
+    if (cfg->x_log_path[0] != '\0') {
+        backend->x_log = fopen(cfg->x_log_path, "w");
+        if (!backend->x_log) {
+            return -1;
+        }
+    }
+    return 0;
+}
 
-    float final_log_score = 0.0f;
+static void close_backend(ScoreBackend* backend) {
+    if (backend->x_log) {
+        fclose(backend->x_log);
+        backend->x_log = NULL;
+    }
+    if (backend->kind == SCORE_BACKEND_FIXED) {
+        fx_logadd_free(&backend->fx);
+    }
+}
 
-    // Iterate through every possible state combination the parents could take (e.g., 00, 01, 10, 11)
-    for (int state = 0; state < q; state++) {
-        int N_ijk[2] = {0, 0}; // N_ijk[0] counts when target=0, N_ijk[1] counts when target=1
+static void prepare_fixed_scores(ScoreBackend* backend) {
+    if (backend->kind != SCORE_BACKEND_FIXED) {
+        return;
+    }
+    for (int i = 0; i < NUM_NODES; i++) {
+        for (int p = 0; p < num_candidates[i]; p++) {
+            precomputed_db[i][p].local_score_fx = fx_from_double(
+                &backend->fx.value_fmt, precomputed_db[i][p].local_score, &backend->fx.stats);
+        }
+    }
+}
 
-        // Scan the entire dataset to count frequencies
-        for (int row = 0; row < num_samples; row++) {
-            bool parents_match_state = true;
-            
-            // Check if this row's parent values match the current 'state' we are testing
-            for (int p = 0; p < num_parents; p++) {
-                int p_node = parent_indices[p];
-                int expected_val = (state >> p) & 1; // Extract the p-th bit of 'state'
-                
-                if (dataset[row][p_node] != expected_val) {
-                    parents_match_state = false;
-                    break;
+static double score_order_backend(const int* order, ScoreBackend* backend) {
+    if (backend->kind == SCORE_BACKEND_FLOAT) {
+        double total_score = 0.0;
+        for (int i = 0; i < NUM_NODES; i++) {
+            int current_node = order[i];
+            double node_score = -INFINITY;
+            for (int p = 0; p < num_candidates[current_node]; p++) {
+                if (check_compatibility(precomputed_db[current_node][p].parent_bitmask, order, i)) {
+                    double ls = precomputed_db[current_node][p].local_score;
+                    if (isfinite(node_score)) {
+                        log_x_value(backend, ls - node_score);
+                    }
+                    node_score = log_add_reference(node_score, ls);
                 }
             }
-
-            // If the parents are in the state we are looking for, check the target node!
-            if (parents_match_state) {
-                int target_val = dataset[row][target_node];
-                N_ijk[target_val]++;
-            }
+            total_score += node_score;
         }
-
-        int N_ij = N_ijk[0] + N_ijk[1]; // Total times this parent state occurred
-
-        // Apply the BDe log-gamma formula
-        // Use lgammaf() from <math.h> which computes the natural logarithm of the gamma function
-        final_log_score += lgammaf(alpha_ij) - lgammaf(alpha_ij + N_ij);
-        final_log_score += lgammaf(alpha_ijk + N_ijk[0]) - lgammaf(alpha_ijk);
-        final_log_score += lgammaf(alpha_ijk + N_ijk[1]) - lgammaf(alpha_ijk);
+        return total_score;
     }
 
-    return final_log_score;
-}
-
-void precompute_fixed_k(int** dataset, int num_samples) {
-    for (int i = 0; i < NUM_NODES; i++) {
-        int candidate_count = 0;
-
-        // 1. K = 0 (No parents)
-        unsigned int mask_k0 = 0;
-        precomputed_db[i][candidate_count].parent_bitmask = mask_k0;
-        precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k0);
-        candidate_count++;
-
-        // 2. K = 1 (One parent)
-        for (int p1 = 0; p1 < NUM_NODES; p1++) {
-            if (p1 == i) continue; // Node cannot be its own parent
-            
-            unsigned int mask_k1 = (1 << p1);
-            precomputed_db[i][candidate_count].parent_bitmask = mask_k1;
-            precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k1);
-            candidate_count++;
-        }
-
-        // 3. K = 2 (Two parents)
-        for (int p1 = 0; p1 < NUM_NODES; p1++) {
-            if (p1 == i) continue;
-            for (int p2 = p1 + 1; p2 < NUM_NODES; p2++) {
-                if (p2 == i) continue;
-                
-                unsigned int mask_k2 = (1 << p1) | (1 << p2);
-                precomputed_db[i][candidate_count].parent_bitmask = mask_k2;
-                precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k2);
-                candidate_count++;
-            }
-        }
-        
-        num_candidates[i] = candidate_count;
-    }
-}
-
-// --- Scoring Logic ---
-bool check_compatibility(unsigned int parent_mask, int* order, int current_node_index) {
-    // In an order, a node can only have parents that appear BEFORE it.
-    unsigned int allowed_mask = 0;
-    for (int i = 0; i < current_node_index; i++) {
-        allowed_mask |= (1 << order[i]);
-    }
-    // If the required parents are a subset of the allowed parents, it's compatible
-    return (parent_mask & allowed_mask) == parent_mask;
-}
-
-// --- Core Math (This maps to the FPGA LUT) ---
-// Calculates log(e^a + e^b) safely to avoid underflow/overflow
-float log_add(float log_a, float log_b) {
-    if (log_a <= -999999.0f) return log_b;
-    if (log_b <= -999999.0f) return log_a;
-    float max_val = (log_a > log_b) ? log_a : log_b;
-    float min_val = (log_a < log_b) ? log_a : log_b;
-    return max_val + logf(1.0f + expf(min_val - max_val));
-}
-
-// 3. The Software MCMC Loop (This is what the FPGA will eventually replace)
-float score_order(int* order) {
-    float total_score = 0.0;
-    
-    // For each node...
+    fx_raw_t total_fx = fx_from_double(&backend->fx.value_fmt, 0.0, &backend->fx.stats);
     for (int i = 0; i < NUM_NODES; i++) {
         int current_node = order[i];
-        float node_score = -INFINITY; // Start in log space
-        
-        // ...scan its precomputed database
+        bool have_score = false;
+        fx_raw_t node_fx = 0;
         for (int p = 0; p < num_candidates[current_node]; p++) {
-            unsigned int candidate_mask = precomputed_db[current_node][p].parent_bitmask;
-            
-            // Check if the candidate parent set is valid given the current order
-            // (In software, this is a loop checking if parents come before 'i' in the order)
-            bool is_compatible = check_compatibility(candidate_mask, order, i);
-            
-            if (is_compatible) {
-                // Log-space addition: log(exp(node_score) + exp(local_score))
-                // In hardware, this uses the log(1+exp(x)) LUT
-                node_score = log_add(node_score, precomputed_db[current_node][p].local_score);
+            if (check_compatibility(precomputed_db[current_node][p].parent_bitmask, order, i)) {
+                fx_raw_t ls_fx = precomputed_db[current_node][p].local_score_fx;
+                if (!have_score) {
+                    node_fx = ls_fx;
+                    have_score = true;
+                } else {
+                    fx_raw_t x_fx = fx_sub_raw(&backend->fx.value_fmt, ls_fx, node_fx, &backend->fx.stats);
+                    log_x_value(backend, fx_to_double(&backend->fx.value_fmt, x_fx));
+                    fx_raw_t nonlinear = fx_log1pexp_approx_raw(&backend->fx, x_fx);
+                    node_fx = fx_add_raw(&backend->fx.value_fmt, node_fx, nonlinear, &backend->fx.stats);
+                }
             }
         }
-        total_score += node_score;
+        total_fx = fx_add_raw(&backend->fx.value_fmt, total_fx, node_fx, &backend->fx.stats);
     }
-    return total_score;
+    return fx_to_double(&backend->fx.value_fmt, total_fx);
 }
 
-int** load_csv(const char* filename, int* out_num_samples, int num_nodes) {
-    FILE* file = fopen(filename, "r");
-
-    char buffer[2048];
-    
-    // Read Header and Store Names
-    if (fgets(buffer, sizeof(buffer), file)) {
-        char* token = strtok(buffer, ",\n\r"); // Split by comma or newline
-        int i = 0;
-        while (token && i < num_nodes) {
-            strncpy(node_names[i], token, 63);
-            node_names[i][63] = '\0'; // Ensure null-termination
-            token = strtok(NULL, ",\n\r");
-            i++;
-        }
-    }
-
-    // counting logic
-    int lines = 0;
-    long data_start_pos = ftell(file); // Save position after header
-    while (fgets(buffer, sizeof(buffer), file)) {
-        lines++;
-    }
-    *out_num_samples = lines; 
-
-    int** dataset = (int**)malloc((*out_num_samples) * sizeof(int*));
-    for (int i = 0; i < *out_num_samples; i++) {
-        dataset[i] = (int*)malloc(num_nodes * sizeof(int));
-    }
-
-    // Rewind to the start of the DATA (just after header)
-    fseek(file, data_start_pos, SEEK_SET);
-
-    int row = 0;
-    while (fgets(buffer, sizeof(buffer), file) && row < *out_num_samples) {
-        char* token = strtok(buffer, ",");
-        int col = 0;
-        while (token && col < num_nodes) {
-            dataset[row][col] = atoi(token);
-            token = strtok(NULL, ",");
-            col++;
-        }
-        row++;
-    }
-
-    fclose(file);
-    return dataset;
-}
-
-// helper for edge validation
-int find_node_index(char* name) {
+static void init_order(int* order) {
     for (int i = 0; i < NUM_NODES; i++) {
-        if (strcmp(node_names[i], name) == 0) return i;
+        order[i] = i;
     }
-    return -1;
-}
-
-
-int main() {
-    // 1. Load dataset
-
-    // Construct dynamic file paths based on DATASET_NAME
-    char samples_path[256], edges_path[256];
-    sprintf(samples_path, "../cleaned-datasets/%s_samples.csv", DATASET_NAME);
-    sprintf(edges_path, "../cleaned-datasets/%s_edges.csv", DATASET_NAME);
-
-    int num_samples;
-    int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
-
-    // 2. Run Pre-computation
-    clock_gettime(CLOCK_MONOTONIC, &start);
-
-    precompute_fixed_k(dataset, num_samples);
-
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    time_spent = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
-    printf("Pre-computation took %f seconds\n", time_spent);
-    
-    // 4. Software MCMC (The Golden Model)
-    // Initialize random order
-    int current_order[NUM_NODES];
-    for (int i = 0; i < NUM_NODES; i++) {
-        current_order[i] = i;
-    }
-
-    // Fisher-Yates shuffle
     for (int i = NUM_NODES - 1; i > 0; i--) {
         int j = rand() % (i + 1);
-        int temp = current_order[i];
-        current_order[i] = current_order[j];
-        current_order[j] = temp;
+        int temp = order[i];
+        order[i] = order[j];
+        order[j] = temp;
     }
+}
+
+static void copy_order(int* dst, const int* src) {
+    for (int i = 0; i < NUM_NODES; i++) {
+        dst[i] = src[i];
+    }
+}
+
+static void swap_order_indices(int* order, int idx1, int idx2) {
+    int temp = order[idx1];
+    order[idx1] = order[idx2];
+    order[idx2] = temp;
+}
+
+static bool accept_move(double proposed_score, double current_score, double u) {
+    double diff = proposed_score - current_score;
+    return diff >= 0.0 || u < exp(diff);
+}
+
+static RunStats run_mcmc_single(const AppConfig* cfg, ScoreBackend* backend, int* final_order, FILE* trace) {
+    RunStats stats = {0};
+    struct timespec start, end;
+    int current_order[NUM_NODES];
+    init_order(current_order);
+    double current_score = score_order_backend(current_order, backend);
 
     clock_gettime(CLOCK_MONOTONIC, &start);
-    float current_score = score_order(current_order);
-    
-    // Simple Metropolis-Hastings Loop
-    for (int step = 0; step < 100000; step++) {
+    for (int step = 0; step < cfg->iterations; step++) {
         int proposed_order[NUM_NODES];
-        
-        // 1. Copy current to proposed
-        for (int i = 0; i < NUM_NODES; i++) {
-            proposed_order[i] = current_order[i];
-        }
-        
-        // 2. Randomly swap two elements to create a new proposal
-        int idx1 = rand() % NUM_NODES;
-        int idx2 = rand() % NUM_NODES;
-        // int idx1 = rand() % (NUM_NODES - 1); 
-        // int idx2 = idx1 + 1;
-
-        int temp = proposed_order[idx1];
-        proposed_order[idx1] = proposed_order[idx2];
-        proposed_order[idx2] = temp;
-        
-        float proposed_score = score_order(proposed_order);
-        
-        // Accept/Reject
-        float acceptance_prob = expf(proposed_score - current_score);
-        float u = (float)rand() / RAND_MAX;
-        
-        if (u < acceptance_prob) {
-            // 3. Accept the new order by copying proposed back to current
-            for (int i = 0; i < NUM_NODES; i++) {
-                current_order[i] = proposed_order[i];
-            }
+        copy_order(proposed_order, current_order);
+        swap_order_indices(proposed_order, rand() % NUM_NODES, rand() % NUM_NODES);
+        double proposed_score = score_order_backend(proposed_order, backend);
+        bool accepted = accept_move(proposed_score, current_score, (double)rand() / (double)RAND_MAX);
+        if (accepted) {
+            copy_order(current_order, proposed_order);
             current_score = proposed_score;
+            stats.accepted++;
+        }
+        if (trace) {
+            fprintf(trace, "%d,%.9f,%d\n", step, current_score, accepted ? 1 : 0);
         }
     }
     clock_gettime(CLOCK_MONOTONIC, &end);
-    time_spent = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
-    printf("MCMC Loop took %f seconds\n", time_spent);
-    
-    printf("Final order: ");
+    copy_order(final_order, current_order);
+    stats.final_score = current_score;
+    stats.elapsed_sec = elapsed_seconds(start, end);
+    return stats;
+}
+
+static void run_mcmc_compare(const AppConfig* cfg) {
+    ScoreBackend float_backend;
+    ScoreBackend approx_backend;
+    AppConfig no_xlog = *cfg;
+    no_xlog.x_log_path[0] = '\0';
+
+    if (init_backend(&float_backend, &no_xlog, SCORE_BACKEND_FLOAT, FX_LUT_CLAMP) != 0 ||
+        init_backend(&approx_backend, &no_xlog, SCORE_BACKEND_FIXED, cfg->compare_mode) != 0) {
+        fprintf(stderr, "ERROR: could not initialize compare backends\n");
+        exit(1);
+    }
+    prepare_fixed_scores(&approx_backend);
+
+    FILE* trace = NULL;
+    if (cfg->trace_path[0] != '\0') {
+        trace = fopen(cfg->trace_path, "w");
+        if (trace) {
+            fprintf(trace, "step,float_score,approx_score,float_accept,approx_accept,same_order_score_diff\n");
+        }
+    }
+
+    int initial_order[NUM_NODES], float_order[NUM_NODES], approx_order[NUM_NODES];
+    init_order(initial_order);
+    copy_order(float_order, initial_order);
+    copy_order(approx_order, initial_order);
+    double float_score = score_order_backend(float_order, &float_backend);
+    double approx_score = score_order_backend(approx_order, &approx_backend);
+    int float_accepted = 0, approx_accepted = 0;
+    int chain_decision_diff = 0, same_state_decision_diff = 0;
+    double same_order_abs_sum = 0.0, same_order_abs_max = 0.0;
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    for (int step = 0; step < cfg->iterations; step++) {
+        int idx1 = rand() % NUM_NODES;
+        int idx2 = rand() % NUM_NODES;
+        double u = (double)rand() / (double)RAND_MAX;
+        int float_prop[NUM_NODES], approx_prop[NUM_NODES];
+        copy_order(float_prop, float_order);
+        copy_order(approx_prop, approx_order);
+        swap_order_indices(float_prop, idx1, idx2);
+        swap_order_indices(approx_prop, idx1, idx2);
+
+        double float_prop_score = score_order_backend(float_prop, &float_backend);
+        double approx_prop_score = score_order_backend(approx_prop, &approx_backend);
+        bool float_accept = accept_move(float_prop_score, float_score, u);
+        bool approx_accept = accept_move(approx_prop_score, approx_score, u);
+        double approx_same_current = score_order_backend(float_order, &approx_backend);
+        double approx_same_proposed = score_order_backend(float_prop, &approx_backend);
+        bool approx_same_accept = accept_move(approx_same_proposed, approx_same_current, u);
+        if (float_accept) {
+            copy_order(float_order, float_prop);
+            float_score = float_prop_score;
+            float_accepted++;
+        }
+        if (approx_accept) {
+            copy_order(approx_order, approx_prop);
+            approx_score = approx_prop_score;
+            approx_accepted++;
+        }
+        chain_decision_diff += float_accept != approx_accept;
+        same_state_decision_diff += float_accept != approx_same_accept;
+
+        double approx_same_order = score_order_backend(float_order, &approx_backend);
+        double same_order_abs = fabs(approx_same_order - float_score);
+        same_order_abs_sum += same_order_abs;
+        if (same_order_abs > same_order_abs_max) {
+            same_order_abs_max = same_order_abs;
+        }
+        if (trace) {
+            fprintf(trace, "%d,%.9f,%.9f,%d,%d,%.9f\n",
+                    step, float_score, approx_score, float_accept ? 1 : 0, approx_accept ? 1 : 0, same_order_abs);
+        }
+    }
+    clock_gettime(CLOCK_MONOTONIC, &end);
+
+    int order_match_positions = 0;
     for (int i = 0; i < NUM_NODES; i++) {
-        int node_idx = current_order[i];
-        printf("%s ", node_names[node_idx]); 
-        
-        // Optional: Add an arrow for clarity
-        if (i < NUM_NODES - 1) printf("-> ");
-    }
-    printf("\n");
-
-    // 1. Store Ground Truth Edges in a matrix
-    bool ground_truth[NUM_NODES][NUM_NODES] = {false};
-    FILE* edge_file = fopen(edges_path, "r");
-    if (edge_file) {
-        char line[128];
-        fgets(line, sizeof(line), edge_file); // Skip header
-        while (fgets(line, sizeof(line), edge_file)) {
-            char src_name[64], dst_name[64];
-            sscanf(line, "%[^,],%s", src_name, dst_name);
-            int u = find_node_index(src_name);
-            int v = find_node_index(dst_name);
-            if (u != -1 && v != -1) ground_truth[u][v] = true;
-        }
-        fclose(edge_file);
+        order_match_positions += float_order[i] == approx_order[i];
     }
 
-    // 2. Extract Learned Edges and Compare
-    int true_positives = 0, false_positives = 0, total_ground_truth = 0;
-    
-    for (int i = 0; i < NUM_NODES; i++) {
-        for (int j = 0; j < NUM_NODES; j++) if (ground_truth[i][j]) total_ground_truth++;
+    printf("COMPARE_RESULT mode=%s iterations=%d float_acceptance=%.6f approx_acceptance=%.6f "
+           "accept_decision_diff=%d chain_accept_decision_diff=%d same_order_mae=%.9f same_order_max=%.9f "
+           "final_float_score=%.9f final_approx_score=%.9f final_score_drift=%.9f "
+           "order_match_positions=%d overflow=%llu saturation=%llu lut_low=%llu lut_high=%llu elapsed=%.6f\n",
+           fx_lut_mode_name(cfg->compare_mode), cfg->iterations,
+           (double)float_accepted / (double)cfg->iterations,
+           (double)approx_accepted / (double)cfg->iterations, same_state_decision_diff, chain_decision_diff,
+           same_order_abs_sum / (double)cfg->iterations, same_order_abs_max,
+           float_score, approx_score, approx_score - float_score, order_match_positions,
+           (unsigned long long)approx_backend.fx.stats.overflow_count,
+           (unsigned long long)approx_backend.fx.stats.saturation_count,
+           (unsigned long long)approx_backend.fx.stats.lut_low_count,
+           (unsigned long long)approx_backend.fx.stats.lut_high_count,
+           elapsed_seconds(start, end));
 
-        int current_node = current_order[i];
-        float best_score = -INFINITY;
-        unsigned int best_mask = 0;
+    if (trace) {
+        fclose(trace);
+    }
+    close_backend(&float_backend);
+    close_backend(&approx_backend);
+}
 
-        // Find the single best compatible parent set for this node
-        for (int p = 0; p < num_candidates[current_node]; p++) {
-            if (check_compatibility(precomputed_db[current_node][p].parent_bitmask, current_order, i)) {
-                if (precomputed_db[current_node][p].local_score > best_score) {
-                    best_score = precomputed_db[current_node][p].local_score;
-                    best_mask = precomputed_db[current_node][p].parent_bitmask;
-                }
+static void init_config(AppConfig* cfg) {
+    memset(cfg, 0, sizeof(*cfg));
+    snprintf(cfg->samples_path, sizeof(cfg->samples_path), "../cleaned-datasets/%s_samples.csv", DATASET_NAME);
+    snprintf(cfg->edges_path, sizeof(cfg->edges_path), "../cleaned-datasets/%s_edges.csv", DATASET_NAME);
+    cfg->iterations = 100000;
+    cfg->seed = 1;
+    cfg->backend_kind = SCORE_BACKEND_FLOAT;
+    cfg->fx_mode = FX_LUT_PIECEWISE;
+    cfg->compare_mode = FX_LUT_PIECEWISE;
+    cfg->fx_total_bits = 32;
+    cfg->fx_int_bits = 16;
+    cfg->lut_total_bits = 32;
+    cfg->lut_int_bits = 16;
+    cfg->lut_entries = 1024;
+    cfg->lut_min = -16.0;
+    cfg->lut_max = 8.0;
+}
+
+static void print_usage(const char* argv0) {
+    printf("Usage: %s [options]\n", argv0);
+    printf("  --mode float|fixed-clamp|fixed-piecewise\n");
+    printf("  --compare-mode fixed-clamp|fixed-piecewise\n");
+    printf("  --iters N --seed N --samples path --edges path --quiet\n");
+    printf("  --fx-total N --fx-int N --lut-total N --lut-int N\n");
+    printf("  --lut-min X --lut-max X --lut-entries N\n");
+    printf("  --x-log path --x-log-limit N --trace path\n");
+}
+
+static int parse_args(AppConfig* cfg, int argc, char** argv) {
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--help") == 0) {
+            print_usage(argv[0]);
+            exit(0);
+        } else if (strcmp(argv[i], "--mode") == 0 && i + 1 < argc) {
+            i++;
+            if (strcmp(argv[i], "float") == 0) {
+                cfg->backend_kind = SCORE_BACKEND_FLOAT;
+            } else if (fx_lut_mode_from_string(argv[i], &cfg->fx_mode) == 0) {
+                cfg->backend_kind = SCORE_BACKEND_FIXED;
+            } else {
+                return -1;
             }
-        }
-
-        for (int p_idx = 0; p_idx < NUM_NODES; p_idx++) {
-            if (best_mask & (1 << p_idx)) {
-                if (ground_truth[p_idx][current_node]) {
-                    printf("[CORRECT] %s -> %s\n", node_names[p_idx], node_names[current_node]);
-                    true_positives++;
-                } else {
-                    printf("[EXTRA  ] %s -> %s\n", node_names[p_idx], node_names[current_node]);
-                    false_positives++;
-                }
+        } else if (strcmp(argv[i], "--compare-mode") == 0 && i + 1 < argc) {
+            cfg->compare = true;
+            if (fx_lut_mode_from_string(argv[++i], &cfg->compare_mode) != 0) {
+                return -1;
             }
+        } else if (strcmp(argv[i], "--iters") == 0 && i + 1 < argc) {
+            cfg->iterations = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--seed") == 0 && i + 1 < argc) {
+            cfg->seed = (unsigned int)strtoul(argv[++i], NULL, 10);
+        } else if (strcmp(argv[i], "--samples") == 0 && i + 1 < argc) {
+            snprintf(cfg->samples_path, sizeof(cfg->samples_path), "%s", argv[++i]);
+        } else if (strcmp(argv[i], "--edges") == 0 && i + 1 < argc) {
+            snprintf(cfg->edges_path, sizeof(cfg->edges_path), "%s", argv[++i]);
+        } else if (strcmp(argv[i], "--quiet") == 0) {
+            cfg->quiet = true;
+        } else if (strcmp(argv[i], "--fx-total") == 0 && i + 1 < argc) {
+            cfg->fx_total_bits = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--fx-int") == 0 && i + 1 < argc) {
+            cfg->fx_int_bits = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--lut-total") == 0 && i + 1 < argc) {
+            cfg->lut_total_bits = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--lut-int") == 0 && i + 1 < argc) {
+            cfg->lut_int_bits = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--lut-min") == 0 && i + 1 < argc) {
+            cfg->lut_min = atof(argv[++i]);
+        } else if (strcmp(argv[i], "--lut-max") == 0 && i + 1 < argc) {
+            cfg->lut_max = atof(argv[++i]);
+        } else if (strcmp(argv[i], "--lut-entries") == 0 && i + 1 < argc) {
+            cfg->lut_entries = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--x-log") == 0 && i + 1 < argc) {
+            snprintf(cfg->x_log_path, sizeof(cfg->x_log_path), "%s", argv[++i]);
+        } else if (strcmp(argv[i], "--x-log-limit") == 0 && i + 1 < argc) {
+            cfg->x_log_limit = atol(argv[++i]);
+        } else if (strcmp(argv[i], "--trace") == 0 && i + 1 < argc) {
+            snprintf(cfg->trace_path, sizeof(cfg->trace_path), "%s", argv[++i]);
+        } else {
+            return -1;
+        }
+    }
+    return cfg->iterations > 0 ? 0 : -1;
+}
+
+int main(int argc, char** argv) {
+    AppConfig cfg;
+    init_config(&cfg);
+    if (parse_args(&cfg, argc, argv) != 0) {
+        print_usage(argv[0]);
+        return 2;
+    }
+    srand(cfg.seed);
+
+    int num_samples = 0;
+    int** dataset = load_csv(cfg.samples_path, &num_samples, NUM_NODES);
+    if (!dataset) {
+        return 1;
+    }
+
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    precompute_fixed_k(dataset, num_samples);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    if (!cfg.quiet) {
+        printf("Pre-computation took %f seconds\n", elapsed_seconds(start, end));
+    }
+
+    if (cfg.compare) {
+        run_mcmc_compare(&cfg);
+        free_dataset(dataset, num_samples);
+        return 0;
+    }
+
+    ScoreBackend backend;
+    if (init_backend(&backend, &cfg, cfg.backend_kind, cfg.fx_mode) != 0) {
+        fprintf(stderr, "ERROR: could not initialize score backend\n");
+        free_dataset(dataset, num_samples);
+        return 1;
+    }
+    prepare_fixed_scores(&backend);
+
+    FILE* trace = NULL;
+    if (cfg.trace_path[0] != '\0') {
+        trace = fopen(cfg.trace_path, "w");
+        if (trace) {
+            fprintf(trace, "step,score,accepted\n");
         }
     }
 
-    // 3. Print Metrics
-    float precision = (float)true_positives / (true_positives + false_positives);
-    float recall = (float)true_positives / total_ground_truth;
-    float f1 = 2 * (precision * recall) / (precision + recall);
+    int final_order[NUM_NODES];
+    RunStats run_stats = run_mcmc_single(&cfg, &backend, final_order, trace);
+    if (trace) {
+        fclose(trace);
+    }
 
-    printf("\nFinal Metrics:\n");
-    printf("Precision: %.2f (How many learned edges were real?)\n", precision);
-    printf("Recall:    %.2f (How many real edges did we find?)\n", recall);
-    printf("F1 Score:  %.2f\n", f1);
+    const char* mode_name = backend.kind == SCORE_BACKEND_FLOAT ? "float" : fx_lut_mode_name(cfg.fx_mode);
+    printf("RESULT mode=%s iterations=%d final_score=%.9f accepted=%d acceptance_rate=%.6f "
+           "overflow=%llu saturation=%llu lut_low=%llu lut_high=%llu elapsed=%.6f\n",
+           mode_name, cfg.iterations, run_stats.final_score, run_stats.accepted,
+           (double)run_stats.accepted / (double)cfg.iterations,
+           backend.kind == SCORE_BACKEND_FIXED ? (unsigned long long)backend.fx.stats.overflow_count : 0ULL,
+           backend.kind == SCORE_BACKEND_FIXED ? (unsigned long long)backend.fx.stats.saturation_count : 0ULL,
+           backend.kind == SCORE_BACKEND_FIXED ? (unsigned long long)backend.fx.stats.lut_low_count : 0ULL,
+           backend.kind == SCORE_BACKEND_FIXED ? (unsigned long long)backend.fx.stats.lut_high_count : 0ULL,
+           run_stats.elapsed_sec);
 
+    if (!cfg.quiet) {
+        print_order(final_order);
+        print_edge_metrics(final_order, cfg.edges_path);
+    }
+
+    close_backend(&backend);
+    free_dataset(dataset, num_samples);
     return 0;
 }
