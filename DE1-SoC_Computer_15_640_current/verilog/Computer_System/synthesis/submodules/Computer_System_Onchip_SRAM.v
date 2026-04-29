@@ -46,12 +46,12 @@ module Computer_System_Onchip_SRAM (
                                    )
 ;
 
-  output  [ 31: 0] readdata;
-  output  [ 31: 0] readdata2;
-  input   [  7: 0] address;
-  input   [  7: 0] address2;
-  input   [  3: 0] byteenable;
-  input   [  3: 0] byteenable2;
+  output  [ 63: 0] readdata;
+  output  [ 63: 0] readdata2;
+  input   [  6: 0] address;
+  input   [  6: 0] address2;
+  input   [  7: 0] byteenable;
+  input   [  7: 0] byteenable2;
   input            chipselect;
   input            chipselect2;
   input            clk;
@@ -65,14 +65,14 @@ module Computer_System_Onchip_SRAM (
   input            reset_req2;
   input            write;
   input            write2;
-  input   [ 31: 0] writedata;
-  input   [ 31: 0] writedata2;
+  input   [ 63: 0] writedata;
+  input   [ 63: 0] writedata2;
 
 
 wire             clocken0;
 wire             clocken1;
-wire    [ 31: 0] readdata;
-wire    [ 31: 0] readdata2;
+wire    [ 63: 0] readdata;
+wire    [ 63: 0] readdata2;
 wire             wren;
 wire             wren2;
   assign wren = chipselect & write;
@@ -103,20 +103,20 @@ wire             wren2;
            the_altsyncram.indata_reg_b = "CLOCK1",
            the_altsyncram.init_file = "UNUSED",
            the_altsyncram.lpm_type = "altsyncram",
-           the_altsyncram.maximum_depth = 256,
-           the_altsyncram.numwords_a = 256,
-           the_altsyncram.numwords_b = 256,
+           the_altsyncram.maximum_depth = 128,
+           the_altsyncram.numwords_a = 128,
+           the_altsyncram.numwords_b = 128,
            the_altsyncram.operation_mode = "BIDIR_DUAL_PORT",
            the_altsyncram.outdata_reg_a = "UNREGISTERED",
            the_altsyncram.outdata_reg_b = "UNREGISTERED",
            the_altsyncram.ram_block_type = "AUTO",
            the_altsyncram.read_during_write_mode_mixed_ports = "DONT_CARE",
-           the_altsyncram.width_a = 32,
-           the_altsyncram.width_b = 32,
-           the_altsyncram.width_byteena_a = 4,
-           the_altsyncram.width_byteena_b = 4,
-           the_altsyncram.widthad_a = 8,
-           the_altsyncram.widthad_b = 8,
+           the_altsyncram.width_a = 64,
+           the_altsyncram.width_b = 64,
+           the_altsyncram.width_byteena_a = 8,
+           the_altsyncram.width_byteena_b = 8,
+           the_altsyncram.widthad_a = 7,
+           the_altsyncram.widthad_b = 7,
            the_altsyncram.wrcontrol_wraddress_reg_b = "CLOCK1";
 
   //s1, which is an e_avalon_slave

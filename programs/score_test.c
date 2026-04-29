@@ -2,11 +2,11 @@
 /// 640x480 version!
 /// test VGA with hardware video input copy to VGA
 // compile with
-// gcc fp_test_1.c -o fp1 -lm
 ///////////////////////////////////////
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -14,13 +14,14 @@
 #include <sys/shm.h> 
 #include <sys/mman.h>
 #include <sys/time.h> 
-#include <math.h> 
 
 #include "address_map_arm_brl4.h"
-// extend address map for floating test
-#define fp_arg_0 0x0070
-#define fp_arg_1 0x0060
-#define fp_result 0x0080
+
+#define PIO_START_OFFSET 			0x00
+#define PIO_NUM_CANDS_OFFSET    	0x10
+#define PIO_ALLOWED_PARENTS_OFFSET	0x20
+#define PIO_DONE_OFFSET			 	0x30
+#define PIO_FINAL_SCORE_OFFSET 	 	0x40
 
 
 /* function prototypes */
@@ -36,13 +37,15 @@ void draw_delay(void) ;
 
 // the light weight buss base
 void *h2p_lw_virtual_base;
-volatile unsigned int *h2p_arg1_addr=NULL;
-volatile unsigned int *h2p_arg0_addr=NULL;
-volatile unsigned int *h2p_out_addr=NULL;
+volatile unsigned int *pio_start=NULL;
+volatile unsigned int *pio_num_cands=NULL;
+volatile unsigned int *pio_parents=NULL;
+volatile unsigned int *pio_done=NULL;
+volatile unsigned int *pio_final_score=NULL;
 
 // RAM fp buffer
-volatile unsigned int * fp_ram_ptr = NULL ;
-void *fp_ram_virtual_base;
+volatile uint64_t * fpga_ram_ptr = NULL ;
+void *fpga_ram_virtual_base;
 
 // pixel buffer
 volatile unsigned int * vga_pixel_ptr = NULL ;
@@ -104,7 +107,12 @@ int main(void)
 		close( fd );
 		return(1);
 	}
-	
+
+	pio_start 		= (unsigned int *)(h2p_lw_virtual_base + PIO_START_OFFSET);
+	pio_num_cands 	= (unsigned int *)(h2p_lw_virtual_base + PIO_NUM_CANDS_OFFSET);
+	pio_parents 	= (unsigned int *)(h2p_lw_virtual_base + PIO_ALLOWED_PARENTS_OFFSET);
+	pio_done 		= (unsigned int *)(h2p_lw_virtual_base + PIO_DONE_OFFSET);
+	pio_final_score	= (unsigned int *)(h2p_lw_virtual_base + PIO_FINAL_SCORE_OFFSET);
 	
 	// === get VGA char addr =====================
 	// get virtual addr that maps to physical
@@ -132,15 +140,15 @@ int main(void)
 	vga_pixel_ptr =(unsigned int *)(vga_pixel_virtual_base);
 	
 	// === get RAM float parameter addr =========
-	fp_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); //fp	
+	fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); //fp	
 	
-	if( fp_ram_virtual_base == MAP_FAILED ) {
+	if( fpga_ram_virtual_base == MAP_FAILED ) {
 		printf( "ERROR: mmap3() failed...\n" );
 		close( fd );
 		return(1);
 	}
     // Get the address that maps to the RAM buffer
-	fp_ram_ptr =(unsigned int *)(fp_ram_virtual_base);
+	fpga_ram_ptr =(uint64_t *)(fpga_ram_virtual_base);
 	
 	// ===========================================
 
@@ -162,22 +170,54 @@ int main(void)
 	VGA_text (1, 56, text_top_row);
 	VGA_text (1, 57, text_bottom_row);
 	
-	int test_val = 0;
-	while(1) 
-	{
-		// HPS writes to m10k address 0
-        *(fp_ram_ptr + 0) = test_val;
+	printf("Writing test data to FPGA RAM...\n");
+    // Candidate 1: Valid. Mask = 0x1, Score = 5.0 (0x00050000)
+    *(fpga_ram_ptr + 0) = ((uint64_t)0x00000001 << 32) | 0x00050000;
+    
+    // Candidate 2: Valid. Mask = 0x2, Score = 5.0 (0x00050000)
+    *(fpga_ram_ptr + 1) = ((uint64_t)0x00000002 << 32) | 0x00050000;
+    
+    // Candidate 3: Invalid. Mask = 0x8, Score = 100.0 (Should be skipped)
+    *(fpga_ram_ptr + 2) = ((uint64_t)0x00000008 << 32) | 0x00640000;
 
-        usleep(1000);
+	usleep(1000);
 
-        // HPS reads from address 1
-        int read_back = *(fp_ram_ptr + 1);
+    printf("Configuring PIOs...\n");
+    *pio_num_cands = 3;
+    *pio_parents = 0x00000003; // Allow masks 1 and 2, but not 8
 
-		printf("Wrote: %d | FPGA echoed: %d\n", test_val, read_back);
-        test_val++;
-        sleep(1);
+	usleep(1000);
 
-	} // end while(1)
+    printf("Starting Hardware Scorer...\n");
+    *pio_start = 1;
+    
+    // Wait for hardware to finish
+    while (*pio_done == 0) { }
+    
+    *pio_start = 0; // De-assert start
+    
+    // Read final score (Expected: log_add(5.0, 5.0) = ~5.6931 = 0x0005B171)
+    int32_t result = *pio_final_score;
+    printf("Hardware Done! Final Score (Hex): %08X\n", result);
+
+    return 0;
+
+	// int test_val = 0;
+	// while(1) 
+	// {
+	// 	// HPS writes to m10k address 0
+    //     *(fpga_ram_ptr + 0) = test_val;
+
+    //     usleep(1000);
+
+    //     // HPS reads from address 1
+    //     int read_back = *(fpga_ram_ptr + 1);
+
+	// 	printf("Wrote: %d | FPGA echoed: %d\n", test_val, read_back);
+    //     test_val++;
+    //     sleep(1);
+
+	// } // end while(1)
 } // end main
 
 

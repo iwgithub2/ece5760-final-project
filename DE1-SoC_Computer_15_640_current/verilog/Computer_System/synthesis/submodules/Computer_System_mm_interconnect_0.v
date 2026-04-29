@@ -53,11 +53,11 @@ module Computer_System_mm_interconnect_0 (
 		output wire [7:0]   VGA_Subsystem_pixel_dma_master_readdata,                               //                                                                .readdata
 		output wire         VGA_Subsystem_pixel_dma_master_readdatavalid,                          //                                                                .readdatavalid
 		input  wire         VGA_Subsystem_pixel_dma_master_lock,                                   //                                                                .lock
-		output wire [7:0]   Onchip_SRAM_s2_address,                                                //                                                  Onchip_SRAM_s2.address
+		output wire [6:0]   Onchip_SRAM_s2_address,                                                //                                                  Onchip_SRAM_s2.address
 		output wire         Onchip_SRAM_s2_write,                                                  //                                                                .write
-		input  wire [31:0]  Onchip_SRAM_s2_readdata,                                               //                                                                .readdata
-		output wire [31:0]  Onchip_SRAM_s2_writedata,                                              //                                                                .writedata
-		output wire [3:0]   Onchip_SRAM_s2_byteenable,                                             //                                                                .byteenable
+		input  wire [63:0]  Onchip_SRAM_s2_readdata,                                               //                                                                .readdata
+		output wire [63:0]  Onchip_SRAM_s2_writedata,                                              //                                                                .writedata
+		output wire [7:0]   Onchip_SRAM_s2_byteenable,                                             //                                                                .byteenable
 		output wire         Onchip_SRAM_s2_chipselect,                                             //                                                                .chipselect
 		output wire         Onchip_SRAM_s2_clken,                                                  //                                                                .clken
 		output wire [24:0]  SDRAM_s1_address,                                                      //                                                        SDRAM_s1.address
@@ -144,29 +144,29 @@ module Computer_System_mm_interconnect_0 (
 	wire          sdram_s1_agent_rdata_fifo_src_valid;                                                                 // SDRAM_s1_agent:rdata_fifo_src_valid -> SDRAM_s1_agent_rdata_fifo:in_valid
 	wire   [17:0] sdram_s1_agent_rdata_fifo_src_data;                                                                  // SDRAM_s1_agent:rdata_fifo_src_data -> SDRAM_s1_agent_rdata_fifo:in_data
 	wire          sdram_s1_agent_rdata_fifo_src_ready;                                                                 // SDRAM_s1_agent_rdata_fifo:in_ready -> SDRAM_s1_agent:rdata_fifo_src_ready
-	wire   [31:0] onchip_sram_s2_agent_m0_readdata;                                                                    // Onchip_SRAM_s2_translator:uav_readdata -> Onchip_SRAM_s2_agent:m0_readdata
+	wire   [63:0] onchip_sram_s2_agent_m0_readdata;                                                                    // Onchip_SRAM_s2_translator:uav_readdata -> Onchip_SRAM_s2_agent:m0_readdata
 	wire          onchip_sram_s2_agent_m0_waitrequest;                                                                 // Onchip_SRAM_s2_translator:uav_waitrequest -> Onchip_SRAM_s2_agent:m0_waitrequest
 	wire          onchip_sram_s2_agent_m0_debugaccess;                                                                 // Onchip_SRAM_s2_agent:m0_debugaccess -> Onchip_SRAM_s2_translator:uav_debugaccess
 	wire   [31:0] onchip_sram_s2_agent_m0_address;                                                                     // Onchip_SRAM_s2_agent:m0_address -> Onchip_SRAM_s2_translator:uav_address
-	wire    [3:0] onchip_sram_s2_agent_m0_byteenable;                                                                  // Onchip_SRAM_s2_agent:m0_byteenable -> Onchip_SRAM_s2_translator:uav_byteenable
+	wire    [7:0] onchip_sram_s2_agent_m0_byteenable;                                                                  // Onchip_SRAM_s2_agent:m0_byteenable -> Onchip_SRAM_s2_translator:uav_byteenable
 	wire          onchip_sram_s2_agent_m0_read;                                                                        // Onchip_SRAM_s2_agent:m0_read -> Onchip_SRAM_s2_translator:uav_read
 	wire          onchip_sram_s2_agent_m0_readdatavalid;                                                               // Onchip_SRAM_s2_translator:uav_readdatavalid -> Onchip_SRAM_s2_agent:m0_readdatavalid
 	wire          onchip_sram_s2_agent_m0_lock;                                                                        // Onchip_SRAM_s2_agent:m0_lock -> Onchip_SRAM_s2_translator:uav_lock
-	wire   [31:0] onchip_sram_s2_agent_m0_writedata;                                                                   // Onchip_SRAM_s2_agent:m0_writedata -> Onchip_SRAM_s2_translator:uav_writedata
+	wire   [63:0] onchip_sram_s2_agent_m0_writedata;                                                                   // Onchip_SRAM_s2_agent:m0_writedata -> Onchip_SRAM_s2_translator:uav_writedata
 	wire          onchip_sram_s2_agent_m0_write;                                                                       // Onchip_SRAM_s2_agent:m0_write -> Onchip_SRAM_s2_translator:uav_write
-	wire    [2:0] onchip_sram_s2_agent_m0_burstcount;                                                                  // Onchip_SRAM_s2_agent:m0_burstcount -> Onchip_SRAM_s2_translator:uav_burstcount
+	wire    [3:0] onchip_sram_s2_agent_m0_burstcount;                                                                  // Onchip_SRAM_s2_agent:m0_burstcount -> Onchip_SRAM_s2_translator:uav_burstcount
 	wire          onchip_sram_s2_agent_rf_source_valid;                                                                // Onchip_SRAM_s2_agent:rf_source_valid -> Onchip_SRAM_s2_agent_rsp_fifo:in_valid
-	wire  [129:0] onchip_sram_s2_agent_rf_source_data;                                                                 // Onchip_SRAM_s2_agent:rf_source_data -> Onchip_SRAM_s2_agent_rsp_fifo:in_data
+	wire  [165:0] onchip_sram_s2_agent_rf_source_data;                                                                 // Onchip_SRAM_s2_agent:rf_source_data -> Onchip_SRAM_s2_agent_rsp_fifo:in_data
 	wire          onchip_sram_s2_agent_rf_source_ready;                                                                // Onchip_SRAM_s2_agent_rsp_fifo:in_ready -> Onchip_SRAM_s2_agent:rf_source_ready
 	wire          onchip_sram_s2_agent_rf_source_startofpacket;                                                        // Onchip_SRAM_s2_agent:rf_source_startofpacket -> Onchip_SRAM_s2_agent_rsp_fifo:in_startofpacket
 	wire          onchip_sram_s2_agent_rf_source_endofpacket;                                                          // Onchip_SRAM_s2_agent:rf_source_endofpacket -> Onchip_SRAM_s2_agent_rsp_fifo:in_endofpacket
 	wire          onchip_sram_s2_agent_rsp_fifo_out_valid;                                                             // Onchip_SRAM_s2_agent_rsp_fifo:out_valid -> Onchip_SRAM_s2_agent:rf_sink_valid
-	wire  [129:0] onchip_sram_s2_agent_rsp_fifo_out_data;                                                              // Onchip_SRAM_s2_agent_rsp_fifo:out_data -> Onchip_SRAM_s2_agent:rf_sink_data
+	wire  [165:0] onchip_sram_s2_agent_rsp_fifo_out_data;                                                              // Onchip_SRAM_s2_agent_rsp_fifo:out_data -> Onchip_SRAM_s2_agent:rf_sink_data
 	wire          onchip_sram_s2_agent_rsp_fifo_out_ready;                                                             // Onchip_SRAM_s2_agent:rf_sink_ready -> Onchip_SRAM_s2_agent_rsp_fifo:out_ready
 	wire          onchip_sram_s2_agent_rsp_fifo_out_startofpacket;                                                     // Onchip_SRAM_s2_agent_rsp_fifo:out_startofpacket -> Onchip_SRAM_s2_agent:rf_sink_startofpacket
 	wire          onchip_sram_s2_agent_rsp_fifo_out_endofpacket;                                                       // Onchip_SRAM_s2_agent_rsp_fifo:out_endofpacket -> Onchip_SRAM_s2_agent:rf_sink_endofpacket
 	wire          onchip_sram_s2_agent_rdata_fifo_src_valid;                                                           // Onchip_SRAM_s2_agent:rdata_fifo_src_valid -> Onchip_SRAM_s2_agent_rdata_fifo:in_valid
-	wire   [33:0] onchip_sram_s2_agent_rdata_fifo_src_data;                                                            // Onchip_SRAM_s2_agent:rdata_fifo_src_data -> Onchip_SRAM_s2_agent_rdata_fifo:in_data
+	wire   [65:0] onchip_sram_s2_agent_rdata_fifo_src_data;                                                            // Onchip_SRAM_s2_agent:rdata_fifo_src_data -> Onchip_SRAM_s2_agent_rdata_fifo:in_data
 	wire          onchip_sram_s2_agent_rdata_fifo_src_ready;                                                           // Onchip_SRAM_s2_agent_rdata_fifo:in_ready -> Onchip_SRAM_s2_agent:rdata_fifo_src_ready
 	wire          arm_a9_hps_h2f_axi_master_agent_write_cp_valid;                                                      // ARM_A9_HPS_h2f_axi_master_agent:write_cp_valid -> router:sink_valid
 	wire  [236:0] arm_a9_hps_h2f_axi_master_agent_write_cp_data;                                                       // ARM_A9_HPS_h2f_axi_master_agent:write_cp_data -> router:sink_data
@@ -212,12 +212,12 @@ module Computer_System_mm_interconnect_0 (
 	wire          router_004_src_startofpacket;                                                                        // router_004:src_startofpacket -> rsp_demux_001:sink_startofpacket
 	wire          router_004_src_endofpacket;                                                                          // router_004:src_endofpacket -> rsp_demux_001:sink_endofpacket
 	wire          onchip_sram_s2_agent_rp_valid;                                                                       // Onchip_SRAM_s2_agent:rp_valid -> router_005:sink_valid
-	wire  [128:0] onchip_sram_s2_agent_rp_data;                                                                        // Onchip_SRAM_s2_agent:rp_data -> router_005:sink_data
+	wire  [164:0] onchip_sram_s2_agent_rp_data;                                                                        // Onchip_SRAM_s2_agent:rp_data -> router_005:sink_data
 	wire          onchip_sram_s2_agent_rp_ready;                                                                       // router_005:sink_ready -> Onchip_SRAM_s2_agent:rp_ready
 	wire          onchip_sram_s2_agent_rp_startofpacket;                                                               // Onchip_SRAM_s2_agent:rp_startofpacket -> router_005:sink_startofpacket
 	wire          onchip_sram_s2_agent_rp_endofpacket;                                                                 // Onchip_SRAM_s2_agent:rp_endofpacket -> router_005:sink_endofpacket
 	wire          router_005_src_valid;                                                                                // router_005:src_valid -> rsp_demux_002:sink_valid
-	wire  [128:0] router_005_src_data;                                                                                 // router_005:src_data -> rsp_demux_002:sink_data
+	wire  [164:0] router_005_src_data;                                                                                 // router_005:src_data -> rsp_demux_002:sink_data
 	wire          router_005_src_ready;                                                                                // rsp_demux_002:sink_ready -> router_005:src_ready
 	wire    [2:0] router_005_src_channel;                                                                              // router_005:src_channel -> rsp_demux_002:sink_channel
 	wire          router_005_src_startofpacket;                                                                        // router_005:src_startofpacket -> rsp_demux_002:sink_startofpacket
@@ -293,13 +293,13 @@ module Computer_System_mm_interconnect_0 (
 	wire          sdram_s1_burst_adapter_source0_startofpacket;                                                        // SDRAM_s1_burst_adapter:source0_startofpacket -> SDRAM_s1_agent:cp_startofpacket
 	wire          sdram_s1_burst_adapter_source0_endofpacket;                                                          // SDRAM_s1_burst_adapter:source0_endofpacket -> SDRAM_s1_agent:cp_endofpacket
 	wire          cmd_mux_002_src_valid;                                                                               // cmd_mux_002:src_valid -> Onchip_SRAM_s2_burst_adapter:sink0_valid
-	wire  [128:0] cmd_mux_002_src_data;                                                                                // cmd_mux_002:src_data -> Onchip_SRAM_s2_burst_adapter:sink0_data
+	wire  [164:0] cmd_mux_002_src_data;                                                                                // cmd_mux_002:src_data -> Onchip_SRAM_s2_burst_adapter:sink0_data
 	wire          cmd_mux_002_src_ready;                                                                               // Onchip_SRAM_s2_burst_adapter:sink0_ready -> cmd_mux_002:src_ready
 	wire    [2:0] cmd_mux_002_src_channel;                                                                             // cmd_mux_002:src_channel -> Onchip_SRAM_s2_burst_adapter:sink0_channel
 	wire          cmd_mux_002_src_startofpacket;                                                                       // cmd_mux_002:src_startofpacket -> Onchip_SRAM_s2_burst_adapter:sink0_startofpacket
 	wire          cmd_mux_002_src_endofpacket;                                                                         // cmd_mux_002:src_endofpacket -> Onchip_SRAM_s2_burst_adapter:sink0_endofpacket
 	wire          onchip_sram_s2_burst_adapter_source0_valid;                                                          // Onchip_SRAM_s2_burst_adapter:source0_valid -> Onchip_SRAM_s2_agent:cp_valid
-	wire  [128:0] onchip_sram_s2_burst_adapter_source0_data;                                                           // Onchip_SRAM_s2_burst_adapter:source0_data -> Onchip_SRAM_s2_agent:cp_data
+	wire  [164:0] onchip_sram_s2_burst_adapter_source0_data;                                                           // Onchip_SRAM_s2_burst_adapter:source0_data -> Onchip_SRAM_s2_agent:cp_data
 	wire          onchip_sram_s2_burst_adapter_source0_ready;                                                          // Onchip_SRAM_s2_agent:cp_ready -> Onchip_SRAM_s2_burst_adapter:source0_ready
 	wire    [2:0] onchip_sram_s2_burst_adapter_source0_channel;                                                        // Onchip_SRAM_s2_burst_adapter:source0_channel -> Onchip_SRAM_s2_agent:cp_channel
 	wire          onchip_sram_s2_burst_adapter_source0_startofpacket;                                                  // Onchip_SRAM_s2_burst_adapter:source0_startofpacket -> Onchip_SRAM_s2_agent:cp_startofpacket
@@ -335,7 +335,7 @@ module Computer_System_mm_interconnect_0 (
 	wire          cmd_demux_src2_startofpacket;                                                                        // cmd_demux:src2_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_s2_cmd_width_adapter:in_startofpacket
 	wire          cmd_demux_src2_endofpacket;                                                                          // cmd_demux:src2_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_s2_cmd_width_adapter:in_endofpacket
 	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_s2_cmd_width_adapter_src_valid;                          // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_s2_cmd_width_adapter:out_valid -> cmd_mux_002:sink0_valid
-	wire  [128:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_s2_cmd_width_adapter_src_data;                           // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_s2_cmd_width_adapter:out_data -> cmd_mux_002:sink0_data
+	wire  [164:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_s2_cmd_width_adapter_src_data;                           // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_s2_cmd_width_adapter:out_data -> cmd_mux_002:sink0_data
 	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_s2_cmd_width_adapter_src_ready;                          // cmd_mux_002:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_s2_cmd_width_adapter:out_ready
 	wire    [2:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_s2_cmd_width_adapter_src_channel;                        // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_s2_cmd_width_adapter:out_channel -> cmd_mux_002:sink0_channel
 	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_s2_cmd_width_adapter_src_startofpacket;                  // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_s2_cmd_width_adapter:out_startofpacket -> cmd_mux_002:sink0_startofpacket
@@ -371,7 +371,7 @@ module Computer_System_mm_interconnect_0 (
 	wire          cmd_demux_001_src2_startofpacket;                                                                    // cmd_demux_001:src2_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_s2_cmd_width_adapter:in_startofpacket
 	wire          cmd_demux_001_src2_endofpacket;                                                                      // cmd_demux_001:src2_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_s2_cmd_width_adapter:in_endofpacket
 	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_s2_cmd_width_adapter_src_valid;                          // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_s2_cmd_width_adapter:out_valid -> cmd_mux_002:sink1_valid
-	wire  [128:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_s2_cmd_width_adapter_src_data;                           // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_s2_cmd_width_adapter:out_data -> cmd_mux_002:sink1_data
+	wire  [164:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_s2_cmd_width_adapter_src_data;                           // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_s2_cmd_width_adapter:out_data -> cmd_mux_002:sink1_data
 	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_s2_cmd_width_adapter_src_ready;                          // cmd_mux_002:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_s2_cmd_width_adapter:out_ready
 	wire    [2:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_s2_cmd_width_adapter_src_channel;                        // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_s2_cmd_width_adapter:out_channel -> cmd_mux_002:sink1_channel
 	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_s2_cmd_width_adapter_src_startofpacket;                  // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_s2_cmd_width_adapter:out_startofpacket -> cmd_mux_002:sink1_startofpacket
@@ -449,7 +449,7 @@ module Computer_System_mm_interconnect_0 (
 	wire          sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_startofpacket;                      // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:out_startofpacket -> rsp_mux_002:sink0_startofpacket
 	wire          sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_endofpacket;                        // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:out_endofpacket -> rsp_mux_002:sink0_endofpacket
 	wire          rsp_demux_002_src0_valid;                                                                            // rsp_demux_002:src0_valid -> Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
-	wire  [128:0] rsp_demux_002_src0_data;                                                                             // rsp_demux_002:src0_data -> Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
+	wire  [164:0] rsp_demux_002_src0_data;                                                                             // rsp_demux_002:src0_data -> Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
 	wire          rsp_demux_002_src0_ready;                                                                            // Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux_002:src0_ready
 	wire    [2:0] rsp_demux_002_src0_channel;                                                                          // rsp_demux_002:src0_channel -> Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
 	wire          rsp_demux_002_src0_startofpacket;                                                                    // rsp_demux_002:src0_startofpacket -> Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
@@ -461,7 +461,7 @@ module Computer_System_mm_interconnect_0 (
 	wire          onchip_sram_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket;                  // Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink2_startofpacket
 	wire          onchip_sram_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;                    // Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink2_endofpacket
 	wire          rsp_demux_002_src1_valid;                                                                            // rsp_demux_002:src1_valid -> Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
-	wire  [128:0] rsp_demux_002_src1_data;                                                                             // rsp_demux_002:src1_data -> Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
+	wire  [164:0] rsp_demux_002_src1_data;                                                                             // rsp_demux_002:src1_data -> Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
 	wire          rsp_demux_002_src1_ready;                                                                            // Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux_002:src1_ready
 	wire    [2:0] rsp_demux_002_src1_channel;                                                                          // rsp_demux_002:src1_channel -> Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
 	wire          rsp_demux_002_src1_startofpacket;                                                                    // rsp_demux_002:src1_startofpacket -> Onchip_SRAM_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
@@ -489,10 +489,10 @@ module Computer_System_mm_interconnect_0 (
 	wire          avalon_st_adapter_001_out_0_ready;                                                                   // SDRAM_s1_agent:rdata_fifo_sink_ready -> avalon_st_adapter_001:out_0_ready
 	wire    [0:0] avalon_st_adapter_001_out_0_error;                                                                   // avalon_st_adapter_001:out_0_error -> SDRAM_s1_agent:rdata_fifo_sink_error
 	wire          onchip_sram_s2_agent_rdata_fifo_out_valid;                                                           // Onchip_SRAM_s2_agent_rdata_fifo:out_valid -> avalon_st_adapter_002:in_0_valid
-	wire   [33:0] onchip_sram_s2_agent_rdata_fifo_out_data;                                                            // Onchip_SRAM_s2_agent_rdata_fifo:out_data -> avalon_st_adapter_002:in_0_data
+	wire   [65:0] onchip_sram_s2_agent_rdata_fifo_out_data;                                                            // Onchip_SRAM_s2_agent_rdata_fifo:out_data -> avalon_st_adapter_002:in_0_data
 	wire          onchip_sram_s2_agent_rdata_fifo_out_ready;                                                           // avalon_st_adapter_002:in_0_ready -> Onchip_SRAM_s2_agent_rdata_fifo:out_ready
 	wire          avalon_st_adapter_002_out_0_valid;                                                                   // avalon_st_adapter_002:out_0_valid -> Onchip_SRAM_s2_agent:rdata_fifo_sink_valid
-	wire   [33:0] avalon_st_adapter_002_out_0_data;                                                                    // avalon_st_adapter_002:out_0_data -> Onchip_SRAM_s2_agent:rdata_fifo_sink_data
+	wire   [65:0] avalon_st_adapter_002_out_0_data;                                                                    // avalon_st_adapter_002:out_0_data -> Onchip_SRAM_s2_agent:rdata_fifo_sink_data
 	wire          avalon_st_adapter_002_out_0_ready;                                                                   // Onchip_SRAM_s2_agent:rdata_fifo_sink_ready -> avalon_st_adapter_002:out_0_ready
 	wire    [0:0] avalon_st_adapter_002_out_0_error;                                                                   // avalon_st_adapter_002:out_0_error -> Onchip_SRAM_s2_agent:rdata_fifo_sink_error
 
@@ -685,21 +685,21 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_translator #(
-		.AV_ADDRESS_W                   (8),
-		.AV_DATA_W                      (32),
-		.UAV_DATA_W                     (32),
+		.AV_ADDRESS_W                   (7),
+		.AV_DATA_W                      (64),
+		.UAV_DATA_W                     (64),
 		.AV_BURSTCOUNT_W                (1),
-		.AV_BYTEENABLE_W                (4),
-		.UAV_BYTEENABLE_W               (4),
+		.AV_BYTEENABLE_W                (8),
+		.UAV_BYTEENABLE_W               (8),
 		.UAV_ADDRESS_W                  (32),
-		.UAV_BURSTCOUNT_W               (3),
+		.UAV_BURSTCOUNT_W               (4),
 		.AV_READLATENCY                 (1),
 		.USE_READDATAVALID              (0),
 		.USE_WAITREQUEST                (0),
 		.USE_UAV_CLKEN                  (0),
 		.USE_READRESPONSE               (0),
 		.USE_WRITERESPONSE              (0),
-		.AV_SYMBOLS_PER_WORD            (4),
+		.AV_SYMBOLS_PER_WORD            (8),
 		.AV_ADDRESS_SYMBOLS             (0),
 		.AV_BURSTCOUNT_SYMBOLS          (0),
 		.AV_CONSTANT_BURST_BEHAVIOR     (0),
@@ -1290,38 +1290,38 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_agent #(
-		.PKT_ORI_BURST_SIZE_H      (128),
-		.PKT_ORI_BURST_SIZE_L      (126),
-		.PKT_RESPONSE_STATUS_H     (125),
-		.PKT_RESPONSE_STATUS_L     (124),
-		.PKT_BURST_SIZE_H          (94),
-		.PKT_BURST_SIZE_L          (92),
-		.PKT_TRANS_LOCK            (72),
-		.PKT_BEGIN_BURST           (99),
-		.PKT_PROTECTION_H          (119),
-		.PKT_PROTECTION_L          (117),
-		.PKT_BURSTWRAP_H           (91),
-		.PKT_BURSTWRAP_L           (83),
-		.PKT_BYTE_CNT_H            (82),
-		.PKT_BYTE_CNT_L            (74),
-		.PKT_ADDR_H                (67),
-		.PKT_ADDR_L                (36),
-		.PKT_TRANS_COMPRESSED_READ (68),
-		.PKT_TRANS_POSTED          (69),
-		.PKT_TRANS_WRITE           (70),
-		.PKT_TRANS_READ            (71),
-		.PKT_DATA_H                (31),
+		.PKT_ORI_BURST_SIZE_H      (164),
+		.PKT_ORI_BURST_SIZE_L      (162),
+		.PKT_RESPONSE_STATUS_H     (161),
+		.PKT_RESPONSE_STATUS_L     (160),
+		.PKT_BURST_SIZE_H          (130),
+		.PKT_BURST_SIZE_L          (128),
+		.PKT_TRANS_LOCK            (108),
+		.PKT_BEGIN_BURST           (135),
+		.PKT_PROTECTION_H          (155),
+		.PKT_PROTECTION_L          (153),
+		.PKT_BURSTWRAP_H           (127),
+		.PKT_BURSTWRAP_L           (119),
+		.PKT_BYTE_CNT_H            (118),
+		.PKT_BYTE_CNT_L            (110),
+		.PKT_ADDR_H                (103),
+		.PKT_ADDR_L                (72),
+		.PKT_TRANS_COMPRESSED_READ (104),
+		.PKT_TRANS_POSTED          (105),
+		.PKT_TRANS_WRITE           (106),
+		.PKT_TRANS_READ            (107),
+		.PKT_DATA_H                (63),
 		.PKT_DATA_L                (0),
-		.PKT_BYTEEN_H              (35),
-		.PKT_BYTEEN_L              (32),
-		.PKT_SRC_ID_H              (102),
-		.PKT_SRC_ID_L              (101),
-		.PKT_DEST_ID_H             (104),
-		.PKT_DEST_ID_L             (103),
+		.PKT_BYTEEN_H              (71),
+		.PKT_BYTEEN_L              (64),
+		.PKT_SRC_ID_H              (138),
+		.PKT_SRC_ID_L              (137),
+		.PKT_DEST_ID_H             (140),
+		.PKT_DEST_ID_L             (139),
 		.PKT_SYMBOL_W              (8),
 		.ST_CHANNEL_W              (3),
-		.ST_DATA_W                 (129),
-		.AVS_BURSTCOUNT_W          (3),
+		.ST_DATA_W                 (165),
+		.AVS_BURSTCOUNT_W          (4),
 		.SUPPRESS_0_BYTEEN_CMD     (1),
 		.PREVENT_FIFO_OVERFLOW     (1),
 		.USE_READRESPONSE          (0),
@@ -1375,7 +1375,7 @@ module Computer_System_mm_interconnect_0 (
 
 	altera_avalon_sc_fifo #(
 		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (130),
+		.BITS_PER_SYMBOL     (166),
 		.FIFO_DEPTH          (2),
 		.CHANNEL_WIDTH       (0),
 		.ERROR_WIDTH         (0),
@@ -1416,7 +1416,7 @@ module Computer_System_mm_interconnect_0 (
 
 	altera_avalon_sc_fifo #(
 		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (34),
+		.BITS_PER_SYMBOL     (66),
 		.FIFO_DEPTH          (2),
 		.CHANNEL_WIDTH       (0),
 		.ERROR_WIDTH         (0),
@@ -1752,30 +1752,30 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_burst_adapter #(
-		.PKT_ADDR_H                (67),
-		.PKT_ADDR_L                (36),
-		.PKT_BEGIN_BURST           (99),
-		.PKT_BYTE_CNT_H            (82),
-		.PKT_BYTE_CNT_L            (74),
-		.PKT_BYTEEN_H              (35),
-		.PKT_BYTEEN_L              (32),
-		.PKT_BURST_SIZE_H          (94),
-		.PKT_BURST_SIZE_L          (92),
-		.PKT_BURST_TYPE_H          (96),
-		.PKT_BURST_TYPE_L          (95),
-		.PKT_BURSTWRAP_H           (91),
-		.PKT_BURSTWRAP_L           (83),
-		.PKT_TRANS_COMPRESSED_READ (68),
-		.PKT_TRANS_WRITE           (70),
-		.PKT_TRANS_READ            (71),
+		.PKT_ADDR_H                (103),
+		.PKT_ADDR_L                (72),
+		.PKT_BEGIN_BURST           (135),
+		.PKT_BYTE_CNT_H            (118),
+		.PKT_BYTE_CNT_L            (110),
+		.PKT_BYTEEN_H              (71),
+		.PKT_BYTEEN_L              (64),
+		.PKT_BURST_SIZE_H          (130),
+		.PKT_BURST_SIZE_L          (128),
+		.PKT_BURST_TYPE_H          (132),
+		.PKT_BURST_TYPE_L          (131),
+		.PKT_BURSTWRAP_H           (127),
+		.PKT_BURSTWRAP_L           (119),
+		.PKT_TRANS_COMPRESSED_READ (104),
+		.PKT_TRANS_WRITE           (106),
+		.PKT_TRANS_READ            (107),
 		.OUT_NARROW_SIZE           (0),
 		.IN_NARROW_SIZE            (1),
 		.OUT_FIXED                 (0),
 		.OUT_COMPLETE_WRAP         (0),
-		.ST_DATA_W                 (129),
+		.ST_DATA_W                 (165),
 		.ST_CHANNEL_W              (3),
-		.OUT_BYTE_CNT_H            (76),
-		.OUT_BURSTWRAP_H           (91),
+		.OUT_BYTE_CNT_H            (113),
+		.OUT_BURSTWRAP_H           (127),
 		.COMPRESSED_READ_SUPPORT   (1),
 		.BYTEENABLE_SYNTHESIS      (1),
 		.PIPE_INPUTS               (0),
@@ -2256,25 +2256,25 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_ORI_BURST_SIZE_L       (234),
 		.IN_PKT_ORI_BURST_SIZE_H       (236),
 		.IN_ST_DATA_W                  (237),
-		.OUT_PKT_ADDR_H                (67),
-		.OUT_PKT_ADDR_L                (36),
-		.OUT_PKT_DATA_H                (31),
+		.OUT_PKT_ADDR_H                (103),
+		.OUT_PKT_ADDR_L                (72),
+		.OUT_PKT_DATA_H                (63),
 		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (35),
-		.OUT_PKT_BYTEEN_L              (32),
-		.OUT_PKT_BYTE_CNT_H            (82),
-		.OUT_PKT_BYTE_CNT_L            (74),
-		.OUT_PKT_TRANS_COMPRESSED_READ (68),
-		.OUT_PKT_BURST_SIZE_H          (94),
-		.OUT_PKT_BURST_SIZE_L          (92),
-		.OUT_PKT_RESPONSE_STATUS_H     (125),
-		.OUT_PKT_RESPONSE_STATUS_L     (124),
-		.OUT_PKT_TRANS_EXCLUSIVE       (73),
-		.OUT_PKT_BURST_TYPE_H          (96),
-		.OUT_PKT_BURST_TYPE_L          (95),
-		.OUT_PKT_ORI_BURST_SIZE_L      (126),
-		.OUT_PKT_ORI_BURST_SIZE_H      (128),
-		.OUT_ST_DATA_W                 (129),
+		.OUT_PKT_BYTEEN_H              (71),
+		.OUT_PKT_BYTEEN_L              (64),
+		.OUT_PKT_BYTE_CNT_H            (118),
+		.OUT_PKT_BYTE_CNT_L            (110),
+		.OUT_PKT_TRANS_COMPRESSED_READ (104),
+		.OUT_PKT_BURST_SIZE_H          (130),
+		.OUT_PKT_BURST_SIZE_L          (128),
+		.OUT_PKT_RESPONSE_STATUS_H     (161),
+		.OUT_PKT_RESPONSE_STATUS_L     (160),
+		.OUT_PKT_TRANS_EXCLUSIVE       (109),
+		.OUT_PKT_BURST_TYPE_H          (132),
+		.OUT_PKT_BURST_TYPE_L          (131),
+		.OUT_PKT_ORI_BURST_SIZE_L      (162),
+		.OUT_PKT_ORI_BURST_SIZE_H      (164),
+		.OUT_ST_DATA_W                 (165),
 		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (0),
@@ -2454,25 +2454,25 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_ORI_BURST_SIZE_L       (234),
 		.IN_PKT_ORI_BURST_SIZE_H       (236),
 		.IN_ST_DATA_W                  (237),
-		.OUT_PKT_ADDR_H                (67),
-		.OUT_PKT_ADDR_L                (36),
-		.OUT_PKT_DATA_H                (31),
+		.OUT_PKT_ADDR_H                (103),
+		.OUT_PKT_ADDR_L                (72),
+		.OUT_PKT_DATA_H                (63),
 		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (35),
-		.OUT_PKT_BYTEEN_L              (32),
-		.OUT_PKT_BYTE_CNT_H            (82),
-		.OUT_PKT_BYTE_CNT_L            (74),
-		.OUT_PKT_TRANS_COMPRESSED_READ (68),
-		.OUT_PKT_BURST_SIZE_H          (94),
-		.OUT_PKT_BURST_SIZE_L          (92),
-		.OUT_PKT_RESPONSE_STATUS_H     (125),
-		.OUT_PKT_RESPONSE_STATUS_L     (124),
-		.OUT_PKT_TRANS_EXCLUSIVE       (73),
-		.OUT_PKT_BURST_TYPE_H          (96),
-		.OUT_PKT_BURST_TYPE_L          (95),
-		.OUT_PKT_ORI_BURST_SIZE_L      (126),
-		.OUT_PKT_ORI_BURST_SIZE_H      (128),
-		.OUT_ST_DATA_W                 (129),
+		.OUT_PKT_BYTEEN_H              (71),
+		.OUT_PKT_BYTEEN_L              (64),
+		.OUT_PKT_BYTE_CNT_H            (118),
+		.OUT_PKT_BYTE_CNT_L            (110),
+		.OUT_PKT_TRANS_COMPRESSED_READ (104),
+		.OUT_PKT_BURST_SIZE_H          (130),
+		.OUT_PKT_BURST_SIZE_L          (128),
+		.OUT_PKT_RESPONSE_STATUS_H     (161),
+		.OUT_PKT_RESPONSE_STATUS_L     (160),
+		.OUT_PKT_TRANS_EXCLUSIVE       (109),
+		.OUT_PKT_BURST_TYPE_H          (132),
+		.OUT_PKT_BURST_TYPE_L          (131),
+		.OUT_PKT_ORI_BURST_SIZE_L      (162),
+		.OUT_PKT_ORI_BURST_SIZE_H      (164),
+		.OUT_ST_DATA_W                 (165),
 		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (0),
@@ -2894,28 +2894,28 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (67),
-		.IN_PKT_ADDR_L                 (36),
-		.IN_PKT_DATA_H                 (31),
+		.IN_PKT_ADDR_H                 (103),
+		.IN_PKT_ADDR_L                 (72),
+		.IN_PKT_DATA_H                 (63),
 		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (35),
-		.IN_PKT_BYTEEN_L               (32),
-		.IN_PKT_BYTE_CNT_H             (82),
-		.IN_PKT_BYTE_CNT_L             (74),
-		.IN_PKT_TRANS_COMPRESSED_READ  (68),
-		.IN_PKT_TRANS_WRITE            (70),
-		.IN_PKT_BURSTWRAP_H            (91),
-		.IN_PKT_BURSTWRAP_L            (83),
-		.IN_PKT_BURST_SIZE_H           (94),
-		.IN_PKT_BURST_SIZE_L           (92),
-		.IN_PKT_RESPONSE_STATUS_H      (125),
-		.IN_PKT_RESPONSE_STATUS_L      (124),
-		.IN_PKT_TRANS_EXCLUSIVE        (73),
-		.IN_PKT_BURST_TYPE_H           (96),
-		.IN_PKT_BURST_TYPE_L           (95),
-		.IN_PKT_ORI_BURST_SIZE_L       (126),
-		.IN_PKT_ORI_BURST_SIZE_H       (128),
-		.IN_ST_DATA_W                  (129),
+		.IN_PKT_BYTEEN_H               (71),
+		.IN_PKT_BYTEEN_L               (64),
+		.IN_PKT_BYTE_CNT_H             (118),
+		.IN_PKT_BYTE_CNT_L             (110),
+		.IN_PKT_TRANS_COMPRESSED_READ  (104),
+		.IN_PKT_TRANS_WRITE            (106),
+		.IN_PKT_BURSTWRAP_H            (127),
+		.IN_PKT_BURSTWRAP_L            (119),
+		.IN_PKT_BURST_SIZE_H           (130),
+		.IN_PKT_BURST_SIZE_L           (128),
+		.IN_PKT_RESPONSE_STATUS_H      (161),
+		.IN_PKT_RESPONSE_STATUS_L      (160),
+		.IN_PKT_TRANS_EXCLUSIVE        (109),
+		.IN_PKT_BURST_TYPE_H           (132),
+		.IN_PKT_BURST_TYPE_L           (131),
+		.IN_PKT_ORI_BURST_SIZE_L       (162),
+		.IN_PKT_ORI_BURST_SIZE_H       (164),
+		.IN_ST_DATA_W                  (165),
 		.OUT_PKT_ADDR_H                (175),
 		.OUT_PKT_ADDR_L                (144),
 		.OUT_PKT_DATA_H                (127),
@@ -2960,28 +2960,28 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (67),
-		.IN_PKT_ADDR_L                 (36),
-		.IN_PKT_DATA_H                 (31),
+		.IN_PKT_ADDR_H                 (103),
+		.IN_PKT_ADDR_L                 (72),
+		.IN_PKT_DATA_H                 (63),
 		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (35),
-		.IN_PKT_BYTEEN_L               (32),
-		.IN_PKT_BYTE_CNT_H             (82),
-		.IN_PKT_BYTE_CNT_L             (74),
-		.IN_PKT_TRANS_COMPRESSED_READ  (68),
-		.IN_PKT_TRANS_WRITE            (70),
-		.IN_PKT_BURSTWRAP_H            (91),
-		.IN_PKT_BURSTWRAP_L            (83),
-		.IN_PKT_BURST_SIZE_H           (94),
-		.IN_PKT_BURST_SIZE_L           (92),
-		.IN_PKT_RESPONSE_STATUS_H      (125),
-		.IN_PKT_RESPONSE_STATUS_L      (124),
-		.IN_PKT_TRANS_EXCLUSIVE        (73),
-		.IN_PKT_BURST_TYPE_H           (96),
-		.IN_PKT_BURST_TYPE_L           (95),
-		.IN_PKT_ORI_BURST_SIZE_L       (126),
-		.IN_PKT_ORI_BURST_SIZE_H       (128),
-		.IN_ST_DATA_W                  (129),
+		.IN_PKT_BYTEEN_H               (71),
+		.IN_PKT_BYTEEN_L               (64),
+		.IN_PKT_BYTE_CNT_H             (118),
+		.IN_PKT_BYTE_CNT_L             (110),
+		.IN_PKT_TRANS_COMPRESSED_READ  (104),
+		.IN_PKT_TRANS_WRITE            (106),
+		.IN_PKT_BURSTWRAP_H            (127),
+		.IN_PKT_BURSTWRAP_L            (119),
+		.IN_PKT_BURST_SIZE_H           (130),
+		.IN_PKT_BURST_SIZE_L           (128),
+		.IN_PKT_RESPONSE_STATUS_H      (161),
+		.IN_PKT_RESPONSE_STATUS_L      (160),
+		.IN_PKT_TRANS_EXCLUSIVE        (109),
+		.IN_PKT_BURST_TYPE_H           (132),
+		.IN_PKT_BURST_TYPE_L           (131),
+		.IN_PKT_ORI_BURST_SIZE_L       (162),
+		.IN_PKT_ORI_BURST_SIZE_H       (164),
+		.IN_ST_DATA_W                  (165),
 		.OUT_PKT_ADDR_H                (175),
 		.OUT_PKT_ADDR_L                (144),
 		.OUT_PKT_DATA_H                (127),
@@ -3084,16 +3084,16 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	Computer_System_mm_interconnect_0_avalon_st_adapter_002 #(
-		.inBitsPerSymbol (34),
+		.inBitsPerSymbol (66),
 		.inUsePackets    (0),
-		.inDataWidth     (34),
+		.inDataWidth     (66),
 		.inChannelWidth  (0),
 		.inErrorWidth    (0),
 		.inUseEmptyPort  (0),
 		.inUseValid      (1),
 		.inUseReady      (1),
 		.inReadyLatency  (0),
-		.outDataWidth    (34),
+		.outDataWidth    (66),
 		.outChannelWidth (0),
 		.outErrorWidth   (1),
 		.outUseEmptyPort (0),
