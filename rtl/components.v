@@ -1,5 +1,3 @@
-`timescale 1ns / 1ps
-
 module lfsr_32bit (
     input clk,
     input rst_n,        // Active low reset

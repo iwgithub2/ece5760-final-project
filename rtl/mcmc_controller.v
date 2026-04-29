@@ -1,10 +1,11 @@
 `timescale 1ns / 1ps
+`include "components.v"
 
 module mcmc_controller #(
-    parameter int N_NODES = 32,
-    parameter int ADDR_W = 10,
-    parameter int DATA_W = 32,        // Q16.16 format
-    parameter int ITERATIONS = 100000
+    parameter N_NODES = 32,
+    parameter ADDR_W = 10,
+    parameter DATA_W = 32,        // Q16.16 format
+    parameter ITERATIONS = 100000
 )(
     input  wire clk,
     input  wire rst_n,
@@ -21,12 +22,13 @@ module mcmc_controller #(
     // ==========================================
     // FSM States
     // ==========================================
-    localparam S_IDLE       = 3'd0;
-    localparam S_INIT_SCORE = 3'd1; // Score initial order
-    localparam S_PROPOSE    = 3'd2; // Swap nodes
-    localparam S_WAIT_SCORE = 3'd3; // Wait for parallel modules to finish
-    localparam S_DECIDE     = 3'd4; // Accept or reject
-    localparam S_DONE       = 3'd5;
+    localparam S_IDLE            = 3'd0;
+    localparam S_INIT_SCORE      = 3'd1; 
+    localparam S_WAIT_INIT_SCORE = 3'd2;
+    localparam S_PROPOSE         = 3'd3; 
+    localparam S_WAIT_SCORE      = 3'd4; 
+    localparam S_DECIDE          = 3'd5; 
+    localparam S_DONE            = 3'd6;
 
     reg [2:0] state;
     reg [31:0] iter_count;
@@ -49,9 +51,10 @@ module mcmc_controller #(
 
     // Slice the 32-bit LFSR to get I, J, and U simultaneously
     // Assumes N_NODES <= 32, so we need 5 bits for indices.
-    wire [4:0] rand_i = lfsr_out[4:0];
-    wire [4:0] rand_j = lfsr_out[9:5];
-    wire [15:0] rand_u = lfsr_out[31:16]; // Used for acceptance probability
+    // Slice the 32-bit LFSR to get I, J, and U simultaneously
+    wire [4:0] rand_i = lfsr_out[4:0] % N_NODES;
+    wire [4:0] rand_j = lfsr_out[9:5] % N_NODES;
+    wire [15:0] rand_u = lfsr_out[31:16]; 
 
     // ==========================================
     // Order Matrix Management (1D to 2D One-Hot)
@@ -68,12 +71,32 @@ module mcmc_controller #(
     wire [N_NODES-1:0] current_masks  [0:N_NODES-1];
     wire [N_NODES-1:0] proposed_masks [0:N_NODES-1];
     
-    genvar row, col;
+    // ==========================================
+    // Order Matrix Management
+    // ==========================================
+    
+    // 1. Create a combinational inverse mapping to find the position of each node
+    reg [4:0] proposed_pos [0:N_NODES-1];
+    integer i_node, j_pos;
+    
+    always @(*) begin
+        for (i_node = 0; i_node < N_NODES; i_node = i_node + 1) begin
+            proposed_pos[i_node] = 5'd0; // Default to prevent latches
+            for (j_pos = 0; j_pos < N_NODES; j_pos = j_pos + 1) begin
+                if (proposed_order[j_pos] == i_node) begin
+                    proposed_pos[i_node] = j_pos;
+                end
+            end
+        end
+    end
+
+    // 2. Statically assign the masks by comparing positions
+    genvar n_row, n_col;
     generate
-        for (row = 0; row < N_NODES; row = row + 1) begin : gen_rows
-            for (col = 0; col < N_NODES; col = col + 1) begin : gen_cols
-                // Node at 'col' is an allowed parent of node at 'row' IF 'col' comes before 'row'
-                assign proposed_masks[ proposed_order[row] ][ proposed_order[col] ] = (col < row) ? 1'b1 : 1'b0;
+        for (n_row = 0; n_row < N_NODES; n_row = n_row + 1) begin : gen_rows
+            for (n_col = 0; n_col < N_NODES; n_col = n_col + 1) begin : gen_cols
+                // Node n_col is an allowed parent of n_row IF its position comes earlier
+                assign proposed_masks[n_row][n_col] = (proposed_pos[n_col] < proposed_pos[n_row]) ? 1'b1 : 1'b0;
             end
         end
     endgenerate
@@ -97,7 +120,7 @@ module mcmc_controller #(
                 .rst_n(rst_n),
                 .start(score_start),
                 .allowed_parents(proposed_masks[n]), // Pass the specific row mask to each node
-                .num_candidates(10'd1024),           // Assume full BRAM usage or pass real config
+                .num_candidates(10'd1023),           // Assume full BRAM usage or pass real config
                 .done(score_done[n]),
                 .final_score(node_scores[n])
                 // BRAM interface wires would connect here to individual memory blocks
@@ -130,7 +153,9 @@ module mcmc_controller #(
     // In hardware, we'd map `score_diff` to an exp() ROM output and compare with `rand_u`.
     // Placeholder logic for the ROM comparison:
     wire [15:0] exp_threshold; 
+    
     // assign exp_threshold = my_exp_rom(score_diff); // Implement ROM separately
+    assign exp_threshold = 16'h4000; // Fake 25% acceptance probability threshold
     
     assign accept_move = (score_diff >= 0) ? 1'b1 : (rand_u < exp_threshold);
 
@@ -169,39 +194,35 @@ module mcmc_controller #(
 
                 S_INIT_SCORE: begin
                     score_start <= 1'b1;
-                    state       <= S_WAIT_SCORE;
+                    state       <= S_WAIT_INIT_SCORE;
                 end
 
-                S_WAIT_SCORE: begin
+                S_WAIT_INIT_SCORE: begin
                     if (all_scores_done) begin
-                        if (iter_count == 0) begin
-                            // First iteration: initialize the current_score
-                            current_score <= proposed_score;
-                            state         <= S_PROPOSE;
-                        end else begin
-                            state <= S_DECIDE;
-                        end
+                        // Initialize the current_score once, then start proposing
+                        current_score <= proposed_score;
+                        state         <= S_PROPOSE;
                     end
                 end
 
                 S_PROPOSE: begin
                     if (iter_count < ITERATIONS) begin
-                        // 1. Shift LFSR to get new i, j, u
                         lfsr_en <= 1'b1;
                         
-                        // 2. Modulo nodes to prevent out of bounds
-                        // If N_NODES is not a power of 2, this requires a modulo op or limits.
-                        // Assuming N_NODES=32 for clean bit slicing.
-                        
-                        // 3. Swap indices in the proposed order
                         proposed_order[rand_i] <= current_order[rand_j];
                         proposed_order[rand_j] <= current_order[rand_i];
                         
-                        // 4. Fire off the scorers for the next cycle
                         score_start <= 1'b1;
                         state       <= S_WAIT_SCORE;
                     end else begin
                         state <= S_DONE;
+                    end
+                end
+
+                S_WAIT_SCORE: begin
+                    if (all_scores_done) begin
+                        // Directly to DECIDE since INIT is handled elsewhere
+                        state <= S_DECIDE;
                     end
                 end
 

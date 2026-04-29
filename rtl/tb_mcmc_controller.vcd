@@ -1,0 +1,1121 @@
+$date
+	Thu Apr 23 16:24:11 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_mcmc_controller $end
+$var wire 1 ! done $end
+$var wire 32 " best_score [31:0] $end
+$var reg 1 # clk $end
+$var reg 1 $ rst_n $end
+$var reg 32 % seed [31:0] $end
+$var reg 1 & start $end
+$scope module dut $end
+$var wire 1 # clk $end
+$var wire 16 ' exp_threshold [15:0] $end
+$var wire 1 $ rst_n $end
+$var wire 32 ( seed [31:0] $end
+$var wire 1 & start $end
+$var wire 4 ) score_done [3:0] $end
+$var wire 32 * score_diff [31:0] $end
+$var wire 16 + rand_u [15:0] $end
+$var wire 5 , rand_j [4:0] $end
+$var wire 5 - rand_i [4:0] $end
+$var wire 32 . proposed_score [31:0] $end
+$var wire 32 / lfsr_out [31:0] $end
+$var wire 1 0 all_scores_done $end
+$var wire 1 1 accept_move $end
+$var parameter 32 2 ADDR_W $end
+$var parameter 32 3 DATA_W $end
+$var parameter 32 4 ITERATIONS $end
+$var parameter 32 5 N_NODES $end
+$var parameter 3 6 S_DECIDE $end
+$var parameter 3 7 S_DONE $end
+$var parameter 3 8 S_IDLE $end
+$var parameter 3 9 S_INIT_SCORE $end
+$var parameter 3 : S_PROPOSE $end
+$var parameter 3 ; S_WAIT_INIT_SCORE $end
+$var parameter 3 < S_WAIT_SCORE $end
+$var reg 32 = best_score [31:0] $end
+$var reg 32 > current_score [31:0] $end
+$var reg 1 ! done $end
+$var reg 32 ? iter_count [31:0] $end
+$var reg 1 @ lfsr_en $end
+$var reg 1 A load_seed $end
+$var reg 1 B score_start $end
+$var reg 32 C score_sum [31:0] $end
+$var reg 3 D state [2:0] $end
+$var integer 32 E i [31:0] $end
+$var integer 32 F i_node [31:0] $end
+$var integer 32 G j_pos [31:0] $end
+$var integer 32 H k [31:0] $end
+$scope begin gen_rows[0] $end
+$var parameter 2 I n_row $end
+$scope begin gen_cols[0] $end
+$var parameter 2 J n_col $end
+$upscope $end
+$scope begin gen_cols[1] $end
+$var parameter 2 K n_col $end
+$upscope $end
+$scope begin gen_cols[2] $end
+$var parameter 3 L n_col $end
+$upscope $end
+$scope begin gen_cols[3] $end
+$var parameter 3 M n_col $end
+$upscope $end
+$upscope $end
+$scope begin gen_rows[1] $end
+$var parameter 2 N n_row $end
+$scope begin gen_cols[0] $end
+$var parameter 2 O n_col $end
+$upscope $end
+$scope begin gen_cols[1] $end
+$var parameter 2 P n_col $end
+$upscope $end
+$scope begin gen_cols[2] $end
+$var parameter 3 Q n_col $end
+$upscope $end
+$scope begin gen_cols[3] $end
+$var parameter 3 R n_col $end
+$upscope $end
+$upscope $end
+$scope begin gen_rows[2] $end
+$var parameter 3 S n_row $end
+$scope begin gen_cols[0] $end
+$var parameter 2 T n_col $end
+$upscope $end
+$scope begin gen_cols[1] $end
+$var parameter 2 U n_col $end
+$upscope $end
+$scope begin gen_cols[2] $end
+$var parameter 3 V n_col $end
+$upscope $end
+$scope begin gen_cols[3] $end
+$var parameter 3 W n_col $end
+$upscope $end
+$upscope $end
+$scope begin gen_rows[3] $end
+$var parameter 3 X n_row $end
+$scope begin gen_cols[0] $end
+$var parameter 2 Y n_col $end
+$upscope $end
+$scope begin gen_cols[1] $end
+$var parameter 2 Z n_col $end
+$upscope $end
+$scope begin gen_cols[2] $end
+$var parameter 3 [ n_col $end
+$upscope $end
+$scope begin gen_cols[3] $end
+$var parameter 3 \ n_col $end
+$upscope $end
+$upscope $end
+$scope begin gen_scorers[0] $end
+$var parameter 2 ] n $end
+$scope module scorer_inst $end
+$var wire 4 ^ allowed_parents [3:0] $end
+$var wire 1 # clk $end
+$var wire 10 _ num_candidates [9:0] $end
+$var wire 1 $ rst_n $end
+$var wire 1 B start $end
+$var parameter 32 ` ADDR_W $end
+$var parameter 32 a DATA_W $end
+$var parameter 32 b N_NODES $end
+$var reg 2 c delay_cnt [1:0] $end
+$var reg 1 d done $end
+$var reg 32 e final_score [31:0] $end
+$upscope $end
+$upscope $end
+$scope begin gen_scorers[1] $end
+$var parameter 2 f n $end
+$scope module scorer_inst $end
+$var wire 4 g allowed_parents [3:0] $end
+$var wire 1 # clk $end
+$var wire 10 h num_candidates [9:0] $end
+$var wire 1 $ rst_n $end
+$var wire 1 B start $end
+$var parameter 32 i ADDR_W $end
+$var parameter 32 j DATA_W $end
+$var parameter 32 k N_NODES $end
+$var reg 2 l delay_cnt [1:0] $end
+$var reg 1 m done $end
+$var reg 32 n final_score [31:0] $end
+$upscope $end
+$upscope $end
+$scope begin gen_scorers[2] $end
+$var parameter 3 o n $end
+$scope module scorer_inst $end
+$var wire 4 p allowed_parents [3:0] $end
+$var wire 1 # clk $end
+$var wire 10 q num_candidates [9:0] $end
+$var wire 1 $ rst_n $end
+$var wire 1 B start $end
+$var parameter 32 r ADDR_W $end
+$var parameter 32 s DATA_W $end
+$var parameter 32 t N_NODES $end
+$var reg 2 u delay_cnt [1:0] $end
+$var reg 1 v done $end
+$var reg 32 w final_score [31:0] $end
+$upscope $end
+$upscope $end
+$scope begin gen_scorers[3] $end
+$var parameter 3 x n $end
+$scope module scorer_inst $end
+$var wire 4 y allowed_parents [3:0] $end
+$var wire 1 # clk $end
+$var wire 10 z num_candidates [9:0] $end
+$var wire 1 $ rst_n $end
+$var wire 1 B start $end
+$var parameter 32 { ADDR_W $end
+$var parameter 32 | DATA_W $end
+$var parameter 32 } N_NODES $end
+$var reg 2 ~ delay_cnt [1:0] $end
+$var reg 1 !" done $end
+$var reg 32 "" final_score [31:0] $end
+$upscope $end
+$upscope $end
+$scope module rng_inst $end
+$var wire 1 # clk $end
+$var wire 1 @ en $end
+$var wire 1 A load_seed $end
+$var wire 1 $ rst_n $end
+$var wire 32 #" seed [31:0] $end
+$var parameter 32 $" POLY $end
+$var reg 32 %" rand_out [31:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b10000000001000000000000000000011 $"
+b100 }
+b100000 |
+b1010 {
+b11 x
+b100 t
+b100000 s
+b1010 r
+b10 o
+b100 k
+b100000 j
+b1010 i
+b1 f
+b100 b
+b100000 a
+b1010 `
+b0 ]
+b11 \
+b10 [
+b1 Z
+b0 Y
+b11 X
+b11 W
+b10 V
+b1 U
+b0 T
+b10 S
+b11 R
+b10 Q
+b1 P
+b0 O
+b1 N
+b11 M
+b10 L
+b1 K
+b0 J
+b0 I
+b100 <
+b10 ;
+b11 :
+b1 9
+b0 8
+b110 7
+b101 6
+b100 5
+b1010 4
+b100000 3
+b1010 2
+$end
+#0
+$dumpvars
+b11011110101011011011111011101111 %"
+b10101011110011010001001000110100 #"
+b0 ""
+0!"
+b0 ~
+b1111111111 z
+b111 y
+b0 w
+0v
+b0 u
+b1111111111 q
+b11 p
+b0 n
+0m
+b0 l
+b1111111111 h
+b1 g
+b0 e
+0d
+b0 c
+b1111111111 _
+b0 ^
+b100 H
+b100 G
+b100 F
+b100 E
+b0 D
+b0 C
+0B
+0A
+0@
+b0 ?
+b10000000000000000000000000000000 >
+b10000000000000000000000000000000 =
+01
+00
+b11011110101011011011111011101111 /
+b0 .
+b11 -
+b11 ,
+b1101111010101101 +
+b10000000000000000000000000000000 *
+b0 )
+b10101011110011010001001000110100 (
+b100000000000000 '
+0&
+b10101011110011010001001000110100 %
+0$
+0#
+b10000000000000000000000000000000 "
+0!
+$end
+#5000
+b100 E
+1#
+#10000
+0#
+#15000
+1#
+1$
+#20000
+0#
+#25000
+b1 D
+1A
+1&
+1#
+#30000
+0#
+#35000
+b1 ,
+b0 -
+b1010101111001101 +
+b10101011110011010001001000110100 /
+b10101011110011010001001000110100 %"
+b10 D
+1B
+0A
+0&
+1#
+#40000
+0#
+#45000
+0B
+b1 ~
+b1 u
+b1 l
+b1 c
+1#
+#50000
+0#
+#55000
+b10 c
+b10 l
+b10 u
+b10 ~
+1#
+#60000
+0#
+#65000
+b10000000000000001011000000000000 *
+b1011000000000000 .
+b1011000000000000 C
+b100 H
+b0 ~
+b111000000000000 ""
+10
+1!"
+b0 u
+b11000000000000 w
+1v
+b0 l
+b1000000000000 n
+1m
+b0 c
+b1111 )
+1d
+1#
+#70000
+0#
+#75000
+11
+0d
+0m
+0v
+00
+b0 )
+0!"
+b11 D
+b0 *
+b1011000000000000 >
+1#
+#80000
+0#
+#85000
+b10 ^
+b0 g
+b100 G
+b100 F
+b100 D
+1B
+1@
+1#
+#90000
+0#
+#95000
+b0 ,
+b10 -
+b101010111100110 +
+b1 c
+b1 l
+b1 u
+b1 ~
+b1010101111001101000100100011010 /
+b1010101111001101000100100011010 %"
+0@
+0B
+1#
+#100000
+0#
+#105000
+b10 ~
+b10 u
+b10 l
+b10 c
+1#
+#110000
+0#
+#115000
+b100 H
+b1000000000000 *
+b1100000000000000 .
+b1100000000000000 C
+b0 c
+b10000000000000 e
+10
+1d
+b0 l
+b0 n
+1m
+b0 u
+1v
+b0 ~
+b1111 )
+1!"
+1#
+#120000
+0#
+#125000
+b101 D
+0!"
+0v
+0m
+00
+b0 )
+0d
+1#
+#130000
+0#
+#135000
+b11 D
+b1 ?
+b1100000000000000 "
+b1100000000000000 =
+b0 *
+b1100000000000000 >
+1#
+#140000
+0#
+#145000
+b101 g
+b0 p
+b100 ^
+b100 G
+b100 F
+b100 D
+1B
+1@
+1#
+#150000
+0#
+#155000
+b1 -
+b10101011110011 +
+b1 c
+b1 l
+b1 u
+b1 ~
+b101010111100110100010010001101 /
+b101010111100110100010010001101 %"
+0@
+0B
+1#
+#160000
+0#
+#165000
+b10 ~
+b10 u
+b10 l
+b10 c
+1#
+#170000
+0#
+#175000
+b100 H
+b100000000000000 *
+b10000000000000000 .
+b10000000000000000 C
+b0 c
+b100000000000000 e
+10
+1d
+b0 l
+b101000000000000 n
+1m
+b0 u
+b0 w
+1v
+b0 ~
+b1111 )
+1!"
+1#
+#180000
+0#
+#185000
+b101 D
+0!"
+0v
+0m
+00
+b0 )
+0d
+1#
+#190000
+0#
+#195000
+b11 D
+b10 ?
+b10000000000000000 "
+b10000000000000000 =
+b0 *
+b10000000000000000 >
+1#
+#200000
+0#
+#205000
+b1 p
+b0 ^
+b100 G
+b100 F
+b100 D
+1B
+1@
+1#
+#210000
+0#
+#215000
+b10 ,
+b1001010101011001 +
+b1 c
+b1 l
+b1 u
+b1 ~
+b10010101010110011010001001000101 /
+b10010101010110011010001001000101 %"
+0@
+0B
+1#
+#220000
+0#
+#225000
+b10 ~
+b10 u
+b10 l
+b10 c
+1#
+#230000
+0#
+#235000
+01
+b100 H
+b11111111111111111101000000000000 *
+b1101000000000000 .
+b1101000000000000 C
+b0 c
+b0 e
+10
+1d
+b0 l
+1m
+b0 u
+b1000000000000 w
+1v
+b0 ~
+b1111 )
+1!"
+1#
+#240000
+0#
+#245000
+b101 D
+0!"
+0v
+0m
+00
+b0 )
+0d
+1#
+#250000
+0#
+#255000
+b10 ^
+b0 g
+b11 p
+b100 G
+b100 F
+b11 D
+b11 ?
+1#
+#260000
+0#
+#265000
+b110 ^
+b10 p
+b100 G
+b100 F
+b100 D
+1B
+1@
+1#
+#270000
+0#
+#275000
+b1 ,
+b1100101010001100 +
+b1 c
+b1 l
+b1 u
+b1 ~
+b11001010100011001101000100100001 /
+b11001010100011001101000100100001 %"
+0@
+0B
+1#
+#280000
+0#
+#285000
+b10 ~
+b10 u
+b10 l
+b10 c
+1#
+#290000
+0#
+#295000
+b100 H
+b11111111111111111111000000000000 *
+b1111000000000000 .
+b1111000000000000 C
+b0 c
+b110000000000000 e
+10
+1d
+b0 l
+b0 n
+1m
+b0 u
+b10000000000000 w
+1v
+b0 ~
+b1111 )
+1!"
+1#
+#300000
+0#
+#305000
+b101 D
+0!"
+0v
+0m
+00
+b0 )
+0d
+1#
+#310000
+0#
+#315000
+b0 p
+b100 G
+b100 F
+b11 D
+b100 ?
+1#
+#320000
+0#
+#325000
+b100 D
+1B
+1@
+1#
+#330000
+0#
+#335000
+b0 ,
+b11 -
+b1110010101100110 +
+b1 c
+b1 l
+b1 u
+b1 ~
+b11100101011001100110100010010011 /
+b11100101011001100110100010010011 %"
+0@
+0B
+1#
+#340000
+0#
+#345000
+b10 ~
+b10 u
+b10 l
+b10 c
+1#
+#350000
+0#
+#355000
+b100 H
+b11111111111111111101000000000000 *
+b1101000000000000 .
+b1101000000000000 C
+b0 c
+10
+1d
+b0 l
+1m
+b0 u
+b0 w
+1v
+b0 ~
+b1111 )
+1!"
+1#
+#360000
+0#
+#365000
+b101 D
+0!"
+0v
+0m
+00
+b0 )
+0d
+1#
+#370000
+0#
+#375000
+b100 G
+b100 F
+b11 D
+b101 ?
+1#
+#380000
+0#
+#385000
+b1011 p
+b0 y
+b1010 ^
+b100 G
+b100 F
+b100 D
+1B
+1@
+1#
+#390000
+0#
+#395000
+b10 ,
+b10 -
+b1111001010010011 +
+b1 c
+b1 l
+b1 u
+b1 ~
+b11110010100100110011010001001010 /
+b11110010100100110011010001001010 %"
+0@
+0B
+1#
+#400000
+0#
+#405000
+b10 ~
+b10 u
+b10 l
+b10 c
+1#
+#410000
+0#
+#415000
+11
+b100 H
+b101000000000000 *
+b10101000000000000 .
+b10101000000000000 C
+b0 c
+b1010000000000000 e
+10
+1d
+b0 l
+1m
+b0 u
+b1011000000000000 w
+1v
+b0 ~
+b0 ""
+b1111 )
+1!"
+1#
+#420000
+0#
+#425000
+b101 D
+0!"
+0v
+0m
+00
+b0 )
+0d
+1#
+#430000
+0#
+#435000
+b11 D
+b110 ?
+b10101000000000000 "
+b10101000000000000 =
+b0 *
+b10101000000000000 >
+1#
+#440000
+0#
+#445000
+b100 D
+1B
+1@
+1#
+#450000
+0#
+#455000
+b1 ,
+b1 -
+b111100101001001 +
+b1 c
+b1 l
+b1 u
+b1 ~
+b1111001010010011001101000100101 /
+b1111001010010011001101000100101 %"
+0@
+0B
+1#
+#460000
+0#
+#465000
+b10 ~
+b10 u
+b10 l
+b10 c
+1#
+#470000
+0#
+#475000
+b0 c
+10
+1d
+b0 l
+1m
+b0 u
+1v
+b0 ~
+b1111 )
+1!"
+1#
+#480000
+0#
+#485000
+b101 D
+0!"
+0v
+0m
+00
+b0 )
+0d
+1#
+#490000
+0#
+#495000
+b11 D
+b111 ?
+1#
+#500000
+0#
+#505000
+b100 D
+1B
+1@
+1#
+#510000
+0#
+#515000
+b0 ,
+b1011110010000100 +
+b1 c
+b1 l
+b1 u
+b1 ~
+b10111100100001001100110100010001 /
+b10111100100001001100110100010001 %"
+0@
+0B
+1#
+#520000
+0#
+#525000
+b10 ~
+b10 u
+b10 l
+b10 c
+1#
+#530000
+0#
+#535000
+b0 c
+10
+1d
+b0 l
+1m
+b0 u
+1v
+b0 ~
+b1111 )
+1!"
+1#
+#540000
+0#
+#545000
+b101 D
+0!"
+0v
+0m
+00
+b0 )
+0d
+1#
+#550000
+0#
+#555000
+b11 D
+b1000 ?
+1#
+#560000
+0#
+#565000
+b10 y
+b100 G
+b100 F
+b100 D
+1B
+1@
+1#
+#570000
+0#
+#575000
+b11 -
+b1101111001100010 +
+b1 c
+b1 l
+b1 u
+b1 ~
+b11011110011000100110011010001011 /
+b11011110011000100110011010001011 %"
+0@
+0B
+1#
+#580000
+0#
+#585000
+b10 ~
+b10 u
+b10 l
+b10 c
+1#
+#590000
+0#
+#595000
+b100 H
+b10000000000000 *
+b10111000000000000 .
+b10111000000000000 C
+b0 c
+10
+1d
+b0 l
+1m
+b0 u
+1v
+b0 ~
+b10000000000000 ""
+b1111 )
+1!"
+1#
+#600000
+0#
+#605000
+b101 D
+0!"
+0v
+0m
+00
+b0 )
+0d
+1#
+#610000
+0#
+#615000
+b11 D
+b1001 ?
+b10111000000000000 "
+b10111000000000000 =
+b0 *
+b10111000000000000 >
+1#
+#620000
+0#
+#625000
+b1110 ^
+b110 y
+b0 p
+b100 G
+b100 F
+b100 D
+1B
+1@
+1#
+#630000
+0#
+#635000
+b10 ,
+b10 -
+b1110111100010001 +
+b1 c
+b1 l
+b1 u
+b1 ~
+b11101111000100010011001101000110 /
+b11101111000100010011001101000110 %"
+0@
+0B
+1#
+#640000
+0#
+#645000
+b10 ~
+b10 u
+b10 l
+b10 c
+1#
+#650000
+0#
+#655000
+01
+b100 H
+b11111111111111111101000000000000 *
+b10100000000000000 .
+b10100000000000000 C
+b0 c
+b1110000000000000 e
+10
+1d
+b0 l
+1m
+b0 u
+b0 w
+1v
+b0 ~
+b110000000000000 ""
+b1111 )
+1!"
+1#
+#660000
+0#
+#665000
+b101 D
+0!"
+0v
+0m
+00
+b0 )
+0d
+1#
+#670000
+0#
+#675000
+b11 D
+b1010 ?
+1#
+#680000
+0#
+#685000
+b110 D
+1#
+#690000
+0#
+#695000
+b0 D
+1!
+1#
+#700000
+0#
+#705000
+1#
+#710000
+0#
+#715000
+1#
+#720000
+0#
+#725000
+1#
+#730000
+0#
+#735000
+1#
+#740000
+0#
+#745000
+1#
