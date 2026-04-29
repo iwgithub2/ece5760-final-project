@@ -1,4 +1,4 @@
-/* Quartus II 64-Bit Version 15.0.0 Build 145 04/22/2015 SJ Full Version */
+/* Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition */
 JedecChain;
 	FileRevision(JESD32A);
 	DefaultMfr(6E);
@@ -6,7 +6,7 @@ JedecChain;
 	P ActionCode(Ign)
 		Device PartName(SOCVHPS) MfrSpec(OpMask(0));
 	P ActionCode(Cfg)
-		Device PartName(5CSEMA5F31) Path("G:/From_web_page/computer_15_640_video_fp/DE1-SoC_Computer_15_640_current/DE1-SoC_Computer_15_640_current/verilog/") File("DE1_SoC_Computer.sof") MfrSpec(OpMask(1));
+		Device PartName(5CSEMA5F31) Path("C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Computer_15_640_current/verilog/") File("DE1_SoC_Computer.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

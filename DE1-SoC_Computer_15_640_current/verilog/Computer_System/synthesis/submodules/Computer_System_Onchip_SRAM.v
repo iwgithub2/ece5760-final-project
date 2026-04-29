@@ -1,4 +1,4 @@
-//Legal Notice: (C)2017 Altera Corporation. All rights reserved.  Your
+//Legal Notice: (C)2026 Altera Corporation. All rights reserved.  Your
 //use of Altera Corporation's design tools, logic functions and other
 //software and tools, and its AMPP partner logic functions, and any
 //output files any of the foregoing (including device programming or
@@ -30,6 +30,7 @@ module Computer_System_Onchip_SRAM (
                                       clk2,
                                       clken,
                                       clken2,
+                                      freeze,
                                       reset,
                                       reset2,
                                       reset_req,
@@ -45,9 +46,6 @@ module Computer_System_Onchip_SRAM (
                                    )
 ;
 
-  parameter INIT_FILE = "Computer_System_Onchip_SRAM.hex";
-
-
   output  [ 31: 0] readdata;
   output  [ 31: 0] readdata2;
   input   [  7: 0] address;
@@ -60,6 +58,7 @@ module Computer_System_Onchip_SRAM (
   input            clk2;
   input            clken;
   input            clken2;
+  input            freeze;
   input            reset;
   input            reset2;
   input            reset_req;
@@ -69,12 +68,13 @@ module Computer_System_Onchip_SRAM (
   input   [ 31: 0] writedata;
   input   [ 31: 0] writedata2;
 
-  wire             clocken0;
-  wire             clocken1;
-  wire    [ 31: 0] readdata;
-  wire    [ 31: 0] readdata2;
-  wire             wren;
-  wire             wren2;
+
+wire             clocken0;
+wire             clocken1;
+wire    [ 31: 0] readdata;
+wire    [ 31: 0] readdata2;
+wire             wren;
+wire             wren2;
   assign wren = chipselect & write;
   assign clocken0 = clken & ~reset_req;
   assign clocken1 = clken2 & ~reset_req2;

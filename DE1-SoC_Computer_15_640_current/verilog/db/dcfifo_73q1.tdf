@@ -1,21 +1,20 @@
 --dcfifo_mixed_widths CARRY_CHAIN="MANUAL" CARRY_CHAIN_LENGTH=48 DEVICE_FAMILY="Cyclone V" IGNORE_CARRY_BUFFERS="OFF" LPM_NUMWORDS=128 LPM_SHOWAHEAD="ON" LPM_WIDTH=32 LPM_WIDTH_R=32 LPM_WIDTHU=7 LPM_WIDTHU_R=7 MAXIMIZE_SPEED=7 OVERFLOW_CHECKING="OFF" RDSYNC_DELAYPIPE=5 UNDERFLOW_CHECKING="OFF" USE_EAB="ON" WRSYNC_DELAYPIPE=5 data q rdclk rdempty rdreq wrclk wrreq wrusedw ACF_BLOCK_RAM_AND_MLAB_EQUIVALENT_PAUSED_READ_CAPABILITIES="CARE" CYCLONEII_M4K_COMPATIBILITY="ON" INTENDED_DEVICE_FAMILY="Cyclone II" LOW_POWER_MODE="AUTO" lpm_hint="MAXIMIZE_SPEED=7" ALTERA_INTERNAL_OPTIONS=AUTO_SHIFT_REGISTER_RECOGNITION=OFF
---VERSION_BEGIN 15.0 cbx_a_gray2bin 2015:04:22:18:04:07:SJ cbx_a_graycounter 2015:04:22:18:04:07:SJ cbx_altdpram 2015:04:22:18:04:07:SJ cbx_altsyncram 2015:04:22:18:04:07:SJ cbx_cycloneii 2015:04:22:18:04:07:SJ cbx_dcfifo 2015:04:22:18:04:07:SJ cbx_fifo_common 2015:04:22:18:04:07:SJ cbx_lpm_add_sub 2015:04:22:18:04:07:SJ cbx_lpm_compare 2015:04:22:18:04:07:SJ cbx_lpm_counter 2015:04:22:18:04:07:SJ cbx_lpm_decode 2015:04:22:18:04:08:SJ cbx_lpm_mux 2015:04:22:18:04:08:SJ cbx_mgl 2015:04:22:18:06:50:SJ cbx_scfifo 2015:04:22:18:04:08:SJ cbx_stratix 2015:04:22:18:04:08:SJ cbx_stratixii 2015:04:22:18:04:08:SJ cbx_stratixiii 2015:04:22:18:04:08:SJ cbx_stratixv 2015:04:22:18:04:08:SJ cbx_util_mgl 2015:04:22:18:04:08:SJ  VERSION_END
+--VERSION_BEGIN 18.1 cbx_a_gray2bin 2018:09:12:13:04:24:SJ cbx_a_graycounter 2018:09:12:13:04:24:SJ cbx_altdpram 2018:09:12:13:04:24:SJ cbx_altera_counter 2018:09:12:13:04:24:SJ cbx_altera_gray_counter 2018:09:12:13:04:24:SJ cbx_altera_syncram 2018:09:12:13:04:24:SJ cbx_altera_syncram_nd_impl 2018:09:12:13:04:24:SJ cbx_altsyncram 2018:09:12:13:04:24:SJ cbx_cycloneii 2018:09:12:13:04:24:SJ cbx_dcfifo 2018:09:12:13:04:24:SJ cbx_fifo_common 2018:09:12:13:04:24:SJ cbx_lpm_add_sub 2018:09:12:13:04:24:SJ cbx_lpm_compare 2018:09:12:13:04:24:SJ cbx_lpm_counter 2018:09:12:13:04:24:SJ cbx_lpm_decode 2018:09:12:13:04:24:SJ cbx_lpm_mux 2018:09:12:13:04:24:SJ cbx_mgl 2018:09:12:13:10:36:SJ cbx_nadder 2018:09:12:13:04:24:SJ cbx_scfifo 2018:09:12:13:04:24:SJ cbx_stratix 2018:09:12:13:04:24:SJ cbx_stratixii 2018:09:12:13:04:24:SJ cbx_stratixiii 2018:09:12:13:04:24:SJ cbx_stratixv 2018:09:12:13:04:24:SJ cbx_util_mgl 2018:09:12:13:04:24:SJ  VERSION_END
 
 
--- Copyright (C) 1991-2015 Altera Corporation. All rights reserved.
---  Your use of Altera Corporation's design tools, logic functions 
+-- Copyright (C) 2018  Intel Corporation. All rights reserved.
+--  Your use of Intel Corporation's design tools, logic functions 
 --  and other software and tools, and its AMPP partner logic 
 --  functions, and any output files from any of the foregoing 
 --  (including device programming or simulation files), and any 
 --  associated documentation or information are expressly subject 
---  to the terms and conditions of the Altera Program License 
---  Subscription Agreement, the Altera Quartus II License Agreement,
---  the Altera MegaCore Function License Agreement, or other 
---  applicable license agreement, including, without limitation, 
---  that your use is for the sole purpose of programming logic 
---  devices manufactured by Altera and sold by Altera or its 
---  authorized distributors.  Please refer to the applicable 
---  agreement for further details.
+--  to the terms and conditions of the Intel Program License 
+--  Subscription Agreement, the Intel Quartus Prime License Agreement,
+--  the Intel FPGA IP License Agreement, or other applicable license
+--  agreement, including, without limitation, that your use is for
+--  the sole purpose of programming logic devices manufactured by
+--  Intel and sold by Intel or its authorized distributors.  Please
+--  refer to the applicable agreement for further details.
 
 
 FUNCTION a_gray2bin_f9b (gray[7..0])
@@ -24,13 +23,13 @@ FUNCTION a_graycounter_cg6 (clock, cnt_en)
 RETURNS ( q[7..0]);
 FUNCTION a_graycounter_8ub (clock, cnt_en)
 RETURNS ( q[7..0]);
-FUNCTION altsyncram_9v41 (address_a[6..0], address_b[6..0], addressstall_b, clock0, clock1, data_a[31..0], wren_a)
+FUNCTION altsyncram_3b81 (address_a[6..0], address_b[6..0], addressstall_b, clock0, clock1, data_a[31..0], wren_a)
 RETURNS ( q_b[31..0]);
-FUNCTION alt_synch_pipe_7u7 (clock, d[7..0])
+FUNCTION alt_synch_pipe_g9l (clock, d[7..0])
 RETURNS ( q[7..0]);
 FUNCTION dffpipe_0v8 (clock, d[7..0])
 RETURNS ( q[7..0]);
-FUNCTION alt_synch_pipe_8u7 (clock, d[7..0])
+FUNCTION alt_synch_pipe_h9l (clock, d[7..0])
 RETURNS ( q[7..0]);
 FUNCTION cmpr_su5 (dataa[3..0], datab[3..0])
 RETURNS ( aeb);
@@ -38,7 +37,7 @@ FUNCTION mux_5r7 (data[1..0], sel[0..0])
 RETURNS ( result[0..0]);
 
 --synthesis_resources = lut 13 M10K 1 reg 114 
-OPTIONS ALTERA_INTERNAL_OPTION = "AUTO_SHIFT_REGISTER_RECOGNITION=OFF;REMOVE_DUPLICATE_REGISTERS=OFF;suppress_da_rule_internal=d101;suppress_da_rule_internal=d102;suppress_da_rule_internal=d103;{-to rdemp_eq_comp_lsb_aeb} POWER_UP_LEVEL=HIGH;{-to rdemp_eq_comp_msb_aeb} POWER_UP_LEVEL=HIGH;{-to wrptr_g} suppress_da_rule_internal=S102;{-to wrptr_g} POWER_UP_LEVEL=LOW;-name CUT ON -from rdptr_g -to ws_dgrp|dffpipe_2v8:dffpipe16|dffe17a;-name SDC_STATEMENT ""set_false_path -from *rdptr_g* -to *ws_dgrp|dffpipe_2v8:dffpipe16|dffe17a* "";-name CUT ON -from delayed_wrptr_g -to rs_dgwp|dffpipe_1v8:dffpipe12|dffe13a;-name SDC_STATEMENT ""set_false_path -from *delayed_wrptr_g* -to *rs_dgwp|dffpipe_1v8:dffpipe12|dffe13a* """;
+OPTIONS ALTERA_INTERNAL_OPTION = "AUTO_SHIFT_REGISTER_RECOGNITION=OFF;REMOVE_DUPLICATE_REGISTERS=OFF;SYNCHRONIZER_IDENTIFICATION=OFF;SYNCHRONIZATION_REGISTER_CHAIN_LENGTH = 3;suppress_da_rule_internal=d101;suppress_da_rule_internal=d102;suppress_da_rule_internal=d103;{-to rdemp_eq_comp_lsb_aeb} SYNCHRONIZER_IDENTIFICATION=FORCED_IF_ASYNCHRONOUS;{-to rdemp_eq_comp_lsb_aeb} PRESERVE_REGISTER=ON;{-to rdemp_eq_comp_lsb_aeb} POWER_UP_LEVEL=HIGH;{-to rdemp_eq_comp_msb_aeb} SYNCHRONIZER_IDENTIFICATION=FORCED_IF_ASYNCHRONOUS;{-to rdemp_eq_comp_msb_aeb} PRESERVE_REGISTER=ON;{-to rdemp_eq_comp_msb_aeb} POWER_UP_LEVEL=HIGH;{-to rs_dgwp_reg} SYNCHRONIZER_IDENTIFICATION=FORCED_IF_ASYNCHRONOUS;{-to rs_dgwp_reg} PRESERVE_REGISTER=ON;{-to wrfull_eq_comp_lsb_mux_reg} SYNCHRONIZER_IDENTIFICATION=FORCED_IF_ASYNCHRONOUS;{-to wrfull_eq_comp_lsb_mux_reg} PRESERVE_REGISTER=ON;{-to wrfull_eq_comp_msb_mux_reg} SYNCHRONIZER_IDENTIFICATION=FORCED_IF_ASYNCHRONOUS;{-to wrfull_eq_comp_msb_mux_reg} PRESERVE_REGISTER=ON;{-to wrptr_g} suppress_da_rule_internal=S102;{-to wrptr_g} POWER_UP_LEVEL=LOW;{-to ws_dgrp_reg} SYNCHRONIZER_IDENTIFICATION=FORCED_IF_ASYNCHRONOUS;{-to ws_dgrp_reg} PRESERVE_REGISTER=ON;-name CUT ON -from rdptr_g -to ws_dgrp|dffpipe_2v8:dffpipe16|dffe17a;-name SDC_STATEMENT ""set_false_path -from *rdptr_g* -to *ws_dgrp|dffpipe_2v8:dffpipe16|dffe17a* "";-name CUT ON -from delayed_wrptr_g -to rs_dgwp|dffpipe_1v8:dffpipe12|dffe13a;-name SDC_STATEMENT ""set_false_path -from *delayed_wrptr_g* -to *rs_dgwp|dffpipe_1v8:dffpipe12|dffe13a* """;
 
 SUBDESIGN dcfifo_73q1
 ( 
@@ -56,7 +55,7 @@ VARIABLE
 	ws_dgrp_gray2bin : a_gray2bin_f9b;
 	rdptr_g1p : a_graycounter_cg6;
 	wrptr_g1p : a_graycounter_8ub;
-	fifo_ram : altsyncram_9v41;
+	fifo_ram : altsyncram_3b81;
 	delayed_wrptr_g[7..0] : dffe;
 	rdemp_eq_comp_lsb_aeb : dffe
 		WITH (
@@ -75,10 +74,10 @@ VARIABLE
 			power_up = "low"
 		);
 	ws_dgrp_reg[7..0] : dffe;
-	rs_dgwp : alt_synch_pipe_7u7;
+	rs_dgwp : alt_synch_pipe_g9l;
 	ws_brp : dffpipe_0v8;
 	ws_bwp : dffpipe_0v8;
-	ws_dgrp : alt_synch_pipe_8u7;
+	ws_dgrp : alt_synch_pipe_h9l;
 	wrusedw_sub_dataa[7..0]	:	WIRE;
 	wrusedw_sub_datab[7..0]	:	WIRE;
 	wrusedw_sub_result[7..0]	:	WIRE;

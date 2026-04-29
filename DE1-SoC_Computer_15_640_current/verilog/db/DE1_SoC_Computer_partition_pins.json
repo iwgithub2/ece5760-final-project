@@ -4,106 +4,6 @@
 			"name" : "Top",
 			"pins" : [
 				{
-					"name" : "ADC_DIN",
-					"strict" : false
-				},
-				{
-					"name" : "ADC_SCLK",
-					"strict" : false
-				},
-				{
-					"name" : "IRDA_TXD",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[0]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[1]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[2]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[3]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[4]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[5]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[6]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[7]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[8]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[9]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[10]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[11]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[12]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_BA[0]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_BA[1]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_CAS_N",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_CS_N",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_LDQM",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_RAS_N",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_UDQM",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_WE_N",
-					"strict" : false
-				},
-				{
-					"name" : "AUD_DACDAT",
-					"strict" : false
-				},
-				{
 					"name" : "VGA_B[0]",
 					"strict" : false
 				},
@@ -324,107 +224,91 @@
 					"strict" : false
 				},
 				{
-					"name" : "HEX4[0]",
-					"strict" : false
-				},
-				{
-					"name" : "HEX4[1]",
-					"strict" : false
-				},
-				{
-					"name" : "HEX4[2]",
-					"strict" : false
-				},
-				{
-					"name" : "HEX4[3]",
-					"strict" : false
-				},
-				{
-					"name" : "HEX4[4]",
-					"strict" : false
-				},
-				{
-					"name" : "HEX4[5]",
-					"strict" : false
-				},
-				{
-					"name" : "HEX4[6]",
-					"strict" : false
-				},
-				{
-					"name" : "HEX5[0]",
-					"strict" : false
-				},
-				{
-					"name" : "HEX5[1]",
-					"strict" : false
-				},
-				{
-					"name" : "HEX5[2]",
-					"strict" : false
-				},
-				{
-					"name" : "HEX5[3]",
-					"strict" : false
-				},
-				{
-					"name" : "LEDR[0]",
-					"strict" : false
-				},
-				{
-					"name" : "LEDR[1]",
-					"strict" : false
-				},
-				{
-					"name" : "LEDR[2]",
-					"strict" : false
-				},
-				{
-					"name" : "LEDR[3]",
-					"strict" : false
-				},
-				{
-					"name" : "LEDR[4]",
-					"strict" : false
-				},
-				{
-					"name" : "LEDR[5]",
-					"strict" : false
-				},
-				{
-					"name" : "LEDR[6]",
-					"strict" : false
-				},
-				{
-					"name" : "LEDR[7]",
-					"strict" : false
-				},
-				{
-					"name" : "LEDR[8]",
-					"strict" : false
-				},
-				{
-					"name" : "LEDR[9]",
-					"strict" : false
-				},
-				{
 					"name" : "FPGA_I2C_SCLK",
 					"strict" : false
 				},
 				{
-					"name" : "HEX5[4]",
+					"name" : "DRAM_ADDR[0]",
 					"strict" : false
 				},
 				{
-					"name" : "HEX5[5]",
+					"name" : "DRAM_ADDR[1]",
 					"strict" : false
 				},
 				{
-					"name" : "HEX5[6]",
+					"name" : "DRAM_ADDR[2]",
 					"strict" : false
 				},
 				{
-					"name" : "ADC_CS_N",
+					"name" : "DRAM_ADDR[3]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[4]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[5]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[6]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[7]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[8]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[9]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[10]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[11]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_ADDR[12]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_BA[0]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_BA[1]",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_CAS_N",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_CS_N",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_LDQM",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_RAS_N",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_UDQM",
+					"strict" : false
+				},
+				{
+					"name" : "DRAM_WE_N",
 					"strict" : false
 				},
 				{
@@ -492,291 +376,11 @@
 					"strict" : false
 				},
 				{
-					"name" : "GPIO_0[1]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[3]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[4]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[5]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[6]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[7]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[8]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[9]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[10]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[11]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[12]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[13]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[14]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[15]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[17]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[19]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[20]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[21]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[22]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[23]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[24]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[25]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[26]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[27]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[28]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[29]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[30]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[31]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[32]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[33]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[34]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_0[35]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[1]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[3]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[4]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[5]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[6]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[7]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[8]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[9]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[10]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[11]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[12]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[13]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[14]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[15]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[17]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[19]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[20]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[21]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[22]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[23]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[24]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[25]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[26]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[27]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[28]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[29]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[30]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[31]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[32]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[33]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[34]",
-					"strict" : false
-				},
-				{
-					"name" : "GPIO_1[35]",
-					"strict" : false
-				},
-				{
-					"name" : "PS2_CLK",
-					"strict" : false
-				},
-				{
-					"name" : "PS2_DAT",
-					"strict" : false
-				},
-				{
-					"name" : "PS2_CLK2",
-					"strict" : false
-				},
-				{
-					"name" : "PS2_DAT2",
-					"strict" : false
-				},
-				{
-					"name" : "AUD_ADCLRCK",
-					"strict" : false
-				},
-				{
-					"name" : "AUD_BCLK",
-					"strict" : false
-				},
-				{
-					"name" : "AUD_DACLRCK",
-					"strict" : false
-				},
-				{
 					"name" : "FPGA_I2C_SDAT",
+					"strict" : false
+				},
+				{
+					"name" : "CLOCK_50",
 					"strict" : false
 				},
 				{
@@ -788,15 +392,11 @@
 					"strict" : false
 				},
 				{
-					"name" : "SW[1]",
-					"strict" : false
-				},
-				{
 					"name" : "KEY[1]",
 					"strict" : false
 				},
 				{
-					"name" : "SW[2]",
+					"name" : "SW[1]",
 					"strict" : false
 				},
 				{
@@ -804,11 +404,15 @@
 					"strict" : false
 				},
 				{
-					"name" : "SW[3]",
+					"name" : "SW[2]",
 					"strict" : false
 				},
 				{
 					"name" : "KEY[3]",
+					"strict" : false
+				},
+				{
+					"name" : "SW[3]",
 					"strict" : false
 				},
 				{
@@ -833,54 +437,6 @@
 				},
 				{
 					"name" : "SW[9]",
-					"strict" : false
-				},
-				{
-					"name" : "AUD_ADCDAT",
-					"strict" : false
-				},
-				{
-					"name" : "ADC_DOUT",
-					"strict" : false
-				},
-				{
-					"name" : "IRDA_RXD",
-					"strict" : false
-				},
-				{
-					"name" : "TD_CLK27",
-					"strict" : false
-				},
-				{
-					"name" : "TD_DATA[6]",
-					"strict" : false
-				},
-				{
-					"name" : "TD_DATA[5]",
-					"strict" : false
-				},
-				{
-					"name" : "TD_DATA[4]",
-					"strict" : false
-				},
-				{
-					"name" : "TD_DATA[3]",
-					"strict" : false
-				},
-				{
-					"name" : "TD_DATA[0]",
-					"strict" : false
-				},
-				{
-					"name" : "TD_DATA[2]",
-					"strict" : false
-				},
-				{
-					"name" : "TD_DATA[1]",
-					"strict" : false
-				},
-				{
-					"name" : "TD_DATA[7]",
 					"strict" : false
 				}
 			]

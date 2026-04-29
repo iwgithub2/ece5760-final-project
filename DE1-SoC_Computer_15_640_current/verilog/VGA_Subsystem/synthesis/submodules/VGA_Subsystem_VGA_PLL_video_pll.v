@@ -31,7 +31,7 @@ module  VGA_Subsystem_VGA_PLL_video_pll(
 		.output_clock_frequency1("25.000000 MHz"),
 		.phase_shift1("0 ps"),
 		.duty_cycle1(50),
-		.output_clock_frequency2("33.000000 MHz"),
+		.output_clock_frequency2("15.000000 MHz"),
 		.phase_shift2("0 ps"),
 		.duty_cycle2(50),
 		.output_clock_frequency3("0 MHz"),

@@ -9,14 +9,6 @@
    categories="System" />
  <parameter name="bonusData"><![CDATA[bonusData 
 {
-   element $${FILENAME}
-   {
-      datum _originalDeviceFamily
-      {
-         value = "Cyclone V";
-         type = "String";
-      }
-   }
    element Sys_Clk
    {
       datum _sortIndex
@@ -151,7 +143,7 @@
    internal="VGA_PLL.ref_reset"
    type="reset"
    dir="end" />
- <module name="Sys_Clk" kind="clock_source" version="15.0" enabled="1">
+ <module name="Sys_Clk" kind="clock_source" version="18.1" enabled="1">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="false" />
   <parameter name="inputClockFrequency" value="0" />
@@ -160,7 +152,7 @@
  <module
    name="VGA_Alpha_Blender"
    kind="altera_up_avalon_video_alpha_blender"
-   version="15.0"
+   version="18.0"
    enabled="1">
   <parameter name="AUTO_CLK_CLOCK_RATE" value="0" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
@@ -169,7 +161,7 @@
  <module
    name="VGA_Char_Buffer"
    kind="altera_up_avalon_video_character_buffer_with_dma"
-   version="15.0"
+   version="18.0"
    enabled="1">
   <parameter name="AUTO_CLK_CLOCK_RATE" value="0" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
@@ -181,7 +173,7 @@
  <module
    name="VGA_Controller"
    kind="altera_up_avalon_video_vga_controller"
-   version="15.0"
+   version="18.0"
    enabled="1">
   <parameter name="AUTO_CLK_CLOCK_RATE" value="25000000" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
@@ -193,7 +185,7 @@
  <module
    name="VGA_Dual_Clock_FIFO"
    kind="altera_up_avalon_video_dual_clock_buffer"
-   version="15.0"
+   version="18.0"
    enabled="1">
   <parameter name="AUTO_CLOCK_STREAM_IN_CLOCK_RATE" value="0" />
   <parameter name="AUTO_CLOCK_STREAM_OUT_CLOCK_RATE" value="25000000" />
@@ -204,15 +196,15 @@
  <module
    name="VGA_PLL"
    kind="altera_up_avalon_video_pll"
-   version="15.0"
+   version="18.0"
    enabled="1">
   <parameter name="AUTO_DEVICE" value="5CSEMA5F31C6" />
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="6" />
-  <parameter name="camera" value="5MP Digital Camera" />
+  <parameter name="camera">5MP Digital Camera (THDB_D5M)</parameter>
   <parameter name="device_family" value="Cyclone V" />
   <parameter name="gui_refclk" value="50.0" />
   <parameter name="gui_resolution" value="VGA 640x480" />
-  <parameter name="lcd">7" LCD on VEEK-MT and MTL Module</parameter>
+  <parameter name="lcd" value="2.4&quot; LCD on LT24" />
   <parameter name="lcd_clk_en" value="false" />
   <parameter name="vga_clk_en" value="true" />
   <parameter name="video_in_clk_en" value="false" />
@@ -220,7 +212,7 @@
  <module
    name="VGA_Pixel_DMA"
    kind="altera_up_avalon_video_pixel_buffer_dma"
-   version="15.0"
+   version="18.0"
    enabled="1">
   <parameter name="AUTO_CLK_CLOCK_RATE" value="0" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
@@ -234,7 +226,7 @@
  <module
    name="VGA_Pixel_FIFO"
    kind="altera_up_avalon_video_dual_clock_buffer"
-   version="15.0"
+   version="18.0"
    enabled="1">
   <parameter name="AUTO_CLOCK_STREAM_IN_CLOCK_RATE" value="0" />
   <parameter name="AUTO_CLOCK_STREAM_OUT_CLOCK_RATE" value="0" />
@@ -245,7 +237,7 @@
  <module
    name="VGA_Pixel_RGB_Resampler"
    kind="altera_up_avalon_video_rgb_resampler"
-   version="15.0"
+   version="18.0"
    enabled="1">
   <parameter name="AUTO_CLK_CLOCK_RATE" value="0" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
@@ -255,122 +247,122 @@
  </module>
  <connection
    kind="avalon_streaming"
-   version="15.0"
+   version="18.1"
    start="VGA_Alpha_Blender.avalon_blended_source"
    end="VGA_Dual_Clock_FIFO.avalon_dc_buffer_sink" />
  <connection
    kind="avalon_streaming"
-   version="15.0"
+   version="18.1"
    start="VGA_Char_Buffer.avalon_char_source"
    end="VGA_Alpha_Blender.avalon_foreground_sink" />
  <connection
    kind="avalon_streaming"
-   version="15.0"
+   version="18.1"
    start="VGA_Pixel_FIFO.avalon_dc_buffer_source"
    end="VGA_Pixel_RGB_Resampler.avalon_rgb_sink" />
  <connection
    kind="avalon_streaming"
-   version="15.0"
+   version="18.1"
    start="VGA_Dual_Clock_FIFO.avalon_dc_buffer_source"
    end="VGA_Controller.avalon_vga_sink" />
  <connection
    kind="avalon_streaming"
-   version="15.0"
+   version="18.1"
    start="VGA_Pixel_DMA.avalon_pixel_source"
    end="VGA_Pixel_FIFO.avalon_dc_buffer_sink" />
  <connection
    kind="avalon_streaming"
-   version="15.0"
+   version="18.1"
    start="VGA_Pixel_RGB_Resampler.avalon_rgb_source"
    end="VGA_Alpha_Blender.avalon_background_sink" />
  <connection
    kind="clock"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk"
    end="VGA_Pixel_DMA.clk" />
  <connection
    kind="clock"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk"
    end="VGA_Pixel_RGB_Resampler.clk" />
  <connection
    kind="clock"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk"
    end="VGA_Char_Buffer.clk" />
  <connection
    kind="clock"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk"
    end="VGA_Alpha_Blender.clk" />
  <connection
    kind="clock"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk"
    end="VGA_Pixel_FIFO.clock_stream_in" />
  <connection
    kind="clock"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk"
    end="VGA_Dual_Clock_FIFO.clock_stream_in" />
  <connection
    kind="clock"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk"
    end="VGA_Pixel_FIFO.clock_stream_out" />
  <connection
    kind="clock"
-   version="15.0"
+   version="18.1"
    start="VGA_PLL.vga_clk"
    end="VGA_Controller.clk" />
  <connection
    kind="clock"
-   version="15.0"
+   version="18.1"
    start="VGA_PLL.vga_clk"
    end="VGA_Dual_Clock_FIFO.clock_stream_out" />
  <connection
    kind="reset"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk_reset"
    end="VGA_Pixel_DMA.reset" />
  <connection
    kind="reset"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk_reset"
    end="VGA_Pixel_RGB_Resampler.reset" />
  <connection
    kind="reset"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk_reset"
    end="VGA_Char_Buffer.reset" />
  <connection
    kind="reset"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk_reset"
    end="VGA_Alpha_Blender.reset" />
  <connection
    kind="reset"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk_reset"
    end="VGA_Pixel_FIFO.reset_stream_in" />
  <connection
    kind="reset"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk_reset"
    end="VGA_Dual_Clock_FIFO.reset_stream_in" />
  <connection
    kind="reset"
-   version="15.0"
+   version="18.1"
    start="Sys_Clk.clk_reset"
    end="VGA_Pixel_FIFO.reset_stream_out" />
  <connection
    kind="reset"
-   version="15.0"
+   version="18.1"
    start="VGA_PLL.reset_source"
    end="VGA_Controller.reset" />
  <connection
    kind="reset"
-   version="15.0"
+   version="18.1"
    start="VGA_PLL.reset_source"
    end="VGA_Dual_Clock_FIFO.reset_stream_out" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
