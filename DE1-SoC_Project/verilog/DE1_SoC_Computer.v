@@ -1119,6 +1119,8 @@ module log_add (
         .data_out(lut_val_s2)
     );
 
+    assign result = force_zero_s2 ? max_val_s2 : max_val_s2 + lut_val_s2; // If diff is large, log(1+e^-x) ~ 0, so result ~ max_val
+
     // PIPELINE LOGIC
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -1153,14 +1155,6 @@ module log_add (
                 force_zero_s2 <= 1'b0;
             end
 
-            // ==========================================
-            // STAGE 3: Final Addition
-            // ==========================================
-            if (force_zero_s2) begin
-                result <= max_val_s2; // Add 0
-            end else begin
-                result <= max_val_s2 + lut_val_s2;
-            end
         end
     end
 endmodule
