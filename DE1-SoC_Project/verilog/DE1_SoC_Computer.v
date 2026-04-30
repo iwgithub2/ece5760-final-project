@@ -885,8 +885,10 @@ module mcmc_controller #(
                 end
 
                 S_DONE: begin
-                    done  <= 1'b1; // Alert the HPS!
-                    state <= S_IDLE;
+                    done  <= 1'b1; 
+							if (!start) begin // Wait for HPS to acknowledge
+								 state <= S_IDLE;
+							end
                 end
 
                 default: state <= S_IDLE;
@@ -923,8 +925,7 @@ module node_scorer (
     localparam FETCH_DATA    = 3'd2;
     localparam WAIT_LOGADD_1 = 3'd3;
     localparam WAIT_LOGADD_2 = 3'd4;
-    localparam WAIT_LOGADD_3 = 3'd5;
-    localparam DONE          = 3'd6;
+    localparam DONE          = 3'd5;
 
     reg [2:0] state;
     reg [9:0] cands_checked;
@@ -1011,11 +1012,11 @@ module node_scorer (
                     end
                 end
 
-                // Pipeline Delay States for Log-Add
+					 // Pipeline Delay States for Log-Add
                 WAIT_LOGADD_1: state <= WAIT_LOGADD_2;
-                WAIT_LOGADD_2: state <= WAIT_LOGADD_3;
-                WAIT_LOGADD_3: begin
-                    // 3 cycles have passed, log_add_out is valid
+                
+                WAIT_LOGADD_2: begin
+                    // 2 cycles have passed, log_add_out is valid
                     accum_score <= log_add_out;
                     
                     if (cands_checked + 1 == num_cands) begin
@@ -1099,7 +1100,7 @@ module log_add (
     input wire rst_n,
     input wire signed [31:0] a, // Q16.16 format
     input wire signed [31:0] b, // Q16.16 format
-    output reg signed [31:0] result
+    output wire signed [31:0] result
 );
 
     // --- Stage 1 Registers ---
@@ -1128,7 +1129,6 @@ module log_add (
             abs_diff_s1 <= 0;
             max_val_s2  <= 0;
             force_zero_s2 <= 0;
-            result      <= 0;
         end else begin
             // ==========================================
             // STAGE 1: Calculate Diff, Max, and Abs

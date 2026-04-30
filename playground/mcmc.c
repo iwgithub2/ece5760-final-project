@@ -1,3 +1,8 @@
+///////////////////////////////////////
+// compile with
+// gcc -std=gnu99 -pg mcmc.c -o mcmc -lm
+///////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

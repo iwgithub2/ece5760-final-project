@@ -2,8 +2,9 @@
 /// 640x480 version!
 /// test VGA with hardware video input copy to VGA
 // compile with
-
+// gcc -std=gnu99 mcmc_test.c -o mcmc_test
 ///////////////////////////////////////
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
