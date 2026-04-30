@@ -1,14 +1,11 @@
-///////////////////////////////////////
-/// 640x480 version!
-/// test VGA with hardware video input copy to VGA
-// compile with
-// gcc -std=gnu99 mcmc_test.c -o mcmc_test
-///////////////////////////////////////
+// gcc -std=gnu99 mcmc_test.c -o mcmc_test -pg -lm
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <math.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -19,420 +16,245 @@
 
 #include "address_map_arm_brl4.h"
 
-#define PIO_START_OFFSET 			0x00
-#define PIO_SEED_OFFSET    			0x10
-#define PIO_DONE_OFFSET			 	0x20
-#define PIO_BEST_SCORE_OFFSET 	 	0x30
+#define PIO_START_OFFSET        0x00
+#define PIO_SEED_OFFSET         0x10
+#define PIO_DONE_OFFSET         0x20
+#define PIO_BEST_SCORE_OFFSET   0x30
+#define PIO_NUM_CANDS_OFFSET    0x40 
+#define PIO_BEST_ORDER_OFFSET   0x50 
 
-#define RAM_0_OFFSET				0x0000
-#define RAM_1_OFFSET				0x1000
-#define RAM_2_OFFSET				0x2000
-#define RAM_3_OFFSET				0x3000
+#define RAM_0_OFFSET            0x0000
+#define RAM_1_OFFSET            0x1000
+#define RAM_2_OFFSET            0x2000
+#define RAM_3_OFFSET            0x3000
 
-/* function prototypes */
-void VGA_text (int, int, char *);
-void VGA_text_clear();
-void VGA_box (int, int, int, int, short);
-void VGA_line(int, int, int, int, short) ;
-void VGA_disc (int, int, int, short);
-int  VGA_read_pixel(int, int) ;
-int  video_in_read_pixel(int, int);
-void draw_delay(void) ;
+#define DATASET_NAME "asia"
+#define NUM_NODES 4 // Locked to 4 to match your current Verilog
+#define MAX_PARENTS_PER_NODE 64 
 
+char node_names[NUM_NODES][64];
 
-// the light weight buss base
+// --- Database Data Structures ---
+typedef struct {
+    unsigned int parent_bitmask;
+    float local_score;           
+} ParentSet;
+
+ParentSet precomputed_db[NUM_NODES][MAX_PARENTS_PER_NODE];
+int num_candidates[NUM_NODES]; 
+
+// FPGA Pointers
 void *h2p_lw_virtual_base;
 volatile unsigned int *pio_start=NULL;
 volatile unsigned int *pio_seed=NULL;
 volatile unsigned int *pio_done=NULL;
 volatile unsigned int *pio_best_score=NULL;
+volatile unsigned int *pio_num_cands=NULL;
+volatile unsigned int *pio_best_order=NULL;
 
-// RAM buffer
 volatile uint64_t *fpga_rams[4];
 void *fpga_ram_virtual_base;
 
-// pixel buffer
-volatile unsigned int * vga_pixel_ptr = NULL ;
-void *vga_pixel_virtual_base;
+// --- Precomputation Math ---
+int count_set_bits(unsigned int n) {
+    int count = 0;
+    while (n) {
+        count += n & 1;
+        n >>= 1;
+    }
+    return count;
+}
 
-// character buffer
-volatile unsigned int * vga_char_ptr = NULL ;
-void *vga_char_virtual_base;
+float calculate_bde_score(int** dataset, int num_samples, int target_node, unsigned int parent_mask) {
+    float alpha = 1.0f; 
+    int num_parents = count_set_bits(parent_mask);
+    int parent_indices[32]; 
+    int p_idx = 0;
+    for (int i = 0; i < NUM_NODES; i++) {
+        if (parent_mask & (1 << i)) parent_indices[p_idx++] = i;
+    }
+    int q = 1 << num_parents; 
+    float alpha_ij = alpha / (float)q;
+    float alpha_ijk = alpha_ij / 2.0f; 
+    float final_log_score = 0.0f;
 
-// /dev/mem file id
-int fd;
+    for (int state = 0; state < q; state++) {
+        int N_ijk[2] = {0, 0}; 
+        for (int row = 0; row < num_samples; row++) {
+            bool parents_match_state = true;
+            for (int p = 0; p < num_parents; p++) {
+                int p_node = parent_indices[p];
+                int expected_val = (state >> p) & 1; 
+                if (dataset[row][p_node] != expected_val) {
+                    parents_match_state = false;
+                    break;
+                }
+            }
+            if (parents_match_state) {
+                int target_val = dataset[row][target_node];
+                N_ijk[target_val]++;
+            }
+        }
+        int N_ij = N_ijk[0] + N_ijk[1]; 
+        final_log_score += lgammaf(alpha_ij) - lgammaf(alpha_ij + N_ij);
+        final_log_score += lgammaf(alpha_ijk + N_ijk[0]) - lgammaf(alpha_ijk);
+        final_log_score += lgammaf(alpha_ijk + N_ijk[1]) - lgammaf(alpha_ijk);
+    }
+    return final_log_score;
+}
 
-// shared memory 
-key_t mem_key=0xf0;
-int shared_mem_id; 
-int *shared_ptr;
-int shared_time;
-int shared_note;
-char shared_str[64];
+void precompute_fixed_k(int** dataset, int num_samples) {
+    for (int i = 0; i < NUM_NODES; i++) {
+        int candidate_count = 0;
+        unsigned int mask_k0 = 0;
+        precomputed_db[i][candidate_count].parent_bitmask = mask_k0;
+        precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k0);
+        candidate_count++;
 
-// pixel macro
-#define VGA_PIXEL(x,y,color) do{\
-	char  *pixel_ptr ;\
-	pixel_ptr = (char *)vga_pixel_ptr + ((y)<<10) + (x) ;\
-	*(char *)pixel_ptr = (color);\
-} while(0)
-	
+        for (int p1 = 0; p1 < NUM_NODES; p1++) {
+            if (p1 == i) continue;
+            unsigned int mask_k1 = (1 << p1);
+            precomputed_db[i][candidate_count].parent_bitmask = mask_k1;
+            precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k1);
+            candidate_count++;
+        }
 
-// measure time
-struct timeval t1, t2;
-double elapsedTime;
-struct timespec delay_time ;
-	
+        for (int p1 = 0; p1 < NUM_NODES; p1++) {
+            if (p1 == i) continue;
+            for (int p2 = p1 + 1; p2 < NUM_NODES; p2++) {
+                if (p2 == i) continue;
+                unsigned int mask_k2 = (1 << p1) | (1 << p2);
+                precomputed_db[i][candidate_count].parent_bitmask = mask_k2;
+                precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k2);
+                candidate_count++;
+            }
+        }
+        num_candidates[i] = candidate_count;
+    }
+}
+
+int** load_csv(const char* filename, int* out_num_samples, int num_nodes) {
+    FILE* file = fopen(filename, "r");
+    if (!file) { printf("Failed to open %s\n", filename); exit(1); }
+    char buffer[2048];
+    if (fgets(buffer, sizeof(buffer), file)) {
+        char* token = strtok(buffer, ",\n\r");
+        int i = 0;
+        while (token && i < num_nodes) {
+            strncpy(node_names[i], token, 63);
+            node_names[i][63] = '\0'; 
+            token = strtok(NULL, ",\n\r");
+            i++;
+        }
+    }
+    int lines = 0;
+    long data_start_pos = ftell(file); 
+    while (fgets(buffer, sizeof(buffer), file)) lines++;
+    *out_num_samples = lines; 
+
+    int** dataset = (int**)malloc((*out_num_samples) * sizeof(int*));
+    for (int i = 0; i < *out_num_samples; i++) dataset[i] = (int*)malloc(num_nodes * sizeof(int));
+    fseek(file, data_start_pos, SEEK_SET);
+
+    int row = 0;
+    while (fgets(buffer, sizeof(buffer), file) && row < *out_num_samples) {
+        char* token = strtok(buffer, ",");
+        int col = 0;
+        while (token && col < num_nodes) {
+            dataset[row][col] = atoi(token);
+            token = strtok(NULL, ",");
+            col++;
+        }
+        row++;
+    }
+    fclose(file);
+    return dataset;
+}
+
+int32_t float_to_q16(float val) {
+    float scaled = val * 65536.0f;
+    if (scaled > 2147483647.0f) return 2147483647; // 32-bit signed max
+    if (scaled < -2147483648.0f) return -2147483648; // 32-bit signed min
+    return (int32_t)scaled;
+}
+
 int main(void)
 {
-	delay_time.tv_nsec = 10 ;
-	delay_time.tv_sec = 0 ;
-
-	// Declare volatile pointers to I/O registers (volatile 	// means that IO load and store instructions will be used 	// to access these pointer locations, 
-	// instead of regular memory loads and stores) 
-  	
-	// === need to mmap: =======================
-	// FPGA_CHAR_BASE
-	// FPGA_ONCHIP_BASE      
-	// HW_REGS_BASE        
-  
-	// === get FPGA addresses ==================
-    // Open /dev/mem
-	if( ( fd = open( "/dev/mem", ( O_RDWR | O_SYNC ) ) ) == -1 ) 	{
-		printf( "ERROR: could not open \"/dev/mem\"...\n" );
-		return( 1 );
-	}
+    // === Get FPGA addresses ===
+    int fd;
+    if( ( fd = open( "/dev/mem", ( O_RDWR | O_SYNC ) ) ) == -1 ) {
+        printf( "ERROR: could not open \"/dev/mem\"...\n" ); return( 1 );
+    }
     
-    // get virtual addr that maps to physical
-	// for light weight bus
-	h2p_lw_virtual_base = mmap( NULL, HW_REGS_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, HW_REGS_BASE );	
-	if( h2p_lw_virtual_base == MAP_FAILED ) {
-		printf( "ERROR: mmap1() failed...\n" );
-		close( fd );
-		return(1);
-	}
+    h2p_lw_virtual_base = mmap( NULL, HW_REGS_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, HW_REGS_BASE );    
+    if( h2p_lw_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap1() failed...\n" ); close( fd ); return(1); }
 
-	pio_start 		= (unsigned int *)(h2p_lw_virtual_base + PIO_START_OFFSET);
-	pio_seed 		= (unsigned int *)(h2p_lw_virtual_base + PIO_SEED_OFFSET);
-	pio_done 		= (unsigned int *)(h2p_lw_virtual_base + PIO_DONE_OFFSET);
-	pio_best_score	= (unsigned int *)(h2p_lw_virtual_base + PIO_BEST_SCORE_OFFSET);
-	
-	// === get VGA char addr =====================
-	// get virtual addr that maps to physical
-	vga_char_virtual_base = mmap( NULL, FPGA_CHAR_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_CHAR_BASE );	
-	if( vga_char_virtual_base == MAP_FAILED ) {
-		printf( "ERROR: mmap2() failed...\n" );
-		close( fd );
-		return(1);
-	}
+    pio_start         = (unsigned int *)(h2p_lw_virtual_base + PIO_START_OFFSET);
+    pio_seed          = (unsigned int *)(h2p_lw_virtual_base + PIO_SEED_OFFSET);
+    pio_done          = (unsigned int *)(h2p_lw_virtual_base + PIO_DONE_OFFSET);
+    pio_best_score    = (unsigned int *)(h2p_lw_virtual_base + PIO_BEST_SCORE_OFFSET);
+    pio_num_cands     = (unsigned int *)(h2p_lw_virtual_base + PIO_NUM_CANDS_OFFSET);
+    pio_best_order    = (unsigned int *)(h2p_lw_virtual_base + PIO_BEST_ORDER_OFFSET);
     
-    // Get the address that maps to the character 
-	vga_char_ptr =(unsigned int *)(vga_char_virtual_base);
-
-	// === get VGA pixel addr ====================
-	// get virtual addr that maps to physical
-	// SDRAM
-	vga_pixel_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, SDRAM_BASE); //SDRAM_BASE	
-	
-	if( vga_pixel_virtual_base == MAP_FAILED ) {
-		printf( "ERROR: mmap3() failed...\n" );
-		close( fd );
-		return(1);
-	}
-    // Get the address that maps to the FPGA pixel buffer
-	vga_pixel_ptr =(unsigned int *)(vga_pixel_virtual_base);
-	
-	// === get RAM addr =========
-	fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); //fp	
-
-	if( fpga_ram_virtual_base == MAP_FAILED ) {
-		printf( "ERROR: mmap3() failed...\n" );
-		close( fd );
-		return(1);
-	}
-    // Get the address that maps to the RAM buffer
-	
-// Force byte-level arithmetic by casting to (uint8_t *) first
+    fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); 
+    if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
+    
     fpga_rams[0] = (uint64_t *)((uint8_t *)fpga_ram_virtual_base + RAM_0_OFFSET);
     fpga_rams[1] = (uint64_t *)((uint8_t *)fpga_ram_virtual_base + RAM_1_OFFSET);
     fpga_rams[2] = (uint64_t *)((uint8_t *)fpga_ram_virtual_base + RAM_2_OFFSET);
     fpga_rams[3] = (uint64_t *)((uint8_t *)fpga_ram_virtual_base + RAM_3_OFFSET);
 
-	// ===========================================
+    // === 1. Load Dataset & Precompute (ARM) ===
+    printf("Loading dataset and precomputing...\n");
+    char samples_path[256];
+    sprintf(samples_path, "cleaned-datasets/%s_samples.csv", DATASET_NAME);
+    int num_samples;
+    int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
+    precompute_fixed_k(dataset, num_samples);
 
-	/* create a message to be displayed on the VGA 
-          and LCD displays */
-	char text_top_row[40] = "DE1-SoC ARM/FPGA\0";
-	char text_bottom_row[40] = "Cornell ece5760\0";
-	char num_string[20], time_string[50] ;
-	
-	// a pixel from the video
-	int pixel_color;
-	// video input index
-	int i,j;
-	
-	// clear the screen
-	VGA_box (0, 0, 639, 479, 0x03);
-	// clear the text
-	VGA_text_clear();
-	VGA_text (1, 56, text_top_row);
-	VGA_text (1, 57, text_bottom_row);
-	
-	printf("Writing to memory\n");
-	// Load dummy precomputed data into all 4 RAMs
-	for (int i = 0; i < 4; i++) {
-        // Candidate 0: Mask = 0x0 (No parents). Score = 5.0
-        *(fpga_rams[i] + 0) = ((uint64_t)0x00000000 << 32) | 0x00050000;
-        
-        // Candidate 1: Mask = 0x1. Score = 5.0
-        *(fpga_rams[i] + 1) = ((uint64_t)0x00000001 << 32) | 0x00050000;
-        
-        // Candidate 2: Mask = 0x8. Score = 100.0 (0x640000)
-        *(fpga_rams[i] + 2) = ((uint64_t)0x00000008 << 32) | 0x00640000;
+    // === 2. Transfer Data to FPGA ===
+    printf("Writing databases to FPGA M10K blocks...\n");
+    uint32_t num_cands_packed = 0;
+
+    for (int i = 0; i < NUM_NODES; i++) {
+        // Pack the candidate count for node `i` into the correct byte position
+        num_cands_packed |= (num_candidates[i] & 0xFF) << (i * 8);
+
+        for (int p = 0; p < num_candidates[i]; p++) {
+            uint64_t mask = (uint64_t)precomputed_db[i][p].parent_bitmask;
+            int32_t q16_score = float_to_q16(precomputed_db[i][p].local_score);
+            
+            // Pack: [63:32] Mask, [31:0] Score
+            uint64_t packed_word = (mask << 32) | (uint32_t)q16_score;
+            *(fpga_rams[i] + p) = packed_word;
+        }
     }
-
-	usleep(1000);
-
-    *pio_seed = 0xABCD1234; // Give the LFSR a starting seed
-	printf("Set seed and start\n");
-
-	usleep(1000);
-
-    *pio_start = 1;         // Kick off the 10,000 iterations!
     
-	usleep(1000);
+    *pio_num_cands = num_cands_packed; // Tell the FPGA how many to process
+    *pio_seed = 0xABCD1234;            // Seed the LFSR
 
-    while (*pio_done == 0) { } // Wait for MCMC to finish
+    // === 3. Run Hardware MCMC ===
+    printf("Starting FPGA Acceleration...\n");
+    *pio_start = 1;
     
-    *pio_start = 0;
-    printf("MCMC Best Score: %08X\n", *pio_best_score);
+    while (*pio_done == 0) { } // Wait for FPGA 
+    *pio_start = 0; // Acknowledge completion
+    
+    int32_t hw_best_score = (int32_t)(*pio_best_score);
+    float float_score = (float)hw_best_score / 65536.0f;
+    printf("MCMC Best Score: %f (Hex: %08X)\n", float_score, hw_best_score);
 
-	// int test_val = 0;
-	// while(1) 
-	// {
-	// 	// HPS writes to m10k address 0
-    //     *(fpga_ram_ptr + 0) = test_val;
+    // === 4. Unpack Best Order ===
+    int best_order[NUM_NODES];
+    uint32_t packed_order = *pio_best_order;
+    
+    printf("Hardware Final Order: ");
+    for (int i = 0; i < NUM_NODES; i++) {
+        best_order[i] = (packed_order >> (i * 8)) & 0xFF;
+        printf("%s ", node_names[best_order[i]]);
+        if (i < NUM_NODES - 1) printf("-> ");
+    }
+    printf("\n");
 
-    //     usleep(1000);
-
-    //     // HPS reads from address 1
-    //     int read_back = *(fpga_ram_ptr + 1);
-
-	// 	printf("Wrote: %d | FPGA echoed: %d\n", test_val, read_back);
-    //     test_val++;
-    //     sleep(1);
-
-	// } // end while(1)
-} // end main
-
-
-/****************************************************************************************
- * Subroutine to read a pixel from the video input 
-****************************************************************************************/
-// int  video_in_read_pixel(int x, int y){
-	// char  *pixel_ptr ;
-	// pixel_ptr = (char *)video_in_ptr + ((y)<<9) + (x) ;
-	// return *pixel_ptr ;
-// }
-
-/****************************************************************************************
- * Subroutine to read a pixel from the VGA monitor 
-****************************************************************************************/
-int  VGA_read_pixel(int x, int y){
-	char  *pixel_ptr ;
-	pixel_ptr = (char *)vga_pixel_ptr + ((y)<<10) + (x) ;
-	return *pixel_ptr ;
+    return 0;
 }
-
-/****************************************************************************************
- * Subroutine to send a string of text to the VGA monitor 
-****************************************************************************************/
-void VGA_text(int x, int y, char * text_ptr)
-{
-  	volatile char * character_buffer = (char *) vga_char_ptr ;	// VGA character buffer
-	int offset;
-	/* assume that the text string fits on one line */
-	offset = (y << 7) + x;
-	while ( *(text_ptr) )
-	{
-		// write to the character buffer
-		*(character_buffer + offset) = *(text_ptr);	
-		++text_ptr;
-		++offset;
-	}
-}
-
-/****************************************************************************************
- * Subroutine to clear text to the VGA monitor 
-****************************************************************************************/
-void VGA_text_clear()
-{
-  	volatile char * character_buffer = (char *) vga_char_ptr ;	// VGA character buffer
-	int offset, x, y;
-	for (x=0; x<79; x++){
-		for (y=0; y<59; y++){
-	/* assume that the text string fits on one line */
-			offset = (y << 7) + x;
-			// write to the character buffer
-			*(character_buffer + offset) = ' ';		
-		}
-	}
-}
-
-/****************************************************************************************
- * Draw a filled rectangle on the VGA monitor 
-****************************************************************************************/
-#define SWAP(X,Y) do{int temp=X; X=Y; Y=temp;}while(0) 
-
-void VGA_box(int x1, int y1, int x2, int y2, short pixel_color)
-{
-	char  *pixel_ptr ; 
-	int row, col;
-
-	/* check and fix box coordinates to be valid */
-	if (x1>639) x1 = 639;
-	if (y1>479) y1 = 479;
-	if (x2>639) x2 = 639;
-	if (y2>479) y2 = 479;
-	if (x1<0) x1 = 0;
-	if (y1<0) y1 = 0;
-	if (x2<0) x2 = 0;
-	if (y2<0) y2 = 0;
-	if (x1>x2) SWAP(x1,x2);
-	if (y1>y2) SWAP(y1,y2);
-	for (row = y1; row <= y2; row++)
-		for (col = x1; col <= x2; ++col)
-		{
-			//640x480
-			pixel_ptr = (char *)vga_pixel_ptr + (row<<10)    + col ;
-			// set pixel color
-			*(char *)pixel_ptr = pixel_color;		
-		}
-}
-
-/****************************************************************************************
- * Draw a filled circle on the VGA monitor 
-****************************************************************************************/
-
-void VGA_disc(int x, int y, int r, short pixel_color)
-{
-	char  *pixel_ptr ; 
-	int row, col, rsqr, xc, yc;
-	
-	rsqr = r*r;
-	
-	for (yc = -r; yc <= r; yc++)
-		for (xc = -r; xc <= r; xc++)
-		{
-			col = xc;
-			row = yc;
-			// add the r to make the edge smoother
-			if(col*col+row*row <= rsqr+r){
-				col += x; // add the center point
-				row += y; // add the center point
-				//check for valid 640x480
-				if (col>639) col = 639;
-				if (row>479) row = 479;
-				if (col<0) col = 0;
-				if (row<0) row = 0;
-				pixel_ptr = (char *)vga_pixel_ptr + (row<<10) + col ;
-				// set pixel color
-				//nanosleep(&delay_time, NULL);
-				//draw_delay();
-				*(char *)pixel_ptr = pixel_color;
-			}
-					
-		}
-}
-
-// =============================================
-// === Draw a line
-// =============================================
-//plot a line 
-//at x1,y1 to x2,y2 with color 
-//Code is from David Rodgers,
-//"Procedural Elements of Computer Graphics",1985
-void VGA_line(int x1, int y1, int x2, int y2, short c) {
-	int e;
-	signed int dx,dy,j, temp;
-	signed int s1,s2, xchange;
-     signed int x,y;
-	char *pixel_ptr ;
-	
-	/* check and fix line coordinates to be valid */
-	if (x1>639) x1 = 639;
-	if (y1>479) y1 = 479;
-	if (x2>639) x2 = 639;
-	if (y2>479) y2 = 479;
-	if (x1<0) x1 = 0;
-	if (y1<0) y1 = 0;
-	if (x2<0) x2 = 0;
-	if (y2<0) y2 = 0;
-        
-	x = x1;
-	y = y1;
-	
-	//take absolute value
-	if (x2 < x1) {
-		dx = x1 - x2;
-		s1 = -1;
-	}
-
-	else if (x2 == x1) {
-		dx = 0;
-		s1 = 0;
-	}
-
-	else {
-		dx = x2 - x1;
-		s1 = 1;
-	}
-
-	if (y2 < y1) {
-		dy = y1 - y2;
-		s2 = -1;
-	}
-
-	else if (y2 == y1) {
-		dy = 0;
-		s2 = 0;
-	}
-
-	else {
-		dy = y2 - y1;
-		s2 = 1;
-	}
-
-	xchange = 0;   
-
-	if (dy>dx) {
-		temp = dx;
-		dx = dy;
-		dy = temp;
-		xchange = 1;
-	} 
-
-	e = ((int)dy<<1) - dx;  
-	 
-	for (j=0; j<=dx; j++) {
-		//video_pt(x,y,c); //640x480
-		pixel_ptr = (char *)vga_pixel_ptr + (y<<10)+ x; 
-		// set pixel color
-		*(char *)pixel_ptr = c;	
-		 
-		if (e>=0) {
-			if (xchange==1) x = x + s1;
-			else y = y + s2;
-			e = e - ((int)dx<<1);
-		}
-
-		if (xchange==1) y = y + s2;
-		else x = x + s1;
-
-		e = e + ((int)dy<<1);
-	}
-}
-
-
-/// /// ///////////////////////////////////// 
-/// end /////////////////////////////////////

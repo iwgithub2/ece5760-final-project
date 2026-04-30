@@ -82,8 +82,31 @@
 			onchip_sram_0_s1_readdata                 : out   std_logic_vector(63 downto 0);                    -- readdata
 			onchip_sram_0_s1_writedata                : in    std_logic_vector(63 downto 0) := (others => 'X'); -- writedata
 			onchip_sram_0_s1_byteenable               : in    std_logic_vector(7 downto 0)  := (others => 'X'); -- byteenable
-			pio_done_external_connection_export       : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
+			onchip_sram_1_s1_address                  : in    std_logic_vector(6 downto 0)  := (others => 'X'); -- address
+			onchip_sram_1_s1_clken                    : in    std_logic                     := 'X';             -- clken
+			onchip_sram_1_s1_chipselect               : in    std_logic                     := 'X';             -- chipselect
+			onchip_sram_1_s1_write                    : in    std_logic                     := 'X';             -- write
+			onchip_sram_1_s1_readdata                 : out   std_logic_vector(63 downto 0);                    -- readdata
+			onchip_sram_1_s1_writedata                : in    std_logic_vector(63 downto 0) := (others => 'X'); -- writedata
+			onchip_sram_1_s1_byteenable               : in    std_logic_vector(7 downto 0)  := (others => 'X'); -- byteenable
+			onchip_sram_2_s1_address                  : in    std_logic_vector(6 downto 0)  := (others => 'X'); -- address
+			onchip_sram_2_s1_clken                    : in    std_logic                     := 'X';             -- clken
+			onchip_sram_2_s1_chipselect               : in    std_logic                     := 'X';             -- chipselect
+			onchip_sram_2_s1_write                    : in    std_logic                     := 'X';             -- write
+			onchip_sram_2_s1_readdata                 : out   std_logic_vector(63 downto 0);                    -- readdata
+			onchip_sram_2_s1_writedata                : in    std_logic_vector(63 downto 0) := (others => 'X'); -- writedata
+			onchip_sram_2_s1_byteenable               : in    std_logic_vector(7 downto 0)  := (others => 'X'); -- byteenable
+			onchip_sram_3_s1_address                  : in    std_logic_vector(6 downto 0)  := (others => 'X'); -- address
+			onchip_sram_3_s1_clken                    : in    std_logic                     := 'X';             -- clken
+			onchip_sram_3_s1_chipselect               : in    std_logic                     := 'X';             -- chipselect
+			onchip_sram_3_s1_write                    : in    std_logic                     := 'X';             -- write
+			onchip_sram_3_s1_readdata                 : out   std_logic_vector(63 downto 0);                    -- readdata
+			onchip_sram_3_s1_writedata                : in    std_logic_vector(63 downto 0) := (others => 'X'); -- writedata
+			onchip_sram_3_s1_byteenable               : in    std_logic_vector(7 downto 0)  := (others => 'X'); -- byteenable
+			pio_best_order_external_connection_export : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
 			pio_best_score_external_connection_export : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
+			pio_done_external_connection_export       : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
+			pio_num_cands_external_connection_export  : out   std_logic_vector(31 downto 0);                    -- export
 			pio_seed_external_connection_export       : out   std_logic_vector(31 downto 0);                    -- export
 			pio_start_external_connection_export      : out   std_logic_vector(31 downto 0);                    -- export
 			sdram_addr                                : out   std_logic_vector(12 downto 0);                    -- addr
@@ -107,28 +130,7 @@
 			vga_G                                     : out   std_logic_vector(7 downto 0);                     -- G
 			vga_B                                     : out   std_logic_vector(7 downto 0);                     -- B
 			vga_pll_ref_clk_clk                       : in    std_logic                     := 'X';             -- clk
-			vga_pll_ref_reset_reset                   : in    std_logic                     := 'X';             -- reset
-			onchip_sram_1_s1_address                  : in    std_logic_vector(6 downto 0)  := (others => 'X'); -- address
-			onchip_sram_1_s1_clken                    : in    std_logic                     := 'X';             -- clken
-			onchip_sram_1_s1_chipselect               : in    std_logic                     := 'X';             -- chipselect
-			onchip_sram_1_s1_write                    : in    std_logic                     := 'X';             -- write
-			onchip_sram_1_s1_readdata                 : out   std_logic_vector(63 downto 0);                    -- readdata
-			onchip_sram_1_s1_writedata                : in    std_logic_vector(63 downto 0) := (others => 'X'); -- writedata
-			onchip_sram_1_s1_byteenable               : in    std_logic_vector(7 downto 0)  := (others => 'X'); -- byteenable
-			onchip_sram_2_s1_address                  : in    std_logic_vector(6 downto 0)  := (others => 'X'); -- address
-			onchip_sram_2_s1_clken                    : in    std_logic                     := 'X';             -- clken
-			onchip_sram_2_s1_chipselect               : in    std_logic                     := 'X';             -- chipselect
-			onchip_sram_2_s1_write                    : in    std_logic                     := 'X';             -- write
-			onchip_sram_2_s1_readdata                 : out   std_logic_vector(63 downto 0);                    -- readdata
-			onchip_sram_2_s1_writedata                : in    std_logic_vector(63 downto 0) := (others => 'X'); -- writedata
-			onchip_sram_2_s1_byteenable               : in    std_logic_vector(7 downto 0)  := (others => 'X'); -- byteenable
-			onchip_sram_3_s1_address                  : in    std_logic_vector(6 downto 0)  := (others => 'X'); -- address
-			onchip_sram_3_s1_clken                    : in    std_logic                     := 'X';             -- clken
-			onchip_sram_3_s1_chipselect               : in    std_logic                     := 'X';             -- chipselect
-			onchip_sram_3_s1_write                    : in    std_logic                     := 'X';             -- write
-			onchip_sram_3_s1_readdata                 : out   std_logic_vector(63 downto 0);                    -- readdata
-			onchip_sram_3_s1_writedata                : in    std_logic_vector(63 downto 0) := (others => 'X'); -- writedata
-			onchip_sram_3_s1_byteenable               : in    std_logic_vector(7 downto 0)  := (others => 'X')  -- byteenable
+			vga_pll_ref_reset_reset                   : in    std_logic                     := 'X'              -- reset
 		);
 	end component Computer_System;
 
@@ -216,8 +218,31 @@
 			onchip_sram_0_s1_readdata                 => CONNECTED_TO_onchip_sram_0_s1_readdata,                 --                                   .readdata
 			onchip_sram_0_s1_writedata                => CONNECTED_TO_onchip_sram_0_s1_writedata,                --                                   .writedata
 			onchip_sram_0_s1_byteenable               => CONNECTED_TO_onchip_sram_0_s1_byteenable,               --                                   .byteenable
-			pio_done_external_connection_export       => CONNECTED_TO_pio_done_external_connection_export,       --       pio_done_external_connection.export
+			onchip_sram_1_s1_address                  => CONNECTED_TO_onchip_sram_1_s1_address,                  --                   onchip_sram_1_s1.address
+			onchip_sram_1_s1_clken                    => CONNECTED_TO_onchip_sram_1_s1_clken,                    --                                   .clken
+			onchip_sram_1_s1_chipselect               => CONNECTED_TO_onchip_sram_1_s1_chipselect,               --                                   .chipselect
+			onchip_sram_1_s1_write                    => CONNECTED_TO_onchip_sram_1_s1_write,                    --                                   .write
+			onchip_sram_1_s1_readdata                 => CONNECTED_TO_onchip_sram_1_s1_readdata,                 --                                   .readdata
+			onchip_sram_1_s1_writedata                => CONNECTED_TO_onchip_sram_1_s1_writedata,                --                                   .writedata
+			onchip_sram_1_s1_byteenable               => CONNECTED_TO_onchip_sram_1_s1_byteenable,               --                                   .byteenable
+			onchip_sram_2_s1_address                  => CONNECTED_TO_onchip_sram_2_s1_address,                  --                   onchip_sram_2_s1.address
+			onchip_sram_2_s1_clken                    => CONNECTED_TO_onchip_sram_2_s1_clken,                    --                                   .clken
+			onchip_sram_2_s1_chipselect               => CONNECTED_TO_onchip_sram_2_s1_chipselect,               --                                   .chipselect
+			onchip_sram_2_s1_write                    => CONNECTED_TO_onchip_sram_2_s1_write,                    --                                   .write
+			onchip_sram_2_s1_readdata                 => CONNECTED_TO_onchip_sram_2_s1_readdata,                 --                                   .readdata
+			onchip_sram_2_s1_writedata                => CONNECTED_TO_onchip_sram_2_s1_writedata,                --                                   .writedata
+			onchip_sram_2_s1_byteenable               => CONNECTED_TO_onchip_sram_2_s1_byteenable,               --                                   .byteenable
+			onchip_sram_3_s1_address                  => CONNECTED_TO_onchip_sram_3_s1_address,                  --                   onchip_sram_3_s1.address
+			onchip_sram_3_s1_clken                    => CONNECTED_TO_onchip_sram_3_s1_clken,                    --                                   .clken
+			onchip_sram_3_s1_chipselect               => CONNECTED_TO_onchip_sram_3_s1_chipselect,               --                                   .chipselect
+			onchip_sram_3_s1_write                    => CONNECTED_TO_onchip_sram_3_s1_write,                    --                                   .write
+			onchip_sram_3_s1_readdata                 => CONNECTED_TO_onchip_sram_3_s1_readdata,                 --                                   .readdata
+			onchip_sram_3_s1_writedata                => CONNECTED_TO_onchip_sram_3_s1_writedata,                --                                   .writedata
+			onchip_sram_3_s1_byteenable               => CONNECTED_TO_onchip_sram_3_s1_byteenable,               --                                   .byteenable
+			pio_best_order_external_connection_export => CONNECTED_TO_pio_best_order_external_connection_export, -- pio_best_order_external_connection.export
 			pio_best_score_external_connection_export => CONNECTED_TO_pio_best_score_external_connection_export, -- pio_best_score_external_connection.export
+			pio_done_external_connection_export       => CONNECTED_TO_pio_done_external_connection_export,       --       pio_done_external_connection.export
+			pio_num_cands_external_connection_export  => CONNECTED_TO_pio_num_cands_external_connection_export,  --  pio_num_cands_external_connection.export
 			pio_seed_external_connection_export       => CONNECTED_TO_pio_seed_external_connection_export,       --       pio_seed_external_connection.export
 			pio_start_external_connection_export      => CONNECTED_TO_pio_start_external_connection_export,      --      pio_start_external_connection.export
 			sdram_addr                                => CONNECTED_TO_sdram_addr,                                --                              sdram.addr
@@ -241,27 +266,6 @@
 			vga_G                                     => CONNECTED_TO_vga_G,                                     --                                   .G
 			vga_B                                     => CONNECTED_TO_vga_B,                                     --                                   .B
 			vga_pll_ref_clk_clk                       => CONNECTED_TO_vga_pll_ref_clk_clk,                       --                    vga_pll_ref_clk.clk
-			vga_pll_ref_reset_reset                   => CONNECTED_TO_vga_pll_ref_reset_reset,                   --                  vga_pll_ref_reset.reset
-			onchip_sram_1_s1_address                  => CONNECTED_TO_onchip_sram_1_s1_address,                  --                   onchip_sram_1_s1.address
-			onchip_sram_1_s1_clken                    => CONNECTED_TO_onchip_sram_1_s1_clken,                    --                                   .clken
-			onchip_sram_1_s1_chipselect               => CONNECTED_TO_onchip_sram_1_s1_chipselect,               --                                   .chipselect
-			onchip_sram_1_s1_write                    => CONNECTED_TO_onchip_sram_1_s1_write,                    --                                   .write
-			onchip_sram_1_s1_readdata                 => CONNECTED_TO_onchip_sram_1_s1_readdata,                 --                                   .readdata
-			onchip_sram_1_s1_writedata                => CONNECTED_TO_onchip_sram_1_s1_writedata,                --                                   .writedata
-			onchip_sram_1_s1_byteenable               => CONNECTED_TO_onchip_sram_1_s1_byteenable,               --                                   .byteenable
-			onchip_sram_2_s1_address                  => CONNECTED_TO_onchip_sram_2_s1_address,                  --                   onchip_sram_2_s1.address
-			onchip_sram_2_s1_clken                    => CONNECTED_TO_onchip_sram_2_s1_clken,                    --                                   .clken
-			onchip_sram_2_s1_chipselect               => CONNECTED_TO_onchip_sram_2_s1_chipselect,               --                                   .chipselect
-			onchip_sram_2_s1_write                    => CONNECTED_TO_onchip_sram_2_s1_write,                    --                                   .write
-			onchip_sram_2_s1_readdata                 => CONNECTED_TO_onchip_sram_2_s1_readdata,                 --                                   .readdata
-			onchip_sram_2_s1_writedata                => CONNECTED_TO_onchip_sram_2_s1_writedata,                --                                   .writedata
-			onchip_sram_2_s1_byteenable               => CONNECTED_TO_onchip_sram_2_s1_byteenable,               --                                   .byteenable
-			onchip_sram_3_s1_address                  => CONNECTED_TO_onchip_sram_3_s1_address,                  --                   onchip_sram_3_s1.address
-			onchip_sram_3_s1_clken                    => CONNECTED_TO_onchip_sram_3_s1_clken,                    --                                   .clken
-			onchip_sram_3_s1_chipselect               => CONNECTED_TO_onchip_sram_3_s1_chipselect,               --                                   .chipselect
-			onchip_sram_3_s1_write                    => CONNECTED_TO_onchip_sram_3_s1_write,                    --                                   .write
-			onchip_sram_3_s1_readdata                 => CONNECTED_TO_onchip_sram_3_s1_readdata,                 --                                   .readdata
-			onchip_sram_3_s1_writedata                => CONNECTED_TO_onchip_sram_3_s1_writedata,                --                                   .writedata
-			onchip_sram_3_s1_byteenable               => CONNECTED_TO_onchip_sram_3_s1_byteenable                --                                   .byteenable
+			vga_pll_ref_reset_reset                   => CONNECTED_TO_vga_pll_ref_reset_reset                    --                  vga_pll_ref_reset.reset
 		);
 

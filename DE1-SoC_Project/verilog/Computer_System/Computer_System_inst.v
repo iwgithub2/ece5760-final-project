@@ -81,8 +81,31 @@
 		.onchip_sram_0_s1_readdata                 (<connected-to-onchip_sram_0_s1_readdata>),                 //                                   .readdata
 		.onchip_sram_0_s1_writedata                (<connected-to-onchip_sram_0_s1_writedata>),                //                                   .writedata
 		.onchip_sram_0_s1_byteenable               (<connected-to-onchip_sram_0_s1_byteenable>),               //                                   .byteenable
-		.pio_done_external_connection_export       (<connected-to-pio_done_external_connection_export>),       //       pio_done_external_connection.export
+		.onchip_sram_1_s1_address                  (<connected-to-onchip_sram_1_s1_address>),                  //                   onchip_sram_1_s1.address
+		.onchip_sram_1_s1_clken                    (<connected-to-onchip_sram_1_s1_clken>),                    //                                   .clken
+		.onchip_sram_1_s1_chipselect               (<connected-to-onchip_sram_1_s1_chipselect>),               //                                   .chipselect
+		.onchip_sram_1_s1_write                    (<connected-to-onchip_sram_1_s1_write>),                    //                                   .write
+		.onchip_sram_1_s1_readdata                 (<connected-to-onchip_sram_1_s1_readdata>),                 //                                   .readdata
+		.onchip_sram_1_s1_writedata                (<connected-to-onchip_sram_1_s1_writedata>),                //                                   .writedata
+		.onchip_sram_1_s1_byteenable               (<connected-to-onchip_sram_1_s1_byteenable>),               //                                   .byteenable
+		.onchip_sram_2_s1_address                  (<connected-to-onchip_sram_2_s1_address>),                  //                   onchip_sram_2_s1.address
+		.onchip_sram_2_s1_clken                    (<connected-to-onchip_sram_2_s1_clken>),                    //                                   .clken
+		.onchip_sram_2_s1_chipselect               (<connected-to-onchip_sram_2_s1_chipselect>),               //                                   .chipselect
+		.onchip_sram_2_s1_write                    (<connected-to-onchip_sram_2_s1_write>),                    //                                   .write
+		.onchip_sram_2_s1_readdata                 (<connected-to-onchip_sram_2_s1_readdata>),                 //                                   .readdata
+		.onchip_sram_2_s1_writedata                (<connected-to-onchip_sram_2_s1_writedata>),                //                                   .writedata
+		.onchip_sram_2_s1_byteenable               (<connected-to-onchip_sram_2_s1_byteenable>),               //                                   .byteenable
+		.onchip_sram_3_s1_address                  (<connected-to-onchip_sram_3_s1_address>),                  //                   onchip_sram_3_s1.address
+		.onchip_sram_3_s1_clken                    (<connected-to-onchip_sram_3_s1_clken>),                    //                                   .clken
+		.onchip_sram_3_s1_chipselect               (<connected-to-onchip_sram_3_s1_chipselect>),               //                                   .chipselect
+		.onchip_sram_3_s1_write                    (<connected-to-onchip_sram_3_s1_write>),                    //                                   .write
+		.onchip_sram_3_s1_readdata                 (<connected-to-onchip_sram_3_s1_readdata>),                 //                                   .readdata
+		.onchip_sram_3_s1_writedata                (<connected-to-onchip_sram_3_s1_writedata>),                //                                   .writedata
+		.onchip_sram_3_s1_byteenable               (<connected-to-onchip_sram_3_s1_byteenable>),               //                                   .byteenable
+		.pio_best_order_external_connection_export (<connected-to-pio_best_order_external_connection_export>), // pio_best_order_external_connection.export
 		.pio_best_score_external_connection_export (<connected-to-pio_best_score_external_connection_export>), // pio_best_score_external_connection.export
+		.pio_done_external_connection_export       (<connected-to-pio_done_external_connection_export>),       //       pio_done_external_connection.export
+		.pio_num_cands_external_connection_export  (<connected-to-pio_num_cands_external_connection_export>),  //  pio_num_cands_external_connection.export
 		.pio_seed_external_connection_export       (<connected-to-pio_seed_external_connection_export>),       //       pio_seed_external_connection.export
 		.pio_start_external_connection_export      (<connected-to-pio_start_external_connection_export>),      //      pio_start_external_connection.export
 		.sdram_addr                                (<connected-to-sdram_addr>),                                //                              sdram.addr
@@ -106,27 +129,6 @@
 		.vga_G                                     (<connected-to-vga_G>),                                     //                                   .G
 		.vga_B                                     (<connected-to-vga_B>),                                     //                                   .B
 		.vga_pll_ref_clk_clk                       (<connected-to-vga_pll_ref_clk_clk>),                       //                    vga_pll_ref_clk.clk
-		.vga_pll_ref_reset_reset                   (<connected-to-vga_pll_ref_reset_reset>),                   //                  vga_pll_ref_reset.reset
-		.onchip_sram_1_s1_address                  (<connected-to-onchip_sram_1_s1_address>),                  //                   onchip_sram_1_s1.address
-		.onchip_sram_1_s1_clken                    (<connected-to-onchip_sram_1_s1_clken>),                    //                                   .clken
-		.onchip_sram_1_s1_chipselect               (<connected-to-onchip_sram_1_s1_chipselect>),               //                                   .chipselect
-		.onchip_sram_1_s1_write                    (<connected-to-onchip_sram_1_s1_write>),                    //                                   .write
-		.onchip_sram_1_s1_readdata                 (<connected-to-onchip_sram_1_s1_readdata>),                 //                                   .readdata
-		.onchip_sram_1_s1_writedata                (<connected-to-onchip_sram_1_s1_writedata>),                //                                   .writedata
-		.onchip_sram_1_s1_byteenable               (<connected-to-onchip_sram_1_s1_byteenable>),               //                                   .byteenable
-		.onchip_sram_2_s1_address                  (<connected-to-onchip_sram_2_s1_address>),                  //                   onchip_sram_2_s1.address
-		.onchip_sram_2_s1_clken                    (<connected-to-onchip_sram_2_s1_clken>),                    //                                   .clken
-		.onchip_sram_2_s1_chipselect               (<connected-to-onchip_sram_2_s1_chipselect>),               //                                   .chipselect
-		.onchip_sram_2_s1_write                    (<connected-to-onchip_sram_2_s1_write>),                    //                                   .write
-		.onchip_sram_2_s1_readdata                 (<connected-to-onchip_sram_2_s1_readdata>),                 //                                   .readdata
-		.onchip_sram_2_s1_writedata                (<connected-to-onchip_sram_2_s1_writedata>),                //                                   .writedata
-		.onchip_sram_2_s1_byteenable               (<connected-to-onchip_sram_2_s1_byteenable>),               //                                   .byteenable
-		.onchip_sram_3_s1_address                  (<connected-to-onchip_sram_3_s1_address>),                  //                   onchip_sram_3_s1.address
-		.onchip_sram_3_s1_clken                    (<connected-to-onchip_sram_3_s1_clken>),                    //                                   .clken
-		.onchip_sram_3_s1_chipselect               (<connected-to-onchip_sram_3_s1_chipselect>),               //                                   .chipselect
-		.onchip_sram_3_s1_write                    (<connected-to-onchip_sram_3_s1_write>),                    //                                   .write
-		.onchip_sram_3_s1_readdata                 (<connected-to-onchip_sram_3_s1_readdata>),                 //                                   .readdata
-		.onchip_sram_3_s1_writedata                (<connected-to-onchip_sram_3_s1_writedata>),                //                                   .writedata
-		.onchip_sram_3_s1_byteenable               (<connected-to-onchip_sram_3_s1_byteenable>)                //                                   .byteenable
+		.vga_pll_ref_reset_reset                   (<connected-to-vga_pll_ref_reset_reset>)                    //                  vga_pll_ref_reset.reset
 	);
 

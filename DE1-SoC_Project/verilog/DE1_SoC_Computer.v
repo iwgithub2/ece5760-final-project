@@ -367,6 +367,8 @@ wire [31:0] pio_start;
 wire [31:0] pio_seed;
 wire [31:0] pio_done;
 wire [31:0] pio_best_score;
+wire [31:0] pio_num_cands;
+wire [31:0] pio_best_order;
 
 // SRAM Wires
 wire        sram_clken;
@@ -389,8 +391,10 @@ mcmc_controller #(
 
 	.start(pio_start[0]),
 	.seed(pio_seed),
+	.num_cands_packed(pio_num_cands),
 	.done(pio_done[0]),
 	.best_score(pio_best_score),
+	.best_order_packed(pio_best_order),
 
 	// RAM 0
 	.mem_addr_0(sram0_address),
@@ -465,6 +469,8 @@ Computer_System The_System (
 	.pio_done_external_connection_export(pio_done),
 	.pio_best_score_external_connection_export(pio_best_score),
 	.pio_start_external_connection_export(pio_start),
+	.pio_num_cands_external_connection_export(pio_num_cands),
+	.pio_best_order_external_connection_export(pio_best_order),
 
 	// Slider Switches
 	//.slider_switches_export					(SW),
@@ -622,8 +628,10 @@ module mcmc_controller #(
     // Control Interface
     input  wire start,
     input  wire [31:0] seed,
+	 input  wire [31:0] num_cands_packed,
     output reg  done,
     output reg signed [DATA_W-1:0] best_score,
+	 output wire [31:0] best_order_packed,
     
     output wire [ADDR_W-1:0] mem_addr_0, input wire [63:0] mem_data_0,
     output wire [ADDR_W-1:0] mem_addr_1, input wire [63:0] mem_data_1,
@@ -731,6 +739,13 @@ module mcmc_controller #(
     assign mem_datas[2] = mem_data_2;
     assign mem_datas[3] = mem_data_3;
 	 
+	 // Add these wires/regs to track and slice the number of candidates
+    wire [7:0] node_num_cands [0:3];
+    assign node_num_cands[0] = num_cands_packed[7:0];
+    assign node_num_cands[1] = num_cands_packed[15:8];
+    assign node_num_cands[2] = num_cands_packed[23:16];
+    assign node_num_cands[3] = num_cands_packed[31:24];
+	 
     // ==========================================
     // Parallel Node Scoring Modules
     // ==========================================
@@ -754,7 +769,7 @@ module mcmc_controller #(
                 
                 // Hardcode these for the baseline test
                 .start_addr(10'd0),
-                .num_cands(10'd3), // Assuming you write 3 candidates in C code
+                .num_cands( {2'b00, node_num_cands[n]} ),
                 
                 .done(score_done[n]),
                 .final_score(node_scores[n]),
@@ -786,18 +801,28 @@ module mcmc_controller #(
     // ==========================================
     wire signed [DATA_W-1:0] score_diff = proposed_score - current_score;
     wire accept_move;
+	 
+    reg [4:0] best_order_internal [0:3];
     
-    // If proposed is better or equal, accept immediately.
-    // Otherwise, we need `u < exp(diff)`.
-    // In hardware, we'd map `score_diff` to an exp() ROM output and compare with `rand_u`.
-    // Placeholder logic for the ROM comparison:
-    wire [15:0] exp_threshold; 
-    
-    // assign exp_threshold = my_exp_rom(score_diff); // Implement ROM separately
-    assign exp_threshold = 16'h4000; // Fake 25% acceptance probability threshold
-    
-    assign accept_move = (score_diff >= 0) ? 1'b1 : (rand_u < exp_threshold);
+    // Pack the internal best order back to the HPS
+    assign best_order_packed = {
+        3'd0, best_order_internal[3],
+        3'd0, best_order_internal[2],
+        3'd0, best_order_internal[1],
+        3'd0, best_order_internal[0]
+    };
+	 
+	 // Simulated Annealing Threshold Decay logic
+    reg signed [17:0] current_threshold;
+    wire signed [17:0] next_threshold;
 
+    times0pt9998 decay_inst (
+        .in(current_threshold),
+        .out(next_threshold)
+    );
+    
+	 assign accept_move = (score_diff >= 0) ? 1'b1 : (rand_u < current_threshold[15:0]);
+	 
     // ==========================================
     // MCMC State Machine
     // ==========================================
@@ -828,6 +853,7 @@ module mcmc_controller #(
                         done        <= 1'b0;  // Clear the done flag for the HPS
                         iter_count  <= 0;     // Reset the loop counter
                         load_seed   <= 1'b1; 
+								current_threshold <= 18'h0FFFF; // Start hot
                         state       <= S_INIT_SCORE;
                     end
                 end
@@ -866,13 +892,17 @@ module mcmc_controller #(
                 end
 
                 S_DECIDE: begin
-                    if (accept_move) begin
+						  if (accept_move) begin
                         current_score <= proposed_score;
                         current_order[rand_i] <= proposed_order[rand_i];
                         current_order[rand_j] <= proposed_order[rand_j];
                         
                         if (proposed_score > best_score) begin
                             best_score <= proposed_score;
+                            best_order_internal[0] <= proposed_order[0]; // Capture the best layout!
+                            best_order_internal[1] <= proposed_order[1];
+                            best_order_internal[2] <= proposed_order[2];
+                            best_order_internal[3] <= proposed_order[3];
                         end
                     end else begin
                         proposed_order[rand_i] <= current_order[rand_i];
@@ -880,7 +910,8 @@ module mcmc_controller #(
                     end
                     
                     iter_count <= iter_count + 1;
-						  lfsr_en <= 1'b1;
+                    lfsr_en <= 1'b1;
+                    current_threshold <= next_threshold; // Decay!
                     state      <= S_PROPOSE;
                 end
 
@@ -1159,5 +1190,14 @@ module log_add (
     end
 endmodule
 
+module times0pt9998 (
+    input  wire signed [17:0] in,
+    output wire signed [17:0] out
+);
+    wire signed [17:0] decay =
+        (in == 18'sd0) ? 18'sd0 :
+        ((in >>> 12) == 18'sd0 ? 18'sd1 : (in >>> 12));
+    assign out = in - decay;
+endmodule
 
 /// end /////////////////////////////////////////////////////////////////////

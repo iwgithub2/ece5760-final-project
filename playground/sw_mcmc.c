@@ -1,6 +1,6 @@
 ///////////////////////////////////////
 // compile with
-// gcc -std=gnu99 -pg mcmc.c -o mcmc -lm
+// gcc -std=gnu99 mcmc.c -o mcmc -pg -lm -lrt
 ///////////////////////////////////////
 
 #include <stdio.h>

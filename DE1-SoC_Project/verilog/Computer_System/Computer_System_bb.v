@@ -82,8 +82,31 @@ module Computer_System (
 	onchip_sram_0_s1_readdata,
 	onchip_sram_0_s1_writedata,
 	onchip_sram_0_s1_byteenable,
-	pio_done_external_connection_export,
+	onchip_sram_1_s1_address,
+	onchip_sram_1_s1_clken,
+	onchip_sram_1_s1_chipselect,
+	onchip_sram_1_s1_write,
+	onchip_sram_1_s1_readdata,
+	onchip_sram_1_s1_writedata,
+	onchip_sram_1_s1_byteenable,
+	onchip_sram_2_s1_address,
+	onchip_sram_2_s1_clken,
+	onchip_sram_2_s1_chipselect,
+	onchip_sram_2_s1_write,
+	onchip_sram_2_s1_readdata,
+	onchip_sram_2_s1_writedata,
+	onchip_sram_2_s1_byteenable,
+	onchip_sram_3_s1_address,
+	onchip_sram_3_s1_clken,
+	onchip_sram_3_s1_chipselect,
+	onchip_sram_3_s1_write,
+	onchip_sram_3_s1_readdata,
+	onchip_sram_3_s1_writedata,
+	onchip_sram_3_s1_byteenable,
+	pio_best_order_external_connection_export,
 	pio_best_score_external_connection_export,
+	pio_done_external_connection_export,
+	pio_num_cands_external_connection_export,
 	pio_seed_external_connection_export,
 	pio_start_external_connection_export,
 	sdram_addr,
@@ -107,28 +130,7 @@ module Computer_System (
 	vga_G,
 	vga_B,
 	vga_pll_ref_clk_clk,
-	vga_pll_ref_reset_reset,
-	onchip_sram_1_s1_address,
-	onchip_sram_1_s1_clken,
-	onchip_sram_1_s1_chipselect,
-	onchip_sram_1_s1_write,
-	onchip_sram_1_s1_readdata,
-	onchip_sram_1_s1_writedata,
-	onchip_sram_1_s1_byteenable,
-	onchip_sram_2_s1_address,
-	onchip_sram_2_s1_clken,
-	onchip_sram_2_s1_chipselect,
-	onchip_sram_2_s1_write,
-	onchip_sram_2_s1_readdata,
-	onchip_sram_2_s1_writedata,
-	onchip_sram_2_s1_byteenable,
-	onchip_sram_3_s1_address,
-	onchip_sram_3_s1_clken,
-	onchip_sram_3_s1_chipselect,
-	onchip_sram_3_s1_write,
-	onchip_sram_3_s1_readdata,
-	onchip_sram_3_s1_writedata,
-	onchip_sram_3_s1_byteenable);	
+	vga_pll_ref_reset_reset);	
 
 	inout		av_config_SDAT;
 	output		av_config_SCLK;
@@ -212,8 +214,31 @@ module Computer_System (
 	output	[63:0]	onchip_sram_0_s1_readdata;
 	input	[63:0]	onchip_sram_0_s1_writedata;
 	input	[7:0]	onchip_sram_0_s1_byteenable;
-	input	[31:0]	pio_done_external_connection_export;
+	input	[6:0]	onchip_sram_1_s1_address;
+	input		onchip_sram_1_s1_clken;
+	input		onchip_sram_1_s1_chipselect;
+	input		onchip_sram_1_s1_write;
+	output	[63:0]	onchip_sram_1_s1_readdata;
+	input	[63:0]	onchip_sram_1_s1_writedata;
+	input	[7:0]	onchip_sram_1_s1_byteenable;
+	input	[6:0]	onchip_sram_2_s1_address;
+	input		onchip_sram_2_s1_clken;
+	input		onchip_sram_2_s1_chipselect;
+	input		onchip_sram_2_s1_write;
+	output	[63:0]	onchip_sram_2_s1_readdata;
+	input	[63:0]	onchip_sram_2_s1_writedata;
+	input	[7:0]	onchip_sram_2_s1_byteenable;
+	input	[6:0]	onchip_sram_3_s1_address;
+	input		onchip_sram_3_s1_clken;
+	input		onchip_sram_3_s1_chipselect;
+	input		onchip_sram_3_s1_write;
+	output	[63:0]	onchip_sram_3_s1_readdata;
+	input	[63:0]	onchip_sram_3_s1_writedata;
+	input	[7:0]	onchip_sram_3_s1_byteenable;
+	input	[31:0]	pio_best_order_external_connection_export;
 	input	[31:0]	pio_best_score_external_connection_export;
+	input	[31:0]	pio_done_external_connection_export;
+	output	[31:0]	pio_num_cands_external_connection_export;
 	output	[31:0]	pio_seed_external_connection_export;
 	output	[31:0]	pio_start_external_connection_export;
 	output	[12:0]	sdram_addr;
@@ -238,25 +263,4 @@ module Computer_System (
 	output	[7:0]	vga_B;
 	input		vga_pll_ref_clk_clk;
 	input		vga_pll_ref_reset_reset;
-	input	[6:0]	onchip_sram_1_s1_address;
-	input		onchip_sram_1_s1_clken;
-	input		onchip_sram_1_s1_chipselect;
-	input		onchip_sram_1_s1_write;
-	output	[63:0]	onchip_sram_1_s1_readdata;
-	input	[63:0]	onchip_sram_1_s1_writedata;
-	input	[7:0]	onchip_sram_1_s1_byteenable;
-	input	[6:0]	onchip_sram_2_s1_address;
-	input		onchip_sram_2_s1_clken;
-	input		onchip_sram_2_s1_chipselect;
-	input		onchip_sram_2_s1_write;
-	output	[63:0]	onchip_sram_2_s1_readdata;
-	input	[63:0]	onchip_sram_2_s1_writedata;
-	input	[7:0]	onchip_sram_2_s1_byteenable;
-	input	[6:0]	onchip_sram_3_s1_address;
-	input		onchip_sram_3_s1_clken;
-	input		onchip_sram_3_s1_chipselect;
-	input		onchip_sram_3_s1_write;
-	output	[63:0]	onchip_sram_3_s1_readdata;
-	input	[63:0]	onchip_sram_3_s1_writedata;
-	input	[7:0]	onchip_sram_3_s1_byteenable;
 endmodule

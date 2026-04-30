@@ -103,8 +103,10 @@
 			onchip_sram_3_s1_readdata                 : out   std_logic_vector(63 downto 0);                    -- readdata
 			onchip_sram_3_s1_writedata                : in    std_logic_vector(63 downto 0) := (others => 'X'); -- writedata
 			onchip_sram_3_s1_byteenable               : in    std_logic_vector(7 downto 0)  := (others => 'X'); -- byteenable
+			pio_best_order_external_connection_export : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
 			pio_best_score_external_connection_export : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
 			pio_done_external_connection_export       : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
+			pio_num_cands_external_connection_export  : out   std_logic_vector(31 downto 0);                    -- export
 			pio_seed_external_connection_export       : out   std_logic_vector(31 downto 0);                    -- export
 			pio_start_external_connection_export      : out   std_logic_vector(31 downto 0);                    -- export
 			sdram_addr                                : out   std_logic_vector(12 downto 0);                    -- addr
