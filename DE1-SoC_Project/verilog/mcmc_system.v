@@ -7,14 +7,12 @@ module mcmc_system #(
     input  wire        clk,
     input  wire        reset_n,
 
-    // Avalon-MM Slave Interface (64-bit data, 11-bit address)
-    input  wire [10:0] avs_address,
+    // Avalon-MM Slave Interface
+    input  wire [11:0] avs_address,   // 12 bits to address 4096 32-bit words
     input  wire        avs_write,
-    input  wire [63:0] avs_writedata,
-    input  wire [7:0]  avs_byteenable,
-    
+    input  wire [31:0] avs_writedata, // Native 32-bit
     input  wire        avs_read, 
-    output reg  [63:0] avs_readdata, 
+    output reg  [31:0] avs_readdata,
 
     // Conduits
     input  wire        start,
@@ -30,19 +28,15 @@ module mcmc_system #(
     wire [(N_NODES*64)-1:0] packed_datas;
     wire [(N_NODES*5)-1:0]  best_order_packed; // 32 nodes * 5 bits = 160 bits
 
-    // Avalon Read Logic for Best Order Extraction (Synchronous)
+    // Avalon Read Logic (Mapped to address 0x800 / 2048)
     always @(posedge clk) begin
-        // Default assignment to clear the bus
-        avs_readdata <= 64'd0; 
-        
-        if (avs_read) begin
-            if (avs_address[10] == 1'b1) begin
-                case (avs_address[1:0]) 
-                    2'd0: avs_readdata <= best_order_packed[63:0];
-                    2'd1: avs_readdata <= best_order_packed[127:64];
-                    2'd2: avs_readdata <= {32'd0, best_order_packed[159:128]};
-                endcase
-            end
+        if (avs_read && avs_address[11] == 1'b1) begin
+            // Pack four 5-bit nodes into a 32-bit word, padded with zeros
+            avs_readdata <= { 12'd0, 
+                              best_order_packed[ (avs_address[2:0]*20 + 15) +: 5 ],
+                              best_order_packed[ (avs_address[2:0]*20 + 10) +: 5 ],
+                              best_order_packed[ (avs_address[2:0]*20 + 5)  +: 5 ],
+                              best_order_packed[ (avs_address[2:0]*20)      +: 5 ] };
         end
     end
 
@@ -50,35 +44,20 @@ module mcmc_system #(
     genvar i;
     generate
         for (i = 0; i < N_NODES; i = i + 1) begin : gen_rams
+            // Top 5 bits [11:7] select the Node (0 to 31)
+            wire local_we = avs_write && (avs_address[11:7] == i);
             
-            // Split the 64-bit memory into two 32-bit halves.
-            // This perfectly matches the M10K hardware limits and ARM write patterns.
-            reg [31:0] ram_lower [0:63];
-            reg [31:0] ram_upper [0:63];
-            
-            wire [9:0] read_addr = packed_addrs[(i*10)+:10];
-            reg [63:0] read_data;
+            wire [9:0]  read_addr = packed_addrs[(i*10)+:10];
+            wire [63:0] read_data;
 
-            // Pull the Write Enable logic out of the always block to help synthesis
-            wire local_we = avs_write && (avs_address[10:6] == i);
-
-            always @(posedge clk) begin
-                if (local_we) begin
-                    // If the lower 4 bytes are targeted (avs_byteenable is 8'h0F or 8'hFF)
-                    if (avs_byteenable[3:0] == 4'hF) begin
-                        ram_lower[avs_address[5:0]] <= avs_writedata[31:0];
-                    end
-                    
-                    // If the upper 4 bytes are targeted (avs_byteenable is 8'hF0 or 8'hFF)
-                    if (avs_byteenable[7:4] == 4'hF) begin
-                        ram_upper[avs_address[5:0]] <= avs_writedata[63:32];
-                    end
-                end
-                
-                // Synchronous Read: Stitch the two halves back together for the custom logic
-                read_data <= { ram_upper[read_addr[5:0]], ram_lower[read_addr[5:0]] };
-            end
-            
+            mcmc_node_ram ram_inst (
+                .clk(clk),
+                .we(local_we),
+                .write_addr(avs_address[6:0]), // Pass [6:0] to handle the word split
+                .write_data(avs_writedata),
+                .read_addr(read_addr[5:0]),
+                .read_data(read_data)
+            );
             assign packed_datas[(i*64)+:64] = read_data;
         end
     endgenerate
@@ -152,22 +131,14 @@ module mcmc_controller #(
     // Order Matrix Management
     reg [4:0] current_order  [0:N_NODES-1];
     reg [4:0] proposed_order [0:N_NODES-1];
+    reg [4:0] current_pos    [0:N_NODES-1];
+    reg [4:0] proposed_pos   [0:N_NODES-1]; 
 
     reg signed [DATA_W-1:0] current_score;
     wire signed [DATA_W-1:0] proposed_score;
 
     wire [N_NODES-1:0] proposed_masks [0:N_NODES-1];
-    reg [4:0] proposed_pos [0:N_NODES-1];
     integer i_node, j_pos;
-    
-    always @(*) begin
-        for (i_node = 0; i_node < N_NODES; i_node = i_node + 1) begin
-            proposed_pos[i_node] = 5'd0;
-            for (j_pos = 0; j_pos < N_NODES; j_pos = j_pos + 1) begin
-                if (proposed_order[j_pos] == i_node) proposed_pos[i_node] = j_pos;
-            end
-        end
-    end
 
     genvar n_row, n_col;
     generate
@@ -256,6 +227,8 @@ module mcmc_controller #(
             for (i = 0; i < N_NODES; i = i + 1) begin
                 current_order[i]  <= i;
                 proposed_order[i] <= i;
+                current_pos[i]    <= i;
+                proposed_pos[i]   <= i;
             end
         end else begin
             lfsr_en     <= 1'b0;
@@ -296,6 +269,8 @@ module mcmc_controller #(
                     if (iter_count < iterations) begin
                         proposed_order[rand_i] <= current_order[rand_j];
                         proposed_order[rand_j] <= current_order[rand_i];
+                        proposed_pos[current_order[rand_i]] <= rand_j;
+                        proposed_pos[current_order[rand_j]] <= rand_i;
                         score_start <= 1'b1; 
                         state       <= S_WAIT_SCORE;
                     end else begin
@@ -315,7 +290,8 @@ module mcmc_controller #(
                         current_score <= proposed_score;
                         current_order[rand_i] <= proposed_order[rand_i];
                         current_order[rand_j] <= proposed_order[rand_j];
-                        
+                        current_pos[proposed_order[rand_i]] <= proposed_pos[proposed_order[rand_i]];
+                        current_pos[proposed_order[rand_j]] <= proposed_pos[proposed_order[rand_j]];
                         if (proposed_score > best_score) begin
                             best_score <= proposed_score;
                             // Capture Best Order dynamically
@@ -326,6 +302,8 @@ module mcmc_controller #(
                     end else begin
                         proposed_order[rand_i] <= current_order[rand_i];
                         proposed_order[rand_j] <= current_order[rand_j];
+                        proposed_pos[current_order[rand_i]] <= current_pos[current_order[rand_i]];
+                        proposed_pos[current_order[rand_j]] <= current_pos[current_order[rand_j]];
                     end
                     
                     iter_count <= iter_count + 1;
@@ -565,4 +543,35 @@ module times0pt9998 (
         (in == 18'sd0) ? 18'sd0 :
         ((in >>> 12) == 18'sd0 ? 18'sd1 : (in >>> 12));
     assign out = in - decay;
+endmodule
+
+// ==========================================
+// M10K RAM Block (Mixed-Width)
+// ==========================================
+module mcmc_node_ram (
+    input  wire        clk,
+    input  wire        we,
+    input  wire [6:0]  write_addr, 
+    input  wire [31:0] write_data,
+    input  wire [5:0]  read_addr,
+    output reg  [63:0] read_data
+);
+
+    // Splitting into two 32-bit arrays
+    reg [31:0] ram_lower [0:63];
+    reg [31:0] ram_upper [0:63];
+
+    always @(posedge clk) begin
+        if (we) begin
+            if (write_addr[0] == 1'b0)
+                ram_lower[write_addr[6:1]] <= write_data;
+            else
+                ram_upper[write_addr[6:1]] <= write_data;
+        end
+    end
+
+    // Synchronous Read stitches them back for the 64-bit hardware
+    always @(posedge clk) begin
+        read_data <= {ram_upper[read_addr], ram_lower[read_addr]};
+    end
 endmodule

@@ -49,7 +49,7 @@ volatile unsigned int *pio_iterations=NULL;
 volatile unsigned int *pio_active_nodes=NULL;
 volatile unsigned int *pio_node_mask=NULL;
 
-volatile uint64_t *mcmc_system_base;
+volatile unsigned int *mcmc_system_base;
 void *fpga_ram_virtual_base;
 
 // --- Precomputation Math ---
@@ -197,7 +197,7 @@ int main(void)
     fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); 
     if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
     
-    mcmc_system_base = (uint64_t *)fpga_ram_virtual_base;
+    mcmc_system_base = (unsigned int *)fpga_ram_virtual_base;
 
     // === 1. Load Dataset & Precompute (ARM) ===
     printf("Loading dataset and precomputing...\n");
@@ -212,40 +212,37 @@ int main(void)
     uint32_t num_cands_packed = 0;
 
     for (int i = 0; i < NUM_NODES; i++) {
-        // Pack the candidate count for node `i` into the correct byte position
-        num_cands_packed |= (num_candidates[i] & 0xFF) << (i * 8);
-
         for (int p = 0; p < num_candidates[i]; p++) {
-            uint64_t mask = (uint64_t)precomputed_db[i][p].parent_bitmask;
+            uint32_t mask = precomputed_db[i][p].parent_bitmask;
             int32_t q16_score = float_to_q16(precomputed_db[i][p].local_score);
             
-            // Pack: [63:32] Mask, [31:0] Score
-            uint64_t packed_word = (mask << 32) | (uint32_t)q16_score;
+            // Address logic: Node is [11:7], Candidate is [6:1].
+            int base_offset = (i << 7) | (p << 1); 
             
-            // Address calculation: Node is top 2 bits (i << 6), Candidate is bottom 6 bits (p)
-            int offset = (i << 6) | p; 
-            
-            *(mcmc_system_base + offset) = packed_word;
+            // Sequential 32-bit writes! No byte-enable bugs!
+            *(mcmc_system_base + base_offset)     = (uint32_t)q16_score; 
+            *(mcmc_system_base + base_offset + 1) = mask; 
         }
         
-        // --- FIX 1: Append Sentinel for Active Nodes ---
-        uint64_t sentinel_mask = 0xFFFFFFFFULL;
-        uint64_t packed_sentinel = (sentinel_mask << 32) | 0x00000000;
-        int sentinel_offset = (i << 6) | num_candidates[i]; 
-        *(mcmc_system_base + sentinel_offset) = packed_sentinel;
+        // (Don't forget to update your sentinel write offsets the exact same way)
+        int sentinel_offset = (i << 7) | (num_candidates[i] << 1); 
+        *(mcmc_system_base + sentinel_offset)     = 0x00000000;
+        *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF;
     }
     
     // --- FIX 2: Write Sentinel at index 0 for all UNUSED hardware nodes ---
     // The hardware instantiates 32 nodes. We must satisfy all of them so &score_done == 1
     for (int i = NUM_NODES; i < 32; i++) {
-        uint64_t sentinel_mask = 0xFFFFFFFFULL;
-        uint64_t packed_sentinel = (sentinel_mask << 32) | 0x00000000;
-        int sentinel_offset = (i << 6) | 0; // Very first address of the unused node's RAM
-        *(mcmc_system_base + sentinel_offset) = packed_sentinel;
+        // Address logic for node i, candidate 0
+        int sentinel_offset = (i << 7) | (0 << 1); 
+        
+        // Write the two 32-bit halves natively
+        *(mcmc_system_base + sentinel_offset)     = 0x00000000; // local_score
+        *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF; // parent_mask
     }
-    
+
     // Tell the hardware we are running Asia (8 nodes) for 50,000 iterations
-    *pio_iterations = 50000;
+    *pio_iterations = 100000;
     *pio_active_nodes = NUM_NODES;
     *pio_node_mask = NUM_NODES - 1;
     
@@ -254,38 +251,30 @@ int main(void)
     *pio_seed = 0xABCD1234;
     printf("Starting 32-Node Engine (Configured for %d nodes)...\n", *pio_active_nodes);
     
+    // Synchronized Handshake ---
+    
+    // 1. Ensure start is low, and wait for the FPGA to drop the 'done' flag
+    *pio_start = 0;
+    while (*pio_done == 1) { } 
+    
+    // 2. Trigger the hardware engine
     *pio_start = 1;
+    
+    // 3. Wait for the NEW run to actually finish
     while (*pio_done == 0) { } 
+    
+    // 4. Clear start for safety
     *pio_start = 0;
     
-    // Extract the Best Order directly from the Heavyweight Memory Bus!
-    
-    // Hardware now has 0-cycle latency; we can read directly
-    uint64_t chunk0 = *(mcmc_system_base + 1024);
-    uint64_t chunk1 = *(mcmc_system_base + 1025);
-    uint64_t chunk2 = *(mcmc_system_base + 1026);
+    // Extract the Best Order directly from the Heavyweight Memory Bus
     
     int best_order[32];
     for (int i = 0; i < *pio_active_nodes; i++) {
-        int bit_offset = i * 5;
-        uint64_t full_data;
+        // Read the 32-bit chunk containing this node (starts at address 2048)
+        uint32_t word = *(mcmc_system_base + 2048 + (i / 4));
         
-        if (bit_offset < 60) {
-            full_data = chunk0 >> bit_offset;
-        } else if (bit_offset == 60) {
-            full_data = (chunk0 >> 60) | (chunk1 << 4); 
-        } else if (bit_offset < 124) {
-            full_data = chunk1 >> (bit_offset - 64);
-        } else if (bit_offset >= 124 && bit_offset < 128) {
-            // Safely stitch Node 25 (offset 125)
-            int shift1 = bit_offset - 64; 
-            int take_from_chunk1 = 64 - shift1; 
-            full_data = (chunk1 >> shift1) | (chunk2 << take_from_chunk1);
-        } else {
-            full_data = chunk2 >> (bit_offset - 128);
-        }
-        
-        best_order[i] = full_data & 0x1F;
+        // Shift by 0, 5, 10, or 15 bits and mask
+        best_order[i] = (word >> ((i % 4) * 5)) & 0x1F;
         
         printf("%s ", node_names[best_order[i]]);
         if (i < *pio_active_nodes - 1) printf("-> ");

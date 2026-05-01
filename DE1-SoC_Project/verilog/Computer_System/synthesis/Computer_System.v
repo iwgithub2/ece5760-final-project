@@ -160,12 +160,11 @@ module Computer_System (
 	wire          vga_subsystem_pixel_dma_master_read;                                  // VGA_Subsystem:pixel_dma_master_read -> mm_interconnect_0:VGA_Subsystem_pixel_dma_master_read
 	wire          vga_subsystem_pixel_dma_master_readdatavalid;                         // mm_interconnect_0:VGA_Subsystem_pixel_dma_master_readdatavalid -> VGA_Subsystem:pixel_dma_master_readdatavalid
 	wire          vga_subsystem_pixel_dma_master_lock;                                  // VGA_Subsystem:pixel_dma_master_lock -> mm_interconnect_0:VGA_Subsystem_pixel_dma_master_lock
-	wire   [63:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_readdata;              // mcmc_system_0:avs_readdata -> mm_interconnect_0:mcmc_system_0_avalon_slave_0_readdata
-	wire   [10:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_address;               // mm_interconnect_0:mcmc_system_0_avalon_slave_0_address -> mcmc_system_0:avs_address
+	wire   [31:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_readdata;              // mcmc_system_0:avs_readdata -> mm_interconnect_0:mcmc_system_0_avalon_slave_0_readdata
+	wire   [11:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_address;               // mm_interconnect_0:mcmc_system_0_avalon_slave_0_address -> mcmc_system_0:avs_address
 	wire          mm_interconnect_0_mcmc_system_0_avalon_slave_0_read;                  // mm_interconnect_0:mcmc_system_0_avalon_slave_0_read -> mcmc_system_0:avs_read
-	wire    [7:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_byteenable;            // mm_interconnect_0:mcmc_system_0_avalon_slave_0_byteenable -> mcmc_system_0:avs_byteenable
 	wire          mm_interconnect_0_mcmc_system_0_avalon_slave_0_write;                 // mm_interconnect_0:mcmc_system_0_avalon_slave_0_write -> mcmc_system_0:avs_write
-	wire   [63:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_writedata;             // mm_interconnect_0:mcmc_system_0_avalon_slave_0_writedata -> mcmc_system_0:avs_writedata
+	wire   [31:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_writedata;             // mm_interconnect_0:mcmc_system_0_avalon_slave_0_writedata -> mcmc_system_0:avs_writedata
 	wire          mm_interconnect_0_vga_subsystem_char_buffer_slave_chipselect;         // mm_interconnect_0:VGA_Subsystem_char_buffer_slave_chipselect -> VGA_Subsystem:char_buffer_slave_chipselect
 	wire    [7:0] mm_interconnect_0_vga_subsystem_char_buffer_slave_readdata;           // VGA_Subsystem:char_buffer_slave_readdata -> mm_interconnect_0:VGA_Subsystem_char_buffer_slave_readdata
 	wire          mm_interconnect_0_vga_subsystem_char_buffer_slave_waitrequest;        // VGA_Subsystem:char_buffer_slave_waitrequest -> mm_interconnect_0:VGA_Subsystem_char_buffer_slave_waitrequest
@@ -595,21 +594,20 @@ module Computer_System (
 	mcmc_system #(
 		.N_NODES (32)
 	) mcmc_system_0 (
-		.clk            (system_pll_sys_clk_clk),                                    //          clock.clk
-		.reset_n        (~rst_controller_reset_out_reset),                           //          reset.reset_n
-		.avs_address    (mm_interconnect_0_mcmc_system_0_avalon_slave_0_address),    // avalon_slave_0.address
-		.avs_write      (mm_interconnect_0_mcmc_system_0_avalon_slave_0_write),      //               .write
-		.avs_writedata  (mm_interconnect_0_mcmc_system_0_avalon_slave_0_writedata),  //               .writedata
-		.avs_read       (mm_interconnect_0_mcmc_system_0_avalon_slave_0_read),       //               .read
-		.avs_readdata   (mm_interconnect_0_mcmc_system_0_avalon_slave_0_readdata),   //               .readdata
-		.avs_byteenable (mm_interconnect_0_mcmc_system_0_avalon_slave_0_byteenable), //               .byteenable
-		.best_score     (mcmc_system_0_mcmc_control_best_score),                     //   mcmc_control.best_score
-		.done           (mcmc_system_0_mcmc_control_done),                           //               .done
-		.seed           (mcmc_system_0_mcmc_control_seed),                           //               .seed
-		.start          (mcmc_system_0_mcmc_control_start),                          //               .start
-		.active_nodes   (mcmc_system_0_mcmc_control_active_nodes),                   //               .active_nodes
-		.iterations     (mcmc_system_0_mcmc_control_iterations),                     //               .iterations
-		.node_idx_mask  (mcmc_system_0_mcmc_control_node_idx_mask)                   //               .node_idx_mask
+		.clk           (system_pll_sys_clk_clk),                                   //          clock.clk
+		.reset_n       (~rst_controller_reset_out_reset),                          //          reset.reset_n
+		.avs_address   (mm_interconnect_0_mcmc_system_0_avalon_slave_0_address),   // avalon_slave_0.address
+		.avs_write     (mm_interconnect_0_mcmc_system_0_avalon_slave_0_write),     //               .write
+		.avs_writedata (mm_interconnect_0_mcmc_system_0_avalon_slave_0_writedata), //               .writedata
+		.avs_read      (mm_interconnect_0_mcmc_system_0_avalon_slave_0_read),      //               .read
+		.avs_readdata  (mm_interconnect_0_mcmc_system_0_avalon_slave_0_readdata),  //               .readdata
+		.best_score    (mcmc_system_0_mcmc_control_best_score),                    //   mcmc_control.best_score
+		.done          (mcmc_system_0_mcmc_control_done),                          //               .done
+		.seed          (mcmc_system_0_mcmc_control_seed),                          //               .seed
+		.start         (mcmc_system_0_mcmc_control_start),                         //               .start
+		.active_nodes  (mcmc_system_0_mcmc_control_active_nodes),                  //               .active_nodes
+		.iterations    (mcmc_system_0_mcmc_control_iterations),                    //               .iterations
+		.node_idx_mask (mcmc_system_0_mcmc_control_node_idx_mask)                  //               .node_idx_mask
 	);
 
 	Computer_System_pio_active_nodes pio_active_nodes (
@@ -735,7 +733,6 @@ module Computer_System (
 		.mcmc_system_0_avalon_slave_0_read                                     (mm_interconnect_0_mcmc_system_0_avalon_slave_0_read),           //                                                                .read
 		.mcmc_system_0_avalon_slave_0_readdata                                 (mm_interconnect_0_mcmc_system_0_avalon_slave_0_readdata),       //                                                                .readdata
 		.mcmc_system_0_avalon_slave_0_writedata                                (mm_interconnect_0_mcmc_system_0_avalon_slave_0_writedata),      //                                                                .writedata
-		.mcmc_system_0_avalon_slave_0_byteenable                               (mm_interconnect_0_mcmc_system_0_avalon_slave_0_byteenable),     //                                                                .byteenable
 		.SDRAM_s1_address                                                      (mm_interconnect_0_sdram_s1_address),                            //                                                        SDRAM_s1.address
 		.SDRAM_s1_write                                                        (mm_interconnect_0_sdram_s1_write),                              //                                                                .write
 		.SDRAM_s1_read                                                         (mm_interconnect_0_sdram_s1_read),                               //                                                                .read

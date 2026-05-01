@@ -4902,7 +4902,7 @@ module Computer_System_mm_interconnect_1 (
 		.sink9_endofpacket   (rsp_demux_009_src1_endofpacket)                                            //          .endofpacket
 	);
 
-	Computer_System_mm_interconnect_1_avalon_st_adapter #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter #(
 		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
 		.inDataWidth     (34),
@@ -4931,7 +4931,7 @@ module Computer_System_mm_interconnect_1 (
 		.out_0_error    (avalon_st_adapter_out_0_error)                                //         .error
 	);
 
-	Computer_System_mm_interconnect_1_avalon_st_adapter #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter #(
 		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
 		.inDataWidth     (34),
@@ -4960,7 +4960,7 @@ module Computer_System_mm_interconnect_1 (
 		.out_0_error    (avalon_st_adapter_001_out_0_error)                                   //         .error
 	);
 
-	Computer_System_mm_interconnect_1_avalon_st_adapter #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter #(
 		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
 		.inDataWidth     (34),
@@ -4989,7 +4989,7 @@ module Computer_System_mm_interconnect_1 (
 		.out_0_error    (avalon_st_adapter_002_out_0_error)            //         .error
 	);
 
-	Computer_System_mm_interconnect_1_avalon_st_adapter #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter #(
 		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
 		.inDataWidth     (34),
@@ -5018,7 +5018,7 @@ module Computer_System_mm_interconnect_1 (
 		.out_0_error    (avalon_st_adapter_003_out_0_error)            //         .error
 	);
 
-	Computer_System_mm_interconnect_1_avalon_st_adapter #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter #(
 		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
 		.inDataWidth     (34),
@@ -5047,7 +5047,7 @@ module Computer_System_mm_interconnect_1 (
 		.out_0_error    (avalon_st_adapter_004_out_0_error)            //         .error
 	);
 
-	Computer_System_mm_interconnect_1_avalon_st_adapter #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter #(
 		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
 		.inDataWidth     (34),
@@ -5076,7 +5076,7 @@ module Computer_System_mm_interconnect_1 (
 		.out_0_error    (avalon_st_adapter_005_out_0_error)             //         .error
 	);
 
-	Computer_System_mm_interconnect_1_avalon_st_adapter #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter #(
 		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
 		.inDataWidth     (34),
@@ -5105,7 +5105,7 @@ module Computer_System_mm_interconnect_1 (
 		.out_0_error    (avalon_st_adapter_006_out_0_error)             //         .error
 	);
 
-	Computer_System_mm_interconnect_1_avalon_st_adapter #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter #(
 		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
 		.inDataWidth     (34),
@@ -5134,7 +5134,7 @@ module Computer_System_mm_interconnect_1 (
 		.out_0_error    (avalon_st_adapter_007_out_0_error)               //         .error
 	);
 
-	Computer_System_mm_interconnect_1_avalon_st_adapter #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter #(
 		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
 		.inDataWidth     (34),
@@ -5163,7 +5163,7 @@ module Computer_System_mm_interconnect_1 (
 		.out_0_error    (avalon_st_adapter_008_out_0_error)            //         .error
 	);
 
-	Computer_System_mm_interconnect_1_avalon_st_adapter #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter #(
 		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
 		.inDataWidth     (34),

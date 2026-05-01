@@ -53,12 +53,11 @@ module Computer_System_mm_interconnect_0 (
 		output wire [7:0]   VGA_Subsystem_pixel_dma_master_readdata,                               //                                                                .readdata
 		output wire         VGA_Subsystem_pixel_dma_master_readdatavalid,                          //                                                                .readdatavalid
 		input  wire         VGA_Subsystem_pixel_dma_master_lock,                                   //                                                                .lock
-		output wire [10:0]  mcmc_system_0_avalon_slave_0_address,                                  //                                    mcmc_system_0_avalon_slave_0.address
+		output wire [11:0]  mcmc_system_0_avalon_slave_0_address,                                  //                                    mcmc_system_0_avalon_slave_0.address
 		output wire         mcmc_system_0_avalon_slave_0_write,                                    //                                                                .write
 		output wire         mcmc_system_0_avalon_slave_0_read,                                     //                                                                .read
-		input  wire [63:0]  mcmc_system_0_avalon_slave_0_readdata,                                 //                                                                .readdata
-		output wire [63:0]  mcmc_system_0_avalon_slave_0_writedata,                                //                                                                .writedata
-		output wire [7:0]   mcmc_system_0_avalon_slave_0_byteenable,                               //                                                                .byteenable
+		input  wire [31:0]  mcmc_system_0_avalon_slave_0_readdata,                                 //                                                                .readdata
+		output wire [31:0]  mcmc_system_0_avalon_slave_0_writedata,                                //                                                                .writedata
 		output wire [24:0]  SDRAM_s1_address,                                                      //                                                        SDRAM_s1.address
 		output wire         SDRAM_s1_write,                                                        //                                                                .write
 		output wire         SDRAM_s1_read,                                                         //                                                                .read
@@ -95,29 +94,29 @@ module Computer_System_mm_interconnect_0 (
 	wire    [2:0] rsp_mux_002_src_channel;                                                                             // rsp_mux_002:src_channel -> VGA_Subsystem_pixel_dma_master_agent:rp_channel
 	wire          rsp_mux_002_src_startofpacket;                                                                       // rsp_mux_002:src_startofpacket -> VGA_Subsystem_pixel_dma_master_agent:rp_startofpacket
 	wire          rsp_mux_002_src_endofpacket;                                                                         // rsp_mux_002:src_endofpacket -> VGA_Subsystem_pixel_dma_master_agent:rp_endofpacket
-	wire   [63:0] mcmc_system_0_avalon_slave_0_agent_m0_readdata;                                                      // mcmc_system_0_avalon_slave_0_translator:uav_readdata -> mcmc_system_0_avalon_slave_0_agent:m0_readdata
+	wire   [31:0] mcmc_system_0_avalon_slave_0_agent_m0_readdata;                                                      // mcmc_system_0_avalon_slave_0_translator:uav_readdata -> mcmc_system_0_avalon_slave_0_agent:m0_readdata
 	wire          mcmc_system_0_avalon_slave_0_agent_m0_waitrequest;                                                   // mcmc_system_0_avalon_slave_0_translator:uav_waitrequest -> mcmc_system_0_avalon_slave_0_agent:m0_waitrequest
 	wire          mcmc_system_0_avalon_slave_0_agent_m0_debugaccess;                                                   // mcmc_system_0_avalon_slave_0_agent:m0_debugaccess -> mcmc_system_0_avalon_slave_0_translator:uav_debugaccess
 	wire   [31:0] mcmc_system_0_avalon_slave_0_agent_m0_address;                                                       // mcmc_system_0_avalon_slave_0_agent:m0_address -> mcmc_system_0_avalon_slave_0_translator:uav_address
-	wire    [7:0] mcmc_system_0_avalon_slave_0_agent_m0_byteenable;                                                    // mcmc_system_0_avalon_slave_0_agent:m0_byteenable -> mcmc_system_0_avalon_slave_0_translator:uav_byteenable
+	wire    [3:0] mcmc_system_0_avalon_slave_0_agent_m0_byteenable;                                                    // mcmc_system_0_avalon_slave_0_agent:m0_byteenable -> mcmc_system_0_avalon_slave_0_translator:uav_byteenable
 	wire          mcmc_system_0_avalon_slave_0_agent_m0_read;                                                          // mcmc_system_0_avalon_slave_0_agent:m0_read -> mcmc_system_0_avalon_slave_0_translator:uav_read
 	wire          mcmc_system_0_avalon_slave_0_agent_m0_readdatavalid;                                                 // mcmc_system_0_avalon_slave_0_translator:uav_readdatavalid -> mcmc_system_0_avalon_slave_0_agent:m0_readdatavalid
 	wire          mcmc_system_0_avalon_slave_0_agent_m0_lock;                                                          // mcmc_system_0_avalon_slave_0_agent:m0_lock -> mcmc_system_0_avalon_slave_0_translator:uav_lock
-	wire   [63:0] mcmc_system_0_avalon_slave_0_agent_m0_writedata;                                                     // mcmc_system_0_avalon_slave_0_agent:m0_writedata -> mcmc_system_0_avalon_slave_0_translator:uav_writedata
+	wire   [31:0] mcmc_system_0_avalon_slave_0_agent_m0_writedata;                                                     // mcmc_system_0_avalon_slave_0_agent:m0_writedata -> mcmc_system_0_avalon_slave_0_translator:uav_writedata
 	wire          mcmc_system_0_avalon_slave_0_agent_m0_write;                                                         // mcmc_system_0_avalon_slave_0_agent:m0_write -> mcmc_system_0_avalon_slave_0_translator:uav_write
-	wire    [3:0] mcmc_system_0_avalon_slave_0_agent_m0_burstcount;                                                    // mcmc_system_0_avalon_slave_0_agent:m0_burstcount -> mcmc_system_0_avalon_slave_0_translator:uav_burstcount
+	wire    [2:0] mcmc_system_0_avalon_slave_0_agent_m0_burstcount;                                                    // mcmc_system_0_avalon_slave_0_agent:m0_burstcount -> mcmc_system_0_avalon_slave_0_translator:uav_burstcount
 	wire          mcmc_system_0_avalon_slave_0_agent_rf_source_valid;                                                  // mcmc_system_0_avalon_slave_0_agent:rf_source_valid -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_valid
-	wire  [165:0] mcmc_system_0_avalon_slave_0_agent_rf_source_data;                                                   // mcmc_system_0_avalon_slave_0_agent:rf_source_data -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_data
+	wire  [129:0] mcmc_system_0_avalon_slave_0_agent_rf_source_data;                                                   // mcmc_system_0_avalon_slave_0_agent:rf_source_data -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_data
 	wire          mcmc_system_0_avalon_slave_0_agent_rf_source_ready;                                                  // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_ready -> mcmc_system_0_avalon_slave_0_agent:rf_source_ready
 	wire          mcmc_system_0_avalon_slave_0_agent_rf_source_startofpacket;                                          // mcmc_system_0_avalon_slave_0_agent:rf_source_startofpacket -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_startofpacket
 	wire          mcmc_system_0_avalon_slave_0_agent_rf_source_endofpacket;                                            // mcmc_system_0_avalon_slave_0_agent:rf_source_endofpacket -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_endofpacket
 	wire          mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_valid;                                               // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_valid -> mcmc_system_0_avalon_slave_0_agent:rf_sink_valid
-	wire  [165:0] mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_data;                                                // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_data -> mcmc_system_0_avalon_slave_0_agent:rf_sink_data
+	wire  [129:0] mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_data;                                                // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_data -> mcmc_system_0_avalon_slave_0_agent:rf_sink_data
 	wire          mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_ready;                                               // mcmc_system_0_avalon_slave_0_agent:rf_sink_ready -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_ready
 	wire          mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_startofpacket;                                       // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_startofpacket -> mcmc_system_0_avalon_slave_0_agent:rf_sink_startofpacket
 	wire          mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_endofpacket;                                         // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_endofpacket -> mcmc_system_0_avalon_slave_0_agent:rf_sink_endofpacket
 	wire          mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_valid;                                             // mcmc_system_0_avalon_slave_0_agent:rdata_fifo_src_valid -> mcmc_system_0_avalon_slave_0_agent_rdata_fifo:in_valid
-	wire   [65:0] mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_data;                                              // mcmc_system_0_avalon_slave_0_agent:rdata_fifo_src_data -> mcmc_system_0_avalon_slave_0_agent_rdata_fifo:in_data
+	wire   [33:0] mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_data;                                              // mcmc_system_0_avalon_slave_0_agent:rdata_fifo_src_data -> mcmc_system_0_avalon_slave_0_agent_rdata_fifo:in_data
 	wire          mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_ready;                                             // mcmc_system_0_avalon_slave_0_agent_rdata_fifo:in_ready -> mcmc_system_0_avalon_slave_0_agent:rdata_fifo_src_ready
 	wire    [7:0] vga_subsystem_char_buffer_slave_agent_m0_readdata;                                                   // VGA_Subsystem_char_buffer_slave_translator:uav_readdata -> VGA_Subsystem_char_buffer_slave_agent:m0_readdata
 	wire          vga_subsystem_char_buffer_slave_agent_m0_waitrequest;                                                // VGA_Subsystem_char_buffer_slave_translator:uav_waitrequest -> VGA_Subsystem_char_buffer_slave_agent:m0_waitrequest
@@ -189,12 +188,12 @@ module Computer_System_mm_interconnect_0 (
 	wire          router_002_src_startofpacket;                                                                        // router_002:src_startofpacket -> cmd_demux_002:sink_startofpacket
 	wire          router_002_src_endofpacket;                                                                          // router_002:src_endofpacket -> cmd_demux_002:sink_endofpacket
 	wire          mcmc_system_0_avalon_slave_0_agent_rp_valid;                                                         // mcmc_system_0_avalon_slave_0_agent:rp_valid -> router_003:sink_valid
-	wire  [164:0] mcmc_system_0_avalon_slave_0_agent_rp_data;                                                          // mcmc_system_0_avalon_slave_0_agent:rp_data -> router_003:sink_data
+	wire  [128:0] mcmc_system_0_avalon_slave_0_agent_rp_data;                                                          // mcmc_system_0_avalon_slave_0_agent:rp_data -> router_003:sink_data
 	wire          mcmc_system_0_avalon_slave_0_agent_rp_ready;                                                         // router_003:sink_ready -> mcmc_system_0_avalon_slave_0_agent:rp_ready
 	wire          mcmc_system_0_avalon_slave_0_agent_rp_startofpacket;                                                 // mcmc_system_0_avalon_slave_0_agent:rp_startofpacket -> router_003:sink_startofpacket
 	wire          mcmc_system_0_avalon_slave_0_agent_rp_endofpacket;                                                   // mcmc_system_0_avalon_slave_0_agent:rp_endofpacket -> router_003:sink_endofpacket
 	wire          router_003_src_valid;                                                                                // router_003:src_valid -> rsp_demux:sink_valid
-	wire  [164:0] router_003_src_data;                                                                                 // router_003:src_data -> rsp_demux:sink_data
+	wire  [128:0] router_003_src_data;                                                                                 // router_003:src_data -> rsp_demux:sink_data
 	wire          router_003_src_ready;                                                                                // rsp_demux:sink_ready -> router_003:src_ready
 	wire    [2:0] router_003_src_channel;                                                                              // router_003:src_channel -> rsp_demux:sink_channel
 	wire          router_003_src_startofpacket;                                                                        // router_003:src_startofpacket -> rsp_demux:sink_startofpacket
@@ -268,13 +267,13 @@ module Computer_System_mm_interconnect_0 (
 	wire          arm_a9_hps_h2f_axi_master_rd_limiter_rsp_src_startofpacket;                                          // ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_src_startofpacket -> ARM_A9_HPS_h2f_axi_master_agent:read_rp_startofpacket
 	wire          arm_a9_hps_h2f_axi_master_rd_limiter_rsp_src_endofpacket;                                            // ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_src_endofpacket -> ARM_A9_HPS_h2f_axi_master_agent:read_rp_endofpacket
 	wire          cmd_mux_src_valid;                                                                                   // cmd_mux:src_valid -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_valid
-	wire  [164:0] cmd_mux_src_data;                                                                                    // cmd_mux:src_data -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_data
+	wire  [128:0] cmd_mux_src_data;                                                                                    // cmd_mux:src_data -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_data
 	wire          cmd_mux_src_ready;                                                                                   // mcmc_system_0_avalon_slave_0_burst_adapter:sink0_ready -> cmd_mux:src_ready
 	wire    [2:0] cmd_mux_src_channel;                                                                                 // cmd_mux:src_channel -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_channel
 	wire          cmd_mux_src_startofpacket;                                                                           // cmd_mux:src_startofpacket -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_startofpacket
 	wire          cmd_mux_src_endofpacket;                                                                             // cmd_mux:src_endofpacket -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_endofpacket
 	wire          mcmc_system_0_avalon_slave_0_burst_adapter_source0_valid;                                            // mcmc_system_0_avalon_slave_0_burst_adapter:source0_valid -> mcmc_system_0_avalon_slave_0_agent:cp_valid
-	wire  [164:0] mcmc_system_0_avalon_slave_0_burst_adapter_source0_data;                                             // mcmc_system_0_avalon_slave_0_burst_adapter:source0_data -> mcmc_system_0_avalon_slave_0_agent:cp_data
+	wire  [128:0] mcmc_system_0_avalon_slave_0_burst_adapter_source0_data;                                             // mcmc_system_0_avalon_slave_0_burst_adapter:source0_data -> mcmc_system_0_avalon_slave_0_agent:cp_data
 	wire          mcmc_system_0_avalon_slave_0_burst_adapter_source0_ready;                                            // mcmc_system_0_avalon_slave_0_agent:cp_ready -> mcmc_system_0_avalon_slave_0_burst_adapter:source0_ready
 	wire    [2:0] mcmc_system_0_avalon_slave_0_burst_adapter_source0_channel;                                          // mcmc_system_0_avalon_slave_0_burst_adapter:source0_channel -> mcmc_system_0_avalon_slave_0_agent:cp_channel
 	wire          mcmc_system_0_avalon_slave_0_burst_adapter_source0_startofpacket;                                    // mcmc_system_0_avalon_slave_0_burst_adapter:source0_startofpacket -> mcmc_system_0_avalon_slave_0_agent:cp_startofpacket
@@ -310,7 +309,7 @@ module Computer_System_mm_interconnect_0 (
 	wire          cmd_demux_src0_startofpacket;                                                                        // cmd_demux:src0_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_startofpacket
 	wire          cmd_demux_src0_endofpacket;                                                                          // cmd_demux:src0_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_endofpacket
 	wire          arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_valid;            // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_valid -> cmd_mux:sink0_valid
-	wire  [164:0] arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_data;             // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_data -> cmd_mux:sink0_data
+	wire  [128:0] arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_data;             // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_data -> cmd_mux:sink0_data
 	wire          arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_ready;            // cmd_mux:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_ready
 	wire    [2:0] arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_channel;          // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_channel -> cmd_mux:sink0_channel
 	wire          arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_startofpacket;    // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_startofpacket -> cmd_mux:sink0_startofpacket
@@ -346,7 +345,7 @@ module Computer_System_mm_interconnect_0 (
 	wire          cmd_demux_001_src0_startofpacket;                                                                    // cmd_demux_001:src0_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_startofpacket
 	wire          cmd_demux_001_src0_endofpacket;                                                                      // cmd_demux_001:src0_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_endofpacket
 	wire          arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_valid;            // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_valid -> cmd_mux:sink1_valid
-	wire  [164:0] arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_data;             // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_data -> cmd_mux:sink1_data
+	wire  [128:0] arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_data;             // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_data -> cmd_mux:sink1_data
 	wire          arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_ready;            // cmd_mux:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_ready
 	wire    [2:0] arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_channel;          // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_channel -> cmd_mux:sink1_channel
 	wire          arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_startofpacket;    // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_startofpacket -> cmd_mux:sink1_startofpacket
@@ -388,7 +387,7 @@ module Computer_System_mm_interconnect_0 (
 	wire          vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_startofpacket;                      // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_startofpacket -> cmd_mux_002:sink2_startofpacket
 	wire          vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_endofpacket;                        // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_endofpacket -> cmd_mux_002:sink2_endofpacket
 	wire          rsp_demux_src0_valid;                                                                                // rsp_demux:src0_valid -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
-	wire  [164:0] rsp_demux_src0_data;                                                                                 // rsp_demux:src0_data -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
+	wire  [128:0] rsp_demux_src0_data;                                                                                 // rsp_demux:src0_data -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
 	wire          rsp_demux_src0_ready;                                                                                // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux:src0_ready
 	wire    [2:0] rsp_demux_src0_channel;                                                                              // rsp_demux:src0_channel -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
 	wire          rsp_demux_src0_startofpacket;                                                                        // rsp_demux:src0_startofpacket -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
@@ -400,7 +399,7 @@ module Computer_System_mm_interconnect_0 (
 	wire          mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket;    // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink0_startofpacket
 	wire          mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;      // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink0_endofpacket
 	wire          rsp_demux_src1_valid;                                                                                // rsp_demux:src1_valid -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
-	wire  [164:0] rsp_demux_src1_data;                                                                                 // rsp_demux:src1_data -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
+	wire  [128:0] rsp_demux_src1_data;                                                                                 // rsp_demux:src1_data -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
 	wire          rsp_demux_src1_ready;                                                                                // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux:src1_ready
 	wire    [2:0] rsp_demux_src1_channel;                                                                              // rsp_demux:src1_channel -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
 	wire          rsp_demux_src1_startofpacket;                                                                        // rsp_demux:src1_startofpacket -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
@@ -474,10 +473,10 @@ module Computer_System_mm_interconnect_0 (
 	wire    [2:0] arm_a9_hps_h2f_axi_master_wr_limiter_cmd_valid_data;                                                 // ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_src_valid -> cmd_demux:sink_valid
 	wire    [2:0] arm_a9_hps_h2f_axi_master_rd_limiter_cmd_valid_data;                                                 // ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_src_valid -> cmd_demux_001:sink_valid
 	wire          mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_valid;                                             // mcmc_system_0_avalon_slave_0_agent_rdata_fifo:out_valid -> avalon_st_adapter:in_0_valid
-	wire   [65:0] mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_data;                                              // mcmc_system_0_avalon_slave_0_agent_rdata_fifo:out_data -> avalon_st_adapter:in_0_data
+	wire   [33:0] mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_data;                                              // mcmc_system_0_avalon_slave_0_agent_rdata_fifo:out_data -> avalon_st_adapter:in_0_data
 	wire          mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_ready;                                             // avalon_st_adapter:in_0_ready -> mcmc_system_0_avalon_slave_0_agent_rdata_fifo:out_ready
 	wire          avalon_st_adapter_out_0_valid;                                                                       // avalon_st_adapter:out_0_valid -> mcmc_system_0_avalon_slave_0_agent:rdata_fifo_sink_valid
-	wire   [65:0] avalon_st_adapter_out_0_data;                                                                        // avalon_st_adapter:out_0_data -> mcmc_system_0_avalon_slave_0_agent:rdata_fifo_sink_data
+	wire   [33:0] avalon_st_adapter_out_0_data;                                                                        // avalon_st_adapter:out_0_data -> mcmc_system_0_avalon_slave_0_agent:rdata_fifo_sink_data
 	wire          avalon_st_adapter_out_0_ready;                                                                       // mcmc_system_0_avalon_slave_0_agent:rdata_fifo_sink_ready -> avalon_st_adapter:out_0_ready
 	wire    [0:0] avalon_st_adapter_out_0_error;                                                                       // avalon_st_adapter:out_0_error -> mcmc_system_0_avalon_slave_0_agent:rdata_fifo_sink_error
 	wire          vga_subsystem_char_buffer_slave_agent_rdata_fifo_out_valid;                                          // VGA_Subsystem_char_buffer_slave_agent_rdata_fifo:out_valid -> avalon_st_adapter_001:in_0_valid
@@ -556,21 +555,21 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_translator #(
-		.AV_ADDRESS_W                   (11),
-		.AV_DATA_W                      (64),
-		.UAV_DATA_W                     (64),
+		.AV_ADDRESS_W                   (12),
+		.AV_DATA_W                      (32),
+		.UAV_DATA_W                     (32),
 		.AV_BURSTCOUNT_W                (1),
-		.AV_BYTEENABLE_W                (8),
-		.UAV_BYTEENABLE_W               (8),
+		.AV_BYTEENABLE_W                (4),
+		.UAV_BYTEENABLE_W               (4),
 		.UAV_ADDRESS_W                  (32),
-		.UAV_BURSTCOUNT_W               (4),
+		.UAV_BURSTCOUNT_W               (3),
 		.AV_READLATENCY                 (0),
 		.USE_READDATAVALID              (0),
 		.USE_WAITREQUEST                (0),
 		.USE_UAV_CLKEN                  (0),
 		.USE_READRESPONSE               (0),
 		.USE_WRITERESPONSE              (0),
-		.AV_SYMBOLS_PER_WORD            (8),
+		.AV_SYMBOLS_PER_WORD            (4),
 		.AV_ADDRESS_SYMBOLS             (0),
 		.AV_BURSTCOUNT_SYMBOLS          (0),
 		.AV_CONSTANT_BURST_BEHAVIOR     (0),
@@ -600,10 +599,10 @@ module Computer_System_mm_interconnect_0 (
 		.av_read                (mcmc_system_0_avalon_slave_0_read),                   //                         .read
 		.av_readdata            (mcmc_system_0_avalon_slave_0_readdata),               //                         .readdata
 		.av_writedata           (mcmc_system_0_avalon_slave_0_writedata),              //                         .writedata
-		.av_byteenable          (mcmc_system_0_avalon_slave_0_byteenable),             //                         .byteenable
 		.av_begintransfer       (),                                                    //              (terminated)
 		.av_beginbursttransfer  (),                                                    //              (terminated)
 		.av_burstcount          (),                                                    //              (terminated)
+		.av_byteenable          (),                                                    //              (terminated)
 		.av_readdatavalid       (1'b0),                                                //              (terminated)
 		.av_waitrequest         (1'b0),                                                //              (terminated)
 		.av_writebyteenable     (),                                                    //              (terminated)
@@ -957,38 +956,38 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_agent #(
-		.PKT_ORI_BURST_SIZE_H      (164),
-		.PKT_ORI_BURST_SIZE_L      (162),
-		.PKT_RESPONSE_STATUS_H     (161),
-		.PKT_RESPONSE_STATUS_L     (160),
-		.PKT_BURST_SIZE_H          (130),
-		.PKT_BURST_SIZE_L          (128),
-		.PKT_TRANS_LOCK            (108),
-		.PKT_BEGIN_BURST           (135),
-		.PKT_PROTECTION_H          (155),
-		.PKT_PROTECTION_L          (153),
-		.PKT_BURSTWRAP_H           (127),
-		.PKT_BURSTWRAP_L           (119),
-		.PKT_BYTE_CNT_H            (118),
-		.PKT_BYTE_CNT_L            (110),
-		.PKT_ADDR_H                (103),
-		.PKT_ADDR_L                (72),
-		.PKT_TRANS_COMPRESSED_READ (104),
-		.PKT_TRANS_POSTED          (105),
-		.PKT_TRANS_WRITE           (106),
-		.PKT_TRANS_READ            (107),
-		.PKT_DATA_H                (63),
+		.PKT_ORI_BURST_SIZE_H      (128),
+		.PKT_ORI_BURST_SIZE_L      (126),
+		.PKT_RESPONSE_STATUS_H     (125),
+		.PKT_RESPONSE_STATUS_L     (124),
+		.PKT_BURST_SIZE_H          (94),
+		.PKT_BURST_SIZE_L          (92),
+		.PKT_TRANS_LOCK            (72),
+		.PKT_BEGIN_BURST           (99),
+		.PKT_PROTECTION_H          (119),
+		.PKT_PROTECTION_L          (117),
+		.PKT_BURSTWRAP_H           (91),
+		.PKT_BURSTWRAP_L           (83),
+		.PKT_BYTE_CNT_H            (82),
+		.PKT_BYTE_CNT_L            (74),
+		.PKT_ADDR_H                (67),
+		.PKT_ADDR_L                (36),
+		.PKT_TRANS_COMPRESSED_READ (68),
+		.PKT_TRANS_POSTED          (69),
+		.PKT_TRANS_WRITE           (70),
+		.PKT_TRANS_READ            (71),
+		.PKT_DATA_H                (31),
 		.PKT_DATA_L                (0),
-		.PKT_BYTEEN_H              (71),
-		.PKT_BYTEEN_L              (64),
-		.PKT_SRC_ID_H              (138),
-		.PKT_SRC_ID_L              (137),
-		.PKT_DEST_ID_H             (140),
-		.PKT_DEST_ID_L             (139),
+		.PKT_BYTEEN_H              (35),
+		.PKT_BYTEEN_L              (32),
+		.PKT_SRC_ID_H              (102),
+		.PKT_SRC_ID_L              (101),
+		.PKT_DEST_ID_H             (104),
+		.PKT_DEST_ID_L             (103),
 		.PKT_SYMBOL_W              (8),
 		.ST_CHANNEL_W              (3),
-		.ST_DATA_W                 (165),
-		.AVS_BURSTCOUNT_W          (4),
+		.ST_DATA_W                 (129),
+		.AVS_BURSTCOUNT_W          (3),
 		.SUPPRESS_0_BYTEEN_CMD     (1),
 		.PREVENT_FIFO_OVERFLOW     (1),
 		.USE_READRESPONSE          (0),
@@ -1042,7 +1041,7 @@ module Computer_System_mm_interconnect_0 (
 
 	altera_avalon_sc_fifo #(
 		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (166),
+		.BITS_PER_SYMBOL     (130),
 		.FIFO_DEPTH          (2),
 		.CHANNEL_WIDTH       (0),
 		.ERROR_WIDTH         (0),
@@ -1083,7 +1082,7 @@ module Computer_System_mm_interconnect_0 (
 
 	altera_avalon_sc_fifo #(
 		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (66),
+		.BITS_PER_SYMBOL     (34),
 		.FIFO_DEPTH          (2),
 		.CHANNEL_WIDTH       (0),
 		.ERROR_WIDTH         (0),
@@ -1651,30 +1650,30 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_burst_adapter #(
-		.PKT_ADDR_H                (103),
-		.PKT_ADDR_L                (72),
-		.PKT_BEGIN_BURST           (135),
-		.PKT_BYTE_CNT_H            (118),
-		.PKT_BYTE_CNT_L            (110),
-		.PKT_BYTEEN_H              (71),
-		.PKT_BYTEEN_L              (64),
-		.PKT_BURST_SIZE_H          (130),
-		.PKT_BURST_SIZE_L          (128),
-		.PKT_BURST_TYPE_H          (132),
-		.PKT_BURST_TYPE_L          (131),
-		.PKT_BURSTWRAP_H           (127),
-		.PKT_BURSTWRAP_L           (119),
-		.PKT_TRANS_COMPRESSED_READ (104),
-		.PKT_TRANS_WRITE           (106),
-		.PKT_TRANS_READ            (107),
+		.PKT_ADDR_H                (67),
+		.PKT_ADDR_L                (36),
+		.PKT_BEGIN_BURST           (99),
+		.PKT_BYTE_CNT_H            (82),
+		.PKT_BYTE_CNT_L            (74),
+		.PKT_BYTEEN_H              (35),
+		.PKT_BYTEEN_L              (32),
+		.PKT_BURST_SIZE_H          (94),
+		.PKT_BURST_SIZE_L          (92),
+		.PKT_BURST_TYPE_H          (96),
+		.PKT_BURST_TYPE_L          (95),
+		.PKT_BURSTWRAP_H           (91),
+		.PKT_BURSTWRAP_L           (83),
+		.PKT_TRANS_COMPRESSED_READ (68),
+		.PKT_TRANS_WRITE           (70),
+		.PKT_TRANS_READ            (71),
 		.OUT_NARROW_SIZE           (0),
 		.IN_NARROW_SIZE            (1),
 		.OUT_FIXED                 (0),
 		.OUT_COMPLETE_WRAP         (0),
-		.ST_DATA_W                 (165),
+		.ST_DATA_W                 (129),
 		.ST_CHANNEL_W              (3),
-		.OUT_BYTE_CNT_H            (113),
-		.OUT_BURSTWRAP_H           (127),
+		.OUT_BYTE_CNT_H            (76),
+		.OUT_BURSTWRAP_H           (91),
 		.COMPRESSED_READ_SUPPORT   (1),
 		.BYTEENABLE_SYNTHESIS      (1),
 		.PIPE_INPUTS               (0),
@@ -2123,25 +2122,25 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_ORI_BURST_SIZE_L       (234),
 		.IN_PKT_ORI_BURST_SIZE_H       (236),
 		.IN_ST_DATA_W                  (237),
-		.OUT_PKT_ADDR_H                (103),
-		.OUT_PKT_ADDR_L                (72),
-		.OUT_PKT_DATA_H                (63),
+		.OUT_PKT_ADDR_H                (67),
+		.OUT_PKT_ADDR_L                (36),
+		.OUT_PKT_DATA_H                (31),
 		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (71),
-		.OUT_PKT_BYTEEN_L              (64),
-		.OUT_PKT_BYTE_CNT_H            (118),
-		.OUT_PKT_BYTE_CNT_L            (110),
-		.OUT_PKT_TRANS_COMPRESSED_READ (104),
-		.OUT_PKT_BURST_SIZE_H          (130),
-		.OUT_PKT_BURST_SIZE_L          (128),
-		.OUT_PKT_RESPONSE_STATUS_H     (161),
-		.OUT_PKT_RESPONSE_STATUS_L     (160),
-		.OUT_PKT_TRANS_EXCLUSIVE       (109),
-		.OUT_PKT_BURST_TYPE_H          (132),
-		.OUT_PKT_BURST_TYPE_L          (131),
-		.OUT_PKT_ORI_BURST_SIZE_L      (162),
-		.OUT_PKT_ORI_BURST_SIZE_H      (164),
-		.OUT_ST_DATA_W                 (165),
+		.OUT_PKT_BYTEEN_H              (35),
+		.OUT_PKT_BYTEEN_L              (32),
+		.OUT_PKT_BYTE_CNT_H            (82),
+		.OUT_PKT_BYTE_CNT_L            (74),
+		.OUT_PKT_TRANS_COMPRESSED_READ (68),
+		.OUT_PKT_BURST_SIZE_H          (94),
+		.OUT_PKT_BURST_SIZE_L          (92),
+		.OUT_PKT_RESPONSE_STATUS_H     (125),
+		.OUT_PKT_RESPONSE_STATUS_L     (124),
+		.OUT_PKT_TRANS_EXCLUSIVE       (73),
+		.OUT_PKT_BURST_TYPE_H          (96),
+		.OUT_PKT_BURST_TYPE_L          (95),
+		.OUT_PKT_ORI_BURST_SIZE_L      (126),
+		.OUT_PKT_ORI_BURST_SIZE_H      (128),
+		.OUT_ST_DATA_W                 (129),
 		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (0),
@@ -2321,25 +2320,25 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_ORI_BURST_SIZE_L       (234),
 		.IN_PKT_ORI_BURST_SIZE_H       (236),
 		.IN_ST_DATA_W                  (237),
-		.OUT_PKT_ADDR_H                (103),
-		.OUT_PKT_ADDR_L                (72),
-		.OUT_PKT_DATA_H                (63),
+		.OUT_PKT_ADDR_H                (67),
+		.OUT_PKT_ADDR_L                (36),
+		.OUT_PKT_DATA_H                (31),
 		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (71),
-		.OUT_PKT_BYTEEN_L              (64),
-		.OUT_PKT_BYTE_CNT_H            (118),
-		.OUT_PKT_BYTE_CNT_L            (110),
-		.OUT_PKT_TRANS_COMPRESSED_READ (104),
-		.OUT_PKT_BURST_SIZE_H          (130),
-		.OUT_PKT_BURST_SIZE_L          (128),
-		.OUT_PKT_RESPONSE_STATUS_H     (161),
-		.OUT_PKT_RESPONSE_STATUS_L     (160),
-		.OUT_PKT_TRANS_EXCLUSIVE       (109),
-		.OUT_PKT_BURST_TYPE_H          (132),
-		.OUT_PKT_BURST_TYPE_L          (131),
-		.OUT_PKT_ORI_BURST_SIZE_L      (162),
-		.OUT_PKT_ORI_BURST_SIZE_H      (164),
-		.OUT_ST_DATA_W                 (165),
+		.OUT_PKT_BYTEEN_H              (35),
+		.OUT_PKT_BYTEEN_L              (32),
+		.OUT_PKT_BYTE_CNT_H            (82),
+		.OUT_PKT_BYTE_CNT_L            (74),
+		.OUT_PKT_TRANS_COMPRESSED_READ (68),
+		.OUT_PKT_BURST_SIZE_H          (94),
+		.OUT_PKT_BURST_SIZE_L          (92),
+		.OUT_PKT_RESPONSE_STATUS_H     (125),
+		.OUT_PKT_RESPONSE_STATUS_L     (124),
+		.OUT_PKT_TRANS_EXCLUSIVE       (73),
+		.OUT_PKT_BURST_TYPE_H          (96),
+		.OUT_PKT_BURST_TYPE_L          (95),
+		.OUT_PKT_ORI_BURST_SIZE_L      (126),
+		.OUT_PKT_ORI_BURST_SIZE_H      (128),
+		.OUT_ST_DATA_W                 (129),
 		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (0),
@@ -2563,28 +2562,28 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (103),
-		.IN_PKT_ADDR_L                 (72),
-		.IN_PKT_DATA_H                 (63),
+		.IN_PKT_ADDR_H                 (67),
+		.IN_PKT_ADDR_L                 (36),
+		.IN_PKT_DATA_H                 (31),
 		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (71),
-		.IN_PKT_BYTEEN_L               (64),
-		.IN_PKT_BYTE_CNT_H             (118),
-		.IN_PKT_BYTE_CNT_L             (110),
-		.IN_PKT_TRANS_COMPRESSED_READ  (104),
-		.IN_PKT_TRANS_WRITE            (106),
-		.IN_PKT_BURSTWRAP_H            (127),
-		.IN_PKT_BURSTWRAP_L            (119),
-		.IN_PKT_BURST_SIZE_H           (130),
-		.IN_PKT_BURST_SIZE_L           (128),
-		.IN_PKT_RESPONSE_STATUS_H      (161),
-		.IN_PKT_RESPONSE_STATUS_L      (160),
-		.IN_PKT_TRANS_EXCLUSIVE        (109),
-		.IN_PKT_BURST_TYPE_H           (132),
-		.IN_PKT_BURST_TYPE_L           (131),
-		.IN_PKT_ORI_BURST_SIZE_L       (162),
-		.IN_PKT_ORI_BURST_SIZE_H       (164),
-		.IN_ST_DATA_W                  (165),
+		.IN_PKT_BYTEEN_H               (35),
+		.IN_PKT_BYTEEN_L               (32),
+		.IN_PKT_BYTE_CNT_H             (82),
+		.IN_PKT_BYTE_CNT_L             (74),
+		.IN_PKT_TRANS_COMPRESSED_READ  (68),
+		.IN_PKT_TRANS_WRITE            (70),
+		.IN_PKT_BURSTWRAP_H            (91),
+		.IN_PKT_BURSTWRAP_L            (83),
+		.IN_PKT_BURST_SIZE_H           (94),
+		.IN_PKT_BURST_SIZE_L           (92),
+		.IN_PKT_RESPONSE_STATUS_H      (125),
+		.IN_PKT_RESPONSE_STATUS_L      (124),
+		.IN_PKT_TRANS_EXCLUSIVE        (73),
+		.IN_PKT_BURST_TYPE_H           (96),
+		.IN_PKT_BURST_TYPE_L           (95),
+		.IN_PKT_ORI_BURST_SIZE_L       (126),
+		.IN_PKT_ORI_BURST_SIZE_H       (128),
+		.IN_ST_DATA_W                  (129),
 		.OUT_PKT_ADDR_H                (175),
 		.OUT_PKT_ADDR_L                (144),
 		.OUT_PKT_DATA_H                (127),
@@ -2629,28 +2628,28 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (103),
-		.IN_PKT_ADDR_L                 (72),
-		.IN_PKT_DATA_H                 (63),
+		.IN_PKT_ADDR_H                 (67),
+		.IN_PKT_ADDR_L                 (36),
+		.IN_PKT_DATA_H                 (31),
 		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (71),
-		.IN_PKT_BYTEEN_L               (64),
-		.IN_PKT_BYTE_CNT_H             (118),
-		.IN_PKT_BYTE_CNT_L             (110),
-		.IN_PKT_TRANS_COMPRESSED_READ  (104),
-		.IN_PKT_TRANS_WRITE            (106),
-		.IN_PKT_BURSTWRAP_H            (127),
-		.IN_PKT_BURSTWRAP_L            (119),
-		.IN_PKT_BURST_SIZE_H           (130),
-		.IN_PKT_BURST_SIZE_L           (128),
-		.IN_PKT_RESPONSE_STATUS_H      (161),
-		.IN_PKT_RESPONSE_STATUS_L      (160),
-		.IN_PKT_TRANS_EXCLUSIVE        (109),
-		.IN_PKT_BURST_TYPE_H           (132),
-		.IN_PKT_BURST_TYPE_L           (131),
-		.IN_PKT_ORI_BURST_SIZE_L       (162),
-		.IN_PKT_ORI_BURST_SIZE_H       (164),
-		.IN_ST_DATA_W                  (165),
+		.IN_PKT_BYTEEN_H               (35),
+		.IN_PKT_BYTEEN_L               (32),
+		.IN_PKT_BYTE_CNT_H             (82),
+		.IN_PKT_BYTE_CNT_L             (74),
+		.IN_PKT_TRANS_COMPRESSED_READ  (68),
+		.IN_PKT_TRANS_WRITE            (70),
+		.IN_PKT_BURSTWRAP_H            (91),
+		.IN_PKT_BURSTWRAP_L            (83),
+		.IN_PKT_BURST_SIZE_H           (94),
+		.IN_PKT_BURST_SIZE_L           (92),
+		.IN_PKT_RESPONSE_STATUS_H      (125),
+		.IN_PKT_RESPONSE_STATUS_L      (124),
+		.IN_PKT_TRANS_EXCLUSIVE        (73),
+		.IN_PKT_BURST_TYPE_H           (96),
+		.IN_PKT_BURST_TYPE_L           (95),
+		.IN_PKT_ORI_BURST_SIZE_L       (126),
+		.IN_PKT_ORI_BURST_SIZE_H       (128),
+		.IN_ST_DATA_W                  (129),
 		.OUT_PKT_ADDR_H                (175),
 		.OUT_PKT_ADDR_L                (144),
 		.OUT_PKT_DATA_H                (127),
@@ -3025,16 +3024,16 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	Computer_System_mm_interconnect_0_avalon_st_adapter #(
-		.inBitsPerSymbol (66),
+		.inBitsPerSymbol (34),
 		.inUsePackets    (0),
-		.inDataWidth     (66),
+		.inDataWidth     (34),
 		.inChannelWidth  (0),
 		.inErrorWidth    (0),
 		.inUseEmptyPort  (0),
 		.inUseValid      (1),
 		.inUseReady      (1),
 		.inReadyLatency  (0),
-		.outDataWidth    (66),
+		.outDataWidth    (34),
 		.outChannelWidth (0),
 		.outErrorWidth   (1),
 		.outUseEmptyPort (0),
