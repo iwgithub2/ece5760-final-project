@@ -59,6 +59,13 @@ module Computer_System (
 	hps_io_hps_io_gpio_inst_GPIO53,
 	hps_io_hps_io_gpio_inst_GPIO54,
 	hps_io_hps_io_gpio_inst_GPIO61,
+	mcmc_system_0_mcmc_control_best_score,
+	mcmc_system_0_mcmc_control_done,
+	mcmc_system_0_mcmc_control_seed,
+	mcmc_system_0_mcmc_control_start,
+	mcmc_system_0_mcmc_control_active_nodes,
+	mcmc_system_0_mcmc_control_iterations,
+	mcmc_system_0_mcmc_control_node_idx_mask,
 	memory_mem_a,
 	memory_mem_ba,
 	memory_mem_ck,
@@ -75,10 +82,8 @@ module Computer_System (
 	memory_mem_odt,
 	memory_mem_dm,
 	memory_oct_rzqin,
-	pio_best_order_external_connection_export,
 	pio_best_score_external_connection_export,
 	pio_done_external_connection_export,
-	pio_num_cands_external_connection_export,
 	pio_seed_external_connection_export,
 	pio_start_external_connection_export,
 	sdram_addr,
@@ -103,12 +108,9 @@ module Computer_System (
 	vga_B,
 	vga_pll_ref_clk_clk,
 	vga_pll_ref_reset_reset,
-	mcmc_system_0_mcmc_control_best_order_packed,
-	mcmc_system_0_mcmc_control_best_score,
-	mcmc_system_0_mcmc_control_done,
-	mcmc_system_0_mcmc_control_num_cands_packed,
-	mcmc_system_0_mcmc_control_seed,
-	mcmc_system_0_mcmc_control_start);	
+	pio_iterations_external_connection_export,
+	pio_active_nodes_external_connection_export,
+	pio_node_mask_external_connection_export);	
 
 	inout		av_config_SDAT;
 	output		av_config_SCLK;
@@ -169,6 +171,13 @@ module Computer_System (
 	inout		hps_io_hps_io_gpio_inst_GPIO53;
 	inout		hps_io_hps_io_gpio_inst_GPIO54;
 	inout		hps_io_hps_io_gpio_inst_GPIO61;
+	output	[31:0]	mcmc_system_0_mcmc_control_best_score;
+	output		mcmc_system_0_mcmc_control_done;
+	input	[31:0]	mcmc_system_0_mcmc_control_seed;
+	input		mcmc_system_0_mcmc_control_start;
+	input	[31:0]	mcmc_system_0_mcmc_control_active_nodes;
+	input	[31:0]	mcmc_system_0_mcmc_control_iterations;
+	input	[31:0]	mcmc_system_0_mcmc_control_node_idx_mask;
 	output	[14:0]	memory_mem_a;
 	output	[2:0]	memory_mem_ba;
 	output		memory_mem_ck;
@@ -185,10 +194,8 @@ module Computer_System (
 	output		memory_mem_odt;
 	output	[3:0]	memory_mem_dm;
 	input		memory_oct_rzqin;
-	input	[31:0]	pio_best_order_external_connection_export;
 	input	[31:0]	pio_best_score_external_connection_export;
 	input	[31:0]	pio_done_external_connection_export;
-	output	[31:0]	pio_num_cands_external_connection_export;
 	output	[31:0]	pio_seed_external_connection_export;
 	output	[31:0]	pio_start_external_connection_export;
 	output	[12:0]	sdram_addr;
@@ -213,10 +220,7 @@ module Computer_System (
 	output	[7:0]	vga_B;
 	input		vga_pll_ref_clk_clk;
 	input		vga_pll_ref_reset_reset;
-	output	[31:0]	mcmc_system_0_mcmc_control_best_order_packed;
-	output	[31:0]	mcmc_system_0_mcmc_control_best_score;
-	output		mcmc_system_0_mcmc_control_done;
-	input	[31:0]	mcmc_system_0_mcmc_control_num_cands_packed;
-	input	[31:0]	mcmc_system_0_mcmc_control_seed;
-	input		mcmc_system_0_mcmc_control_start;
+	output	[31:0]	pio_iterations_external_connection_export;
+	output	[31:0]	pio_active_nodes_external_connection_export;
+	output	[31:0]	pio_node_mask_external_connection_export;
 endmodule

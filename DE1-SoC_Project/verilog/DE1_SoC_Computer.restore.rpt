@@ -1,5 +1,5 @@
 Restore Archived Project report for DE1_SoC_Computer
-Thu Apr 30 20:21:12 2026
+Thu Apr 30 21:10:37 2026
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -36,7 +36,7 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------------+
 ; Restore Archived Project Summary                                        ;
 +---------------------------------+---------------------------------------+
-; Restore Archived Project Status ; Successful - Thu Apr 30 20:21:12 2026 ;
+; Restore Archived Project Status ; Successful - Thu Apr 30 21:10:37 2026 ;
 ; Revision Name                   ; DE1_SoC_Computer                      ;
 ; Top-level Entity Name           ; DE1_SoC_Computer                      ;
 ; Family                          ; Cyclone V                             ;
@@ -46,12 +46,12 @@ refer to the applicable agreement for further details.
 +-----------------------------------+
 ; Restore Archived Project Messages ;
 +-----------------------------------+
-Info: Successfully restored 'C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/DE1_SoC_Computer.qar' into the 'C:\\Users\\jgw227\\Documents\\ece5760-final-project\\DE1-SoC_Project\\verilog/' directory
+Info: Successfully restored 'C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/DE1_SoC_Computer_640_480.qar' into the 'C:\\Users\\jgw227\\Documents\\ece5760-final-project\\DE1-SoC_Project\\verilog/' directory
 Info: Generated report 'DE1_SoC_Computer.restore.rpt'
 Info (23030): Evaluation of Tcl script c:/programs/intelfpga/18.1/quartus/common/tcl/apps/qpm/qar.tcl was successful
 Info: Quartus Prime Shell was successful. 0 errors, 316 warnings
-    Info: Peak virtual memory: 4912 megabytes
-    Info: Processing ended: Thu Apr 30 20:21:12 2026
+    Info: Peak virtual memory: 4920 megabytes
+    Info: Processing ended: Thu Apr 30 21:10:37 2026
     Info: Elapsed time: 00:00:07
     Info: Total CPU time (on all processors): 00:00:07
 
@@ -151,7 +151,6 @@ Info: Quartus Prime Shell was successful. 0 errors, 316 warnings
 ; Computer_System/synthesis/submodules/Computer_System_VGA_Subsystem_VGA_Pixel_DMA.v                                                  ;
 ; Computer_System/synthesis/submodules/Computer_System_VGA_Subsystem_VGA_Pixel_FIFO.v                                                 ;
 ; Computer_System/synthesis/submodules/Computer_System_VGA_Subsystem_VGA_Pixel_RGB_Resampler.v                                        ;
-; Computer_System/synthesis/submodules/Computer_System_VGA_Subsystem_VGA_Pixel_Scaler.v                                               ;
 ; Computer_System/synthesis/submodules/Computer_System_Video_In_Subsystem.v                                                           ;
 ; Computer_System/synthesis/submodules/Computer_System_Video_In_Subsystem_Edge_Detection_Subsystem.v                                  ;
 ; Computer_System/synthesis/submodules/Computer_System_Video_In_Subsystem_Edge_Detection_Subsystem_Chroma_Filter.v                    ;
@@ -230,6 +229,7 @@ Info: Quartus Prime Shell was successful. 0 errors, 316 warnings
 ; Computer_System/synthesis/submodules/Computer_System_mm_interconnect_0_rsp_mux_005.sv                                               ;
 ; Computer_System/synthesis/submodules/Computer_System_mm_interconnect_0_rsp_mux_007.sv                                               ;
 ; Computer_System/synthesis/submodules/Computer_System_mm_interconnect_0_rsp_mux_008.sv                                               ;
+; Computer_System/synthesis/submodules/Computer_System_mm_interconnect_0_rsp_mux_010.sv                                               ;
 ; Computer_System/synthesis/submodules/Computer_System_mm_interconnect_0_rsp_mux_011.sv                                               ;
 ; Computer_System/synthesis/submodules/Computer_System_mm_interconnect_1.v                                                            ;
 ; Computer_System/synthesis/submodules/Computer_System_mm_interconnect_1_cmd_demux.sv                                                 ;

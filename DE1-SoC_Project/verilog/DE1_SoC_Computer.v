@@ -367,12 +367,12 @@ output					HPS_USB_STP;
 // ==========================================
 wire [31:0] w_pio_start;
 wire [31:0] w_pio_seed;
-wire [31:0] w_pio_num_cands;
+wire [31:0] w_pio_active_nodes;
 
 wire        w_mcmc_done;
 wire [31:0] w_mcmc_best_score;
-wire [31:0] w_mcmc_best_order;
-
+wire [31:0] w_pio_iterations;
+wire [31:0] w_pio_node_mask;
 
 //=======================================================
 //  Structural coding
@@ -395,21 +395,24 @@ Computer_System The_System (
 	// PIOs (HPS Outputs to FPGA)
 	.pio_start_external_connection_export     (w_pio_start),
 	.pio_seed_external_connection_export      (w_pio_seed),
-	.pio_num_cands_external_connection_export (w_pio_num_cands),
-
+	.pio_iterations_external_connection_export (w_pio_iterations),
+	.pio_active_nodes_external_connection_export(w_pio_active_nodes),
+	.pio_node_mask_external_connection_export(w_pio_node_mask),
+	
 	// PIOs (FPGA Inputs to HPS) 
-    // Note: done is 1 bit, but the PIO is 32 bits, so we pad it with 31 zeros.
 	.pio_done_external_connection_export       ({31'd0, w_mcmc_done}),
 	.pio_best_score_external_connection_export (w_mcmc_best_score),
-	.pio_best_order_external_connection_export (w_mcmc_best_order),
+
 
 	// MCMC Custom Component Conduits
 	.mcmc_system_0_mcmc_control_start               (w_pio_start[0]),
 	.mcmc_system_0_mcmc_control_seed                (w_pio_seed),
-	.mcmc_system_0_mcmc_control_num_cands_packed    (w_pio_num_cands),
+	.mcmc_system_0_mcmc_control_iterations  	      (w_pio_iterations),
+	.mcmc_system_0_mcmc_control_active_nodes        (w_pio_active_nodes),
+	.mcmc_system_0_mcmc_control_node_idx_mask       (w_pio_node_mask),
 	.mcmc_system_0_mcmc_control_done                (w_mcmc_done),
 	.mcmc_system_0_mcmc_control_best_score          (w_mcmc_best_score),
-	.mcmc_system_0_mcmc_control_best_order_packed   (w_mcmc_best_order),
+	
 	// Slider Switches
 	//.slider_switches_export					(SW),
 

@@ -165,7 +165,7 @@
    {
       datum _sortIndex
       {
-         value = "14";
+         value = "8";
          type = "int";
       }
    }
@@ -177,15 +177,15 @@
          type = "String";
       }
    }
-   element pio_best_order
+   element pio_active_nodes
    {
       datum _sortIndex
       {
-         value = "13";
+         value = "14";
          type = "int";
       }
    }
-   element pio_best_order.s1
+   element pio_active_nodes.s1
    {
       datum baseAddress
       {
@@ -197,7 +197,7 @@
    {
       datum _sortIndex
       {
-         value = "11";
+         value = "12";
          type = "int";
       }
    }
@@ -213,7 +213,7 @@
    {
       datum _sortIndex
       {
-         value = "10";
+         value = "11";
          type = "int";
       }
    }
@@ -233,15 +233,15 @@
          type = "String";
       }
    }
-   element pio_num_cands
+   element pio_iterations
    {
       datum _sortIndex
       {
-         value = "12";
+         value = "13";
          type = "int";
       }
    }
-   element pio_num_cands.s1
+   element pio_iterations.s1
    {
       datum baseAddress
       {
@@ -249,11 +249,27 @@
          type = "String";
       }
    }
+   element pio_node_mask
+   {
+      datum _sortIndex
+      {
+         value = "15";
+         type = "int";
+      }
+   }
+   element pio_node_mask.s1
+   {
+      datum baseAddress
+      {
+         value = "96";
+         type = "String";
+      }
+   }
    element pio_seed
    {
       datum _sortIndex
       {
-         value = "9";
+         value = "10";
          type = "int";
       }
    }
@@ -269,7 +285,7 @@
    {
       datum _sortIndex
       {
-         value = "8";
+         value = "9";
          type = "int";
       }
    }
@@ -312,8 +328,8 @@
    dir="end" />
  <interface name="memory" internal="ARM_A9_HPS.memory" type="conduit" dir="end" />
  <interface
-   name="pio_best_order_external_connection"
-   internal="pio_best_order.external_connection"
+   name="pio_active_nodes_external_connection"
+   internal="pio_active_nodes.external_connection"
    type="conduit"
    dir="end" />
  <interface
@@ -327,8 +343,13 @@
    type="conduit"
    dir="end" />
  <interface
-   name="pio_num_cands_external_connection"
-   internal="pio_num_cands.external_connection"
+   name="pio_iterations_external_connection"
+   internal="pio_iterations.external_connection"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="pio_node_mask_external_connection"
+   internal="pio_node_mask.external_connection"
    type="conduit"
    dir="end" />
  <interface
@@ -1010,9 +1031,11 @@
   <parameter name="EXPLICIT_CLOCK_RATE" value="50000000" />
   <parameter name="NUM_CLOCK_OUTPUTS" value="1" />
  </module>
- <module name="mcmc_system_0" kind="mcmc_system" version="1.0" enabled="1" />
+ <module name="mcmc_system_0" kind="mcmc_system" version="1.0" enabled="1">
+  <parameter name="N_NODES" value="32" />
+ </module>
  <module
-   name="pio_best_order"
+   name="pio_active_nodes"
    kind="altera_avalon_pio"
    version="18.1"
    enabled="1">
@@ -1020,7 +1043,7 @@
   <parameter name="bitModifyingOutReg" value="false" />
   <parameter name="captureEdge" value="false" />
   <parameter name="clockRate" value="100000000" />
-  <parameter name="direction" value="Input" />
+  <parameter name="direction" value="Output" />
   <parameter name="edgeType" value="RISING" />
   <parameter name="generateIRQ" value="false" />
   <parameter name="irqType" value="LEVEL" />
@@ -1062,7 +1085,25 @@
   <parameter name="width" value="32" />
  </module>
  <module
-   name="pio_num_cands"
+   name="pio_iterations"
+   kind="altera_avalon_pio"
+   version="18.1"
+   enabled="1">
+  <parameter name="bitClearingEdgeCapReg" value="false" />
+  <parameter name="bitModifyingOutReg" value="false" />
+  <parameter name="captureEdge" value="false" />
+  <parameter name="clockRate" value="100000000" />
+  <parameter name="direction" value="Output" />
+  <parameter name="edgeType" value="RISING" />
+  <parameter name="generateIRQ" value="false" />
+  <parameter name="irqType" value="LEVEL" />
+  <parameter name="resetValue" value="0" />
+  <parameter name="simDoTestBenchWiring" value="false" />
+  <parameter name="simDrivenValue" value="0" />
+  <parameter name="width" value="32" />
+ </module>
+ <module
+   name="pio_node_mask"
    kind="altera_avalon_pio"
    version="18.1"
    enabled="1">
@@ -1201,7 +1242,7 @@
    kind="avalon"
    version="18.1"
    start="ARM_A9_HPS.h2f_lw_axi_master"
-   end="pio_num_cands.s1">
+   end="pio_iterations.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0040" />
   <parameter name="defaultConnection" value="false" />
@@ -1210,9 +1251,18 @@
    kind="avalon"
    version="18.1"
    start="ARM_A9_HPS.h2f_lw_axi_master"
-   end="pio_best_order.s1">
+   end="pio_active_nodes.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0050" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="ARM_A9_HPS.h2f_lw_axi_master"
+   end="pio_node_mask.s1">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0060" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1276,12 +1326,17 @@
    kind="clock"
    version="18.1"
    start="System_PLL.sys_clk"
-   end="pio_num_cands.clk" />
+   end="pio_iterations.clk" />
  <connection
    kind="clock"
    version="18.1"
    start="System_PLL.sys_clk"
-   end="pio_best_order.clk" />
+   end="pio_active_nodes.clk" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="System_PLL.sys_clk"
+   end="pio_node_mask.clk" />
  <connection
    kind="clock"
    version="18.1"
@@ -1361,17 +1416,22 @@
    kind="reset"
    version="18.1"
    start="ARM_A9_HPS.h2f_reset"
-   end="pio_num_cands.reset" />
- <connection
-   kind="reset"
-   version="18.1"
-   start="ARM_A9_HPS.h2f_reset"
-   end="pio_best_order.reset" />
- <connection
-   kind="reset"
-   version="18.1"
-   start="ARM_A9_HPS.h2f_reset"
    end="mcmc_system_0.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ARM_A9_HPS.h2f_reset"
+   end="pio_iterations.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ARM_A9_HPS.h2f_reset"
+   end="pio_active_nodes.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ARM_A9_HPS.h2f_reset"
+   end="pio_node_mask.reset" />
  <connection
    kind="reset"
    version="18.1"
@@ -1421,17 +1481,22 @@
    kind="reset"
    version="18.1"
    start="System_PLL.reset_source"
-   end="pio_num_cands.reset" />
- <connection
-   kind="reset"
-   version="18.1"
-   start="System_PLL.reset_source"
-   end="pio_best_order.reset" />
- <connection
-   kind="reset"
-   version="18.1"
-   start="System_PLL.reset_source"
    end="mcmc_system_0.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="System_PLL.reset_source"
+   end="pio_iterations.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="System_PLL.reset_source"
+   end="pio_active_nodes.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="System_PLL.reset_source"
+   end="pio_node_mask.reset" />
  <connection
    kind="reset"
    version="18.1"

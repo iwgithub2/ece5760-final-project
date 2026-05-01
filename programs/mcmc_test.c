@@ -20,11 +20,12 @@
 #define PIO_SEED_OFFSET         0x10
 #define PIO_DONE_OFFSET         0x20
 #define PIO_BEST_SCORE_OFFSET   0x30
-#define PIO_NUM_CANDS_OFFSET    0x40 
-#define PIO_BEST_ORDER_OFFSET   0x50 
+#define PIO_ITERATIONS_OFFSET   0x40 
+#define PIO_ACTIVE_NODES_OFFSET 0x50 
+#define PIO_NODE_MASK           0x60 
 
 #define DATASET_NAME "asia"
-#define NUM_NODES 4 // Locked to 4 to match your current Verilog
+#define NUM_NODES 8
 #define MAX_PARENTS_PER_NODE 64 
 
 char node_names[NUM_NODES][64];
@@ -44,8 +45,9 @@ volatile unsigned int *pio_start=NULL;
 volatile unsigned int *pio_seed=NULL;
 volatile unsigned int *pio_done=NULL;
 volatile unsigned int *pio_best_score=NULL;
-volatile unsigned int *pio_num_cands=NULL;
-volatile unsigned int *pio_best_order=NULL;
+volatile unsigned int *pio_iterations=NULL;
+volatile unsigned int *pio_active_nodes=NULL;
+volatile unsigned int *pio_node_mask=NULL;
 
 volatile uint64_t *mcmc_system_base;
 void *fpga_ram_virtual_base;
@@ -188,8 +190,9 @@ int main(void)
     pio_seed          = (unsigned int *)(h2p_lw_virtual_base + PIO_SEED_OFFSET);
     pio_done          = (unsigned int *)(h2p_lw_virtual_base + PIO_DONE_OFFSET);
     pio_best_score    = (unsigned int *)(h2p_lw_virtual_base + PIO_BEST_SCORE_OFFSET);
-    pio_num_cands     = (unsigned int *)(h2p_lw_virtual_base + PIO_NUM_CANDS_OFFSET);
-    pio_best_order    = (unsigned int *)(h2p_lw_virtual_base + PIO_BEST_ORDER_OFFSET);
+    pio_iterations    = (unsigned int *)(h2p_lw_virtual_base + PIO_ITERATIONS_OFFSET);
+    pio_active_nodes  = (unsigned int *)(h2p_lw_virtual_base + PIO_ACTIVE_NODES_OFFSET);
+    pio_node_mask     = (unsigned int *)(h2p_lw_virtual_base + PIO_NODE_MASK);
     
     fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); 
     if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
@@ -224,31 +227,65 @@ int main(void)
             
             *(mcmc_system_base + offset) = packed_word;
         }
+        
+        // --- FIX 1: Append Sentinel for Active Nodes ---
+        uint64_t sentinel_mask = 0xFFFFFFFFULL;
+        uint64_t packed_sentinel = (sentinel_mask << 32) | 0x00000000;
+        int sentinel_offset = (i << 6) | num_candidates[i]; 
+        *(mcmc_system_base + sentinel_offset) = packed_sentinel;
     }
     
-    *pio_num_cands = num_cands_packed; // Tell the FPGA how many to process
-    *pio_seed = 0xABCD1234;            // Seed the LFSR
+    // --- FIX 2: Write Sentinel at index 0 for all UNUSED hardware nodes ---
+    // The hardware instantiates 32 nodes. We must satisfy all of them so &score_done == 1
+    for (int i = NUM_NODES; i < 32; i++) {
+        uint64_t sentinel_mask = 0xFFFFFFFFULL;
+        uint64_t packed_sentinel = (sentinel_mask << 32) | 0x00000000;
+        int sentinel_offset = (i << 6) | 0; // Very first address of the unused node's RAM
+        *(mcmc_system_base + sentinel_offset) = packed_sentinel;
+    }
+    
+    // Tell the hardware we are running Asia (8 nodes) for 50,000 iterations
+    *pio_iterations = 50000;
+    *pio_active_nodes = NUM_NODES;
+    *pio_node_mask = NUM_NODES - 1;
+    
+    // (If you were running 20 nodes, mask would be 0x1F)
 
-    // === 3. Run Hardware MCMC ===
-    printf("Starting FPGA Acceleration...\n");
+    *pio_seed = 0xABCD1234;
+    printf("Starting 32-Node Engine (Configured for %d nodes)...\n", *pio_active_nodes);
+    
     *pio_start = 1;
+    while (*pio_done == 0) { } 
+    *pio_start = 0;
     
-    while (*pio_done == 0) { } // Wait for FPGA 
-    *pio_start = 0; // Acknowledge completion
+    // Extract the Best Order directly from the Heavyweight Memory Bus!
     
-    int32_t hw_best_score = (int32_t)(*pio_best_score);
-    float float_score = (float)hw_best_score / 65536.0f;
-    printf("MCMC Best Score: %f (Hex: %08X)\n", float_score, hw_best_score);
-
-    // === 4. Unpack Best Order ===
-    int best_order[NUM_NODES];
-    uint32_t packed_order = *pio_best_order;
+    // Hardware now has 0-cycle latency; we can read directly
+    uint64_t chunk0 = *(mcmc_system_base + 1024);
+    uint64_t chunk1 = *(mcmc_system_base + 1025);
+    uint64_t chunk2 = *(mcmc_system_base + 1026);
     
-    printf("Hardware Final Order: ");
-    for (int i = 0; i < NUM_NODES; i++) {
-        best_order[i] = (packed_order >> (i * 8)) & 0xFF;
+    int best_order[32];
+    for (int i = 0; i < *pio_active_nodes; i++) {
+        int bit_offset = i * 5;
+        uint64_t full_data;
+        
+        if (bit_offset <= 59) {
+            full_data = chunk0 >> bit_offset;
+        } else if (bit_offset == 60) {
+            full_data = (chunk0 >> 60) | (chunk1 << 4); // Stitch across boundary
+        } else if (bit_offset <= 123) {
+            full_data = chunk1 >> (bit_offset - 64);
+        } else if (bit_offset == 124) {
+            full_data = (chunk1 >> 60) | (chunk2 << 4); // Stitch across boundary
+        } else {
+            full_data = chunk2 >> (bit_offset - 128);
+        }
+        
+        best_order[i] = full_data & 0x1F;
+        
         printf("%s ", node_names[best_order[i]]);
-        if (i < NUM_NODES - 1) printf("-> ");
+        if (i < *pio_active_nodes - 1) printf("-> ");
     }
     printf("\n");
 

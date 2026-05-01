@@ -53,8 +53,10 @@ module Computer_System_mm_interconnect_0 (
 		output wire [7:0]   VGA_Subsystem_pixel_dma_master_readdata,                               //                                                                .readdata
 		output wire         VGA_Subsystem_pixel_dma_master_readdatavalid,                          //                                                                .readdatavalid
 		input  wire         VGA_Subsystem_pixel_dma_master_lock,                                   //                                                                .lock
-		output wire [7:0]   mcmc_system_0_avalon_slave_0_address,                                  //                                    mcmc_system_0_avalon_slave_0.address
+		output wire [10:0]  mcmc_system_0_avalon_slave_0_address,                                  //                                    mcmc_system_0_avalon_slave_0.address
 		output wire         mcmc_system_0_avalon_slave_0_write,                                    //                                                                .write
+		output wire         mcmc_system_0_avalon_slave_0_read,                                     //                                                                .read
+		input  wire [63:0]  mcmc_system_0_avalon_slave_0_readdata,                                 //                                                                .readdata
 		output wire [63:0]  mcmc_system_0_avalon_slave_0_writedata,                                //                                                                .writedata
 		output wire [24:0]  SDRAM_s1_address,                                                      //                                                        SDRAM_s1.address
 		output wire         SDRAM_s1_write,                                                        //                                                                .write
@@ -553,7 +555,7 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_translator #(
-		.AV_ADDRESS_W                   (8),
+		.AV_ADDRESS_W                   (11),
 		.AV_DATA_W                      (64),
 		.UAV_DATA_W                     (64),
 		.AV_BURSTCOUNT_W                (1),
@@ -579,41 +581,41 @@ module Computer_System_mm_interconnect_0 (
 		.AV_SETUP_WAIT_CYCLES           (0),
 		.AV_DATA_HOLD_CYCLES            (0)
 	) mcmc_system_0_avalon_slave_0_translator (
-		.clk                    (System_PLL_sys_clk_clk),                                               //                      clk.clk
-		.reset                  (mcmc_system_0_reset_reset_bridge_in_reset_reset),                      //                    reset.reset
-		.uav_address            (mcmc_system_0_avalon_slave_0_agent_m0_address),                        // avalon_universal_slave_0.address
-		.uav_burstcount         (mcmc_system_0_avalon_slave_0_agent_m0_burstcount),                     //                         .burstcount
-		.uav_read               (mcmc_system_0_avalon_slave_0_agent_m0_read),                           //                         .read
-		.uav_write              (mcmc_system_0_avalon_slave_0_agent_m0_write),                          //                         .write
-		.uav_waitrequest        (mcmc_system_0_avalon_slave_0_agent_m0_waitrequest),                    //                         .waitrequest
-		.uav_readdatavalid      (mcmc_system_0_avalon_slave_0_agent_m0_readdatavalid),                  //                         .readdatavalid
-		.uav_byteenable         (mcmc_system_0_avalon_slave_0_agent_m0_byteenable),                     //                         .byteenable
-		.uav_readdata           (mcmc_system_0_avalon_slave_0_agent_m0_readdata),                       //                         .readdata
-		.uav_writedata          (mcmc_system_0_avalon_slave_0_agent_m0_writedata),                      //                         .writedata
-		.uav_lock               (mcmc_system_0_avalon_slave_0_agent_m0_lock),                           //                         .lock
-		.uav_debugaccess        (mcmc_system_0_avalon_slave_0_agent_m0_debugaccess),                    //                         .debugaccess
-		.av_address             (mcmc_system_0_avalon_slave_0_address),                                 //      avalon_anti_slave_0.address
-		.av_write               (mcmc_system_0_avalon_slave_0_write),                                   //                         .write
-		.av_writedata           (mcmc_system_0_avalon_slave_0_writedata),                               //                         .writedata
-		.av_read                (),                                                                     //              (terminated)
-		.av_readdata            (64'b0000000000000000000000000000000011011110101011011101111010101101), //              (terminated)
-		.av_begintransfer       (),                                                                     //              (terminated)
-		.av_beginbursttransfer  (),                                                                     //              (terminated)
-		.av_burstcount          (),                                                                     //              (terminated)
-		.av_byteenable          (),                                                                     //              (terminated)
-		.av_readdatavalid       (1'b0),                                                                 //              (terminated)
-		.av_waitrequest         (1'b0),                                                                 //              (terminated)
-		.av_writebyteenable     (),                                                                     //              (terminated)
-		.av_lock                (),                                                                     //              (terminated)
-		.av_chipselect          (),                                                                     //              (terminated)
-		.av_clken               (),                                                                     //              (terminated)
-		.uav_clken              (1'b0),                                                                 //              (terminated)
-		.av_debugaccess         (),                                                                     //              (terminated)
-		.av_outputenable        (),                                                                     //              (terminated)
-		.uav_response           (),                                                                     //              (terminated)
-		.av_response            (2'b00),                                                                //              (terminated)
-		.uav_writeresponsevalid (),                                                                     //              (terminated)
-		.av_writeresponsevalid  (1'b0)                                                                  //              (terminated)
+		.clk                    (System_PLL_sys_clk_clk),                              //                      clk.clk
+		.reset                  (mcmc_system_0_reset_reset_bridge_in_reset_reset),     //                    reset.reset
+		.uav_address            (mcmc_system_0_avalon_slave_0_agent_m0_address),       // avalon_universal_slave_0.address
+		.uav_burstcount         (mcmc_system_0_avalon_slave_0_agent_m0_burstcount),    //                         .burstcount
+		.uav_read               (mcmc_system_0_avalon_slave_0_agent_m0_read),          //                         .read
+		.uav_write              (mcmc_system_0_avalon_slave_0_agent_m0_write),         //                         .write
+		.uav_waitrequest        (mcmc_system_0_avalon_slave_0_agent_m0_waitrequest),   //                         .waitrequest
+		.uav_readdatavalid      (mcmc_system_0_avalon_slave_0_agent_m0_readdatavalid), //                         .readdatavalid
+		.uav_byteenable         (mcmc_system_0_avalon_slave_0_agent_m0_byteenable),    //                         .byteenable
+		.uav_readdata           (mcmc_system_0_avalon_slave_0_agent_m0_readdata),      //                         .readdata
+		.uav_writedata          (mcmc_system_0_avalon_slave_0_agent_m0_writedata),     //                         .writedata
+		.uav_lock               (mcmc_system_0_avalon_slave_0_agent_m0_lock),          //                         .lock
+		.uav_debugaccess        (mcmc_system_0_avalon_slave_0_agent_m0_debugaccess),   //                         .debugaccess
+		.av_address             (mcmc_system_0_avalon_slave_0_address),                //      avalon_anti_slave_0.address
+		.av_write               (mcmc_system_0_avalon_slave_0_write),                  //                         .write
+		.av_read                (mcmc_system_0_avalon_slave_0_read),                   //                         .read
+		.av_readdata            (mcmc_system_0_avalon_slave_0_readdata),               //                         .readdata
+		.av_writedata           (mcmc_system_0_avalon_slave_0_writedata),              //                         .writedata
+		.av_begintransfer       (),                                                    //              (terminated)
+		.av_beginbursttransfer  (),                                                    //              (terminated)
+		.av_burstcount          (),                                                    //              (terminated)
+		.av_byteenable          (),                                                    //              (terminated)
+		.av_readdatavalid       (1'b0),                                                //              (terminated)
+		.av_waitrequest         (1'b0),                                                //              (terminated)
+		.av_writebyteenable     (),                                                    //              (terminated)
+		.av_lock                (),                                                    //              (terminated)
+		.av_chipselect          (),                                                    //              (terminated)
+		.av_clken               (),                                                    //              (terminated)
+		.uav_clken              (1'b0),                                                //              (terminated)
+		.av_debugaccess         (),                                                    //              (terminated)
+		.av_outputenable        (),                                                    //              (terminated)
+		.uav_response           (),                                                    //              (terminated)
+		.av_response            (2'b00),                                               //              (terminated)
+		.uav_writeresponsevalid (),                                                    //              (terminated)
+		.av_writeresponsevalid  (1'b0)                                                 //              (terminated)
 	);
 
 	altera_merlin_slave_translator #(

@@ -135,7 +135,7 @@ module Computer_System_mm_interconnect_0_router
     // during address decoding
     // -------------------------------------------------------
     localparam PAD0 = log2ceil(64'h4000000 - 64'h0); 
-    localparam PAD1 = log2ceil(64'h8000800 - 64'h8000000); 
+    localparam PAD1 = log2ceil(64'h8004000 - 64'h8000000); 
     localparam PAD2 = log2ceil(64'h9002000 - 64'h9000000); 
     // -------------------------------------------------------
     // Work out which address bits are significant based on the
@@ -171,11 +171,6 @@ module Computer_System_mm_interconnect_0_router
 
 
 
-    // -------------------------------------------------------
-    // Write and read transaction signals
-    // -------------------------------------------------------
-    wire write_transaction;
-    assign write_transaction = sink_data[PKT_TRANS_WRITE];
 
 
     Computer_System_mm_interconnect_0_router_default_decode the_default_decode(
@@ -201,8 +196,8 @@ module Computer_System_mm_interconnect_0_router
             src_data[PKT_DEST_ID_H:PKT_DEST_ID_L] = 0;
     end
 
-    // ( 0x8000000 .. 0x8000800 )
-    if ( {address[RG:PAD1],{PAD1{1'b0}}} == 28'h8000000  && write_transaction  ) begin
+    // ( 0x8000000 .. 0x8004000 )
+    if ( {address[RG:PAD1],{PAD1{1'b0}}} == 28'h8000000   ) begin
             src_channel = 3'b001;
             src_data[PKT_DEST_ID_H:PKT_DEST_ID_L] = 2;
     end

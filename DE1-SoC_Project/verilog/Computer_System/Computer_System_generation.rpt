@@ -15,42 +15,21 @@ Progress: Parameterizing module SDRAM
 Progress: Adding System_PLL [altera_up_avalon_sys_sdram_pll 18.0]
 Progress: Parameterizing module System_PLL
 Progress: Adding VGA_Subsystem [VGA_Subsystem 1.0]
-Progress: Reading input file
-Progress: Adding Sys_Clk [clock_source 18.1]
-Progress: Parameterizing module Sys_Clk
-Progress: Adding VGA_Alpha_Blender [altera_up_avalon_video_alpha_blender 18.0]
-Progress: Parameterizing module VGA_Alpha_Blender
-Progress: Adding VGA_Char_Buffer [altera_up_avalon_video_character_buffer_with_dma 18.0]
-Progress: Parameterizing module VGA_Char_Buffer
-Progress: Adding VGA_Controller [altera_up_avalon_video_vga_controller 18.0]
-Progress: Parameterizing module VGA_Controller
-Progress: Adding VGA_Dual_Clock_FIFO [altera_up_avalon_video_dual_clock_buffer 18.0]
-Progress: Parameterizing module VGA_Dual_Clock_FIFO
-Progress: Adding VGA_PLL [altera_up_avalon_video_pll 18.0]
-Progress: Parameterizing module VGA_PLL
-Progress: Adding VGA_Pixel_DMA [altera_up_avalon_video_pixel_buffer_dma 18.0]
-Progress: Parameterizing module VGA_Pixel_DMA
-Progress: Adding VGA_Pixel_FIFO [altera_up_avalon_video_dual_clock_buffer 18.0]
-Progress: Parameterizing module VGA_Pixel_FIFO
-Progress: Adding VGA_Pixel_RGB_Resampler [altera_up_avalon_video_rgb_resampler 18.0]
-Progress: Parameterizing module VGA_Pixel_RGB_Resampler
-Progress: Building connections
-Progress: Parameterizing connections
-Progress: Validating
-Progress: Done reading input file
 Progress: Parameterizing module VGA_Subsystem
 Progress: Adding clock_bridge_0 [altera_clock_bridge 18.1]
 Progress: Parameterizing module clock_bridge_0
 Progress: Adding mcmc_system_0 [mcmc_system 1.0]
 Progress: Parameterizing module mcmc_system_0
-Progress: Adding pio_best_order [altera_avalon_pio 18.1]
-Progress: Parameterizing module pio_best_order
+Progress: Adding pio_active_nodes [altera_avalon_pio 18.1]
+Progress: Parameterizing module pio_active_nodes
 Progress: Adding pio_best_score [altera_avalon_pio 18.1]
 Progress: Parameterizing module pio_best_score
 Progress: Adding pio_done [altera_avalon_pio 18.1]
 Progress: Parameterizing module pio_done
-Progress: Adding pio_num_cands [altera_avalon_pio 18.1]
-Progress: Parameterizing module pio_num_cands
+Progress: Adding pio_iterations [altera_avalon_pio 18.1]
+Progress: Parameterizing module pio_iterations
+Progress: Adding pio_node_mask [altera_avalon_pio 18.1]
+Progress: Parameterizing module pio_node_mask
 Progress: Adding pio_seed [altera_avalon_pio 18.1]
 Progress: Parameterizing module pio_seed
 Progress: Adding pio_start [altera_avalon_pio 18.1]
@@ -71,7 +50,6 @@ Info: Computer_System.VGA_Subsystem.VGA_Char_Buffer: Character Resolution: 80 x 
 Info: Computer_System.VGA_Subsystem.VGA_Controller: Video Output Stream: Format: 640 x 480 with Color: 10 (bits) x 3 (planes) converted to 8 (bits) per color plane
 Info: Computer_System.VGA_Subsystem.VGA_Pixel_RGB_Resampler: RGB Resampling: 8 (bits) x 1 (planes) -> 10 (bits) x 3 (planes)
 Warning: Computer_System.VGA_Subsystem.VGA_Pixel_RGB_Resampler: VGA_Pixel_RGB_Resampler.avalon_rgb_slave must be connected to an Avalon-MM master
-Info: Computer_System.pio_best_order: PIO inputs are not hardwired in test bench. Undefined values will be read from PIO inputs during simulation.
 Info: Computer_System.pio_best_score: PIO inputs are not hardwired in test bench. Undefined values will be read from PIO inputs during simulation.
 Info: Computer_System.pio_done: PIO inputs are not hardwired in test bench. Undefined values will be read from PIO inputs during simulation.
 Info: qsys-generate succeeded.
@@ -99,14 +77,16 @@ Progress: Adding clock_bridge_0 [altera_clock_bridge 18.1]
 Progress: Parameterizing module clock_bridge_0
 Progress: Adding mcmc_system_0 [mcmc_system 1.0]
 Progress: Parameterizing module mcmc_system_0
-Progress: Adding pio_best_order [altera_avalon_pio 18.1]
-Progress: Parameterizing module pio_best_order
+Progress: Adding pio_active_nodes [altera_avalon_pio 18.1]
+Progress: Parameterizing module pio_active_nodes
 Progress: Adding pio_best_score [altera_avalon_pio 18.1]
 Progress: Parameterizing module pio_best_score
 Progress: Adding pio_done [altera_avalon_pio 18.1]
 Progress: Parameterizing module pio_done
-Progress: Adding pio_num_cands [altera_avalon_pio 18.1]
-Progress: Parameterizing module pio_num_cands
+Progress: Adding pio_iterations [altera_avalon_pio 18.1]
+Progress: Parameterizing module pio_iterations
+Progress: Adding pio_node_mask [altera_avalon_pio 18.1]
+Progress: Parameterizing module pio_node_mask
 Progress: Adding pio_seed [altera_avalon_pio 18.1]
 Progress: Parameterizing module pio_seed
 Progress: Adding pio_start [altera_avalon_pio 18.1]
@@ -127,7 +107,6 @@ Info: Computer_System.VGA_Subsystem.VGA_Char_Buffer: Character Resolution: 80 x 
 Info: Computer_System.VGA_Subsystem.VGA_Controller: Video Output Stream: Format: 640 x 480 with Color: 10 (bits) x 3 (planes) converted to 8 (bits) per color plane
 Info: Computer_System.VGA_Subsystem.VGA_Pixel_RGB_Resampler: RGB Resampling: 8 (bits) x 1 (planes) -> 10 (bits) x 3 (planes)
 Warning: Computer_System.VGA_Subsystem.VGA_Pixel_RGB_Resampler: VGA_Pixel_RGB_Resampler.avalon_rgb_slave must be connected to an Avalon-MM master
-Info: Computer_System.pio_best_order: PIO inputs are not hardwired in test bench. Undefined values will be read from PIO inputs during simulation.
 Info: Computer_System.pio_best_score: PIO inputs are not hardwired in test bench. Undefined values will be read from PIO inputs during simulation.
 Info: Computer_System.pio_done: PIO inputs are not hardwired in test bench. Undefined values will be read from PIO inputs during simulation.
 Info: Computer_System: Generating Computer_System "Computer_System" for QUARTUS_SYNTH
@@ -147,20 +126,20 @@ Info: AV_Config: Starting Generation of Audio and Video Config
 Info: AV_Config: "Computer_System" instantiated altera_up_avalon_audio_and_video_config "AV_Config"
 Info: Pixel_DMA_Addr_Translation: "Computer_System" instantiated altera_up_avalon_video_dma_ctrl_addr_trans "Pixel_DMA_Addr_Translation"
 Info: SDRAM: Starting RTL generation for module 'Computer_System_SDRAM'
-Info: SDRAM:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_new_sdram_controller -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_new_sdram_controller/generate_rtl.pl --name=Computer_System_SDRAM --dir=C:/Users/jgw227/AppData/Local/Temp/alt0574_1044810218780552461.dir/0010_SDRAM_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/jgw227/AppData/Local/Temp/alt0574_1044810218780552461.dir/0010_SDRAM_gen//Computer_System_SDRAM_component_configuration.pl  --do_build_sim=0  ]
+Info: SDRAM:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_new_sdram_controller -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_new_sdram_controller/generate_rtl.pl --name=Computer_System_SDRAM --dir=C:/Users/jgw227/AppData/Local/Temp/alt0574_2298299082419418733.dir/0004_SDRAM_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/jgw227/AppData/Local/Temp/alt0574_2298299082419418733.dir/0004_SDRAM_gen//Computer_System_SDRAM_component_configuration.pl  --do_build_sim=0  ]
 Info: SDRAM: Done RTL generation for module 'Computer_System_SDRAM'
 Info: SDRAM: "Computer_System" instantiated altera_avalon_new_sdram_controller "SDRAM"
 Info: System_PLL: "Computer_System" instantiated altera_up_avalon_sys_sdram_pll "System_PLL"
 Info: VGA_Subsystem: "Computer_System" instantiated VGA_Subsystem "VGA_Subsystem"
 Info: mcmc_system_0: "Computer_System" instantiated mcmc_system "mcmc_system_0"
-Info: pio_best_order: Starting RTL generation for module 'Computer_System_pio_best_order'
-Info: pio_best_order:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=Computer_System_pio_best_order --dir=C:/Users/jgw227/AppData/Local/Temp/alt0574_1044810218780552461.dir/0012_pio_best_order_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/jgw227/AppData/Local/Temp/alt0574_1044810218780552461.dir/0012_pio_best_order_gen//Computer_System_pio_best_order_component_configuration.pl  --do_build_sim=0  ]
-Info: pio_best_order: Done RTL generation for module 'Computer_System_pio_best_order'
-Info: pio_best_order: "Computer_System" instantiated altera_avalon_pio "pio_best_order"
-Info: pio_num_cands: Starting RTL generation for module 'Computer_System_pio_num_cands'
-Info: pio_num_cands:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=Computer_System_pio_num_cands --dir=C:/Users/jgw227/AppData/Local/Temp/alt0574_1044810218780552461.dir/0013_pio_num_cands_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/jgw227/AppData/Local/Temp/alt0574_1044810218780552461.dir/0013_pio_num_cands_gen//Computer_System_pio_num_cands_component_configuration.pl  --do_build_sim=0  ]
-Info: pio_num_cands: Done RTL generation for module 'Computer_System_pio_num_cands'
-Info: pio_num_cands: "Computer_System" instantiated altera_avalon_pio "pio_num_cands"
+Info: pio_active_nodes: Starting RTL generation for module 'Computer_System_pio_active_nodes'
+Info: pio_active_nodes:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=Computer_System_pio_active_nodes --dir=C:/Users/jgw227/AppData/Local/Temp/alt0574_2298299082419418733.dir/0006_pio_active_nodes_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/jgw227/AppData/Local/Temp/alt0574_2298299082419418733.dir/0006_pio_active_nodes_gen//Computer_System_pio_active_nodes_component_configuration.pl  --do_build_sim=0  ]
+Info: pio_active_nodes: Done RTL generation for module 'Computer_System_pio_active_nodes'
+Info: pio_active_nodes: "Computer_System" instantiated altera_avalon_pio "pio_active_nodes"
+Info: pio_best_score: Starting RTL generation for module 'Computer_System_pio_best_score'
+Info: pio_best_score:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=Computer_System_pio_best_score --dir=C:/Users/jgw227/AppData/Local/Temp/alt0574_2298299082419418733.dir/0007_pio_best_score_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/jgw227/AppData/Local/Temp/alt0574_2298299082419418733.dir/0007_pio_best_score_gen//Computer_System_pio_best_score_component_configuration.pl  --do_build_sim=0  ]
+Info: pio_best_score: Done RTL generation for module 'Computer_System_pio_best_score'
+Info: pio_best_score: "Computer_System" instantiated altera_avalon_pio "pio_best_score"
 Info: avalon_st_adapter: Inserting error_adapter: error_adapter_0
 Info: avalon_st_adapter_001: Inserting error_adapter: error_adapter_0
 Info: avalon_st_adapter_002: Inserting error_adapter: error_adapter_0
@@ -174,6 +153,7 @@ Info: avalon_st_adapter_005: Inserting error_adapter: error_adapter_0
 Info: avalon_st_adapter_006: Inserting error_adapter: error_adapter_0
 Info: avalon_st_adapter_007: Inserting error_adapter: error_adapter_0
 Info: avalon_st_adapter_008: Inserting error_adapter: error_adapter_0
+Info: avalon_st_adapter_009: Inserting error_adapter: error_adapter_0
 Info: mm_interconnect_1: "Computer_System" instantiated altera_mm_interconnect "mm_interconnect_1"
 Info: mm_interconnect_2: "Computer_System" instantiated altera_mm_interconnect "mm_interconnect_2"
 Info: irq_mapper: "Computer_System" instantiated altera_irq_mapper "irq_mapper"
