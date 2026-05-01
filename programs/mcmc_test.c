@@ -270,14 +270,17 @@ int main(void)
         int bit_offset = i * 5;
         uint64_t full_data;
         
-        if (bit_offset <= 59) {
+        if (bit_offset < 60) {
             full_data = chunk0 >> bit_offset;
         } else if (bit_offset == 60) {
-            full_data = (chunk0 >> 60) | (chunk1 << 4); // Stitch across boundary
-        } else if (bit_offset <= 123) {
+            full_data = (chunk0 >> 60) | (chunk1 << 4); 
+        } else if (bit_offset < 124) {
             full_data = chunk1 >> (bit_offset - 64);
-        } else if (bit_offset == 124) {
-            full_data = (chunk1 >> 60) | (chunk2 << 4); // Stitch across boundary
+        } else if (bit_offset >= 124 && bit_offset < 128) {
+            // Safely stitch Node 25 (offset 125)
+            int shift1 = bit_offset - 64; 
+            int take_from_chunk1 = 64 - shift1; 
+            full_data = (chunk1 >> shift1) | (chunk2 << take_from_chunk1);
         } else {
             full_data = chunk2 >> (bit_offset - 128);
         }
