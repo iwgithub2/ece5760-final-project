@@ -23,11 +23,6 @@
 #define PIO_NUM_CANDS_OFFSET    0x40 
 #define PIO_BEST_ORDER_OFFSET   0x50 
 
-#define RAM_0_OFFSET            0x0000
-#define RAM_1_OFFSET            0x1000
-#define RAM_2_OFFSET            0x2000
-#define RAM_3_OFFSET            0x3000
-
 #define DATASET_NAME "asia"
 #define NUM_NODES 4 // Locked to 4 to match your current Verilog
 #define MAX_PARENTS_PER_NODE 64 
@@ -52,7 +47,7 @@ volatile unsigned int *pio_best_score=NULL;
 volatile unsigned int *pio_num_cands=NULL;
 volatile unsigned int *pio_best_order=NULL;
 
-volatile uint64_t *fpga_rams[4];
+volatile uint64_t *mcmc_system_base;
 void *fpga_ram_virtual_base;
 
 // --- Precomputation Math ---
@@ -199,10 +194,7 @@ int main(void)
     fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); 
     if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
     
-    fpga_rams[0] = (uint64_t *)((uint8_t *)fpga_ram_virtual_base + RAM_0_OFFSET);
-    fpga_rams[1] = (uint64_t *)((uint8_t *)fpga_ram_virtual_base + RAM_1_OFFSET);
-    fpga_rams[2] = (uint64_t *)((uint8_t *)fpga_ram_virtual_base + RAM_2_OFFSET);
-    fpga_rams[3] = (uint64_t *)((uint8_t *)fpga_ram_virtual_base + RAM_3_OFFSET);
+    mcmc_system_base = (uint64_t *)fpga_ram_virtual_base;
 
     // === 1. Load Dataset & Precompute (ARM) ===
     printf("Loading dataset and precomputing...\n");
@@ -213,7 +205,7 @@ int main(void)
     precompute_fixed_k(dataset, num_samples);
 
     // === 2. Transfer Data to FPGA ===
-    printf("Writing databases to FPGA M10K blocks...\n");
+    printf("Writing databases to FPGA Broadcast Memory...\n");
     uint32_t num_cands_packed = 0;
 
     for (int i = 0; i < NUM_NODES; i++) {
@@ -226,7 +218,11 @@ int main(void)
             
             // Pack: [63:32] Mask, [31:0] Score
             uint64_t packed_word = (mask << 32) | (uint32_t)q16_score;
-            *(fpga_rams[i] + p) = packed_word;
+            
+            // Address calculation: Node is top 2 bits (i << 6), Candidate is bottom 6 bits (p)
+            int offset = (i << 6) | p; 
+            
+            *(mcmc_system_base + offset) = packed_word;
         }
     }
     

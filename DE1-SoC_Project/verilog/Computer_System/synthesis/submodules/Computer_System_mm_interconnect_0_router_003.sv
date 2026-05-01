@@ -49,21 +49,21 @@ module Computer_System_mm_interconnect_0_router_003_default_decode
                DEFAULT_RD_CHANNEL = 1,
                DEFAULT_DESTID = 0 
    )
-  (output [79 - 77 : 0] default_destination_id,
-   output [6-1 : 0] default_wr_channel,
-   output [6-1 : 0] default_rd_channel,
-   output [6-1 : 0] default_src_channel
+  (output [140 - 139 : 0] default_destination_id,
+   output [3-1 : 0] default_wr_channel,
+   output [3-1 : 0] default_rd_channel,
+   output [3-1 : 0] default_src_channel
   );
 
   assign default_destination_id = 
-    DEFAULT_DESTID[79 - 77 : 0];
+    DEFAULT_DESTID[140 - 139 : 0];
 
   generate
     if (DEFAULT_CHANNEL == -1) begin : no_default_channel_assignment
       assign default_src_channel = '0;
     end
     else begin : default_channel_assignment
-      assign default_src_channel = 6'b1 << DEFAULT_CHANNEL;
+      assign default_src_channel = 3'b1 << DEFAULT_CHANNEL;
     end
   endgenerate
 
@@ -73,8 +73,8 @@ module Computer_System_mm_interconnect_0_router_003_default_decode
       assign default_rd_channel = '0;
     end
     else begin : default_rw_channel_assignment
-      assign default_wr_channel = 6'b1 << DEFAULT_WR_CHANNEL;
-      assign default_rd_channel = 6'b1 << DEFAULT_RD_CHANNEL;
+      assign default_wr_channel = 3'b1 << DEFAULT_WR_CHANNEL;
+      assign default_rd_channel = 3'b1 << DEFAULT_RD_CHANNEL;
     end
   endgenerate
 
@@ -93,7 +93,7 @@ module Computer_System_mm_interconnect_0_router_003
     // Command Sink (Input)
     // -------------------
     input                       sink_valid,
-    input  [104-1 : 0]    sink_data,
+    input  [165-1 : 0]    sink_data,
     input                       sink_startofpacket,
     input                       sink_endofpacket,
     output                      sink_ready,
@@ -102,8 +102,8 @@ module Computer_System_mm_interconnect_0_router_003
     // Command Source (Output)
     // -------------------
     output                          src_valid,
-    output reg [104-1    : 0] src_data,
-    output reg [6-1 : 0] src_channel,
+    output reg [165-1    : 0] src_data,
+    output reg [3-1 : 0] src_channel,
     output                          src_startofpacket,
     output                          src_endofpacket,
     input                           src_ready
@@ -112,18 +112,18 @@ module Computer_System_mm_interconnect_0_router_003
     // -------------------------------------------------------
     // Local parameters and variables
     // -------------------------------------------------------
-    localparam PKT_ADDR_H = 40;
-    localparam PKT_ADDR_L = 9;
-    localparam PKT_DEST_ID_H = 79;
-    localparam PKT_DEST_ID_L = 77;
-    localparam PKT_PROTECTION_H = 94;
-    localparam PKT_PROTECTION_L = 92;
-    localparam ST_DATA_W = 104;
-    localparam ST_CHANNEL_W = 6;
+    localparam PKT_ADDR_H = 103;
+    localparam PKT_ADDR_L = 72;
+    localparam PKT_DEST_ID_H = 140;
+    localparam PKT_DEST_ID_L = 139;
+    localparam PKT_PROTECTION_H = 155;
+    localparam PKT_PROTECTION_L = 153;
+    localparam ST_DATA_W = 165;
+    localparam ST_CHANNEL_W = 3;
     localparam DECODER_TYPE = 1;
 
-    localparam PKT_TRANS_WRITE = 43;
-    localparam PKT_TRANS_READ  = 44;
+    localparam PKT_TRANS_WRITE = 106;
+    localparam PKT_TRANS_READ  = 107;
 
     localparam PKT_ADDR_W = PKT_ADDR_H-PKT_ADDR_L + 1;
     localparam PKT_DEST_ID_W = PKT_DEST_ID_H-PKT_DEST_ID_L + 1;
@@ -158,8 +158,8 @@ module Computer_System_mm_interconnect_0_router_003
     assign src_valid         = sink_valid;
     assign src_startofpacket = sink_startofpacket;
     assign src_endofpacket   = sink_endofpacket;
-    wire [6-1 : 0] default_rd_channel;
-    wire [6-1 : 0] default_wr_channel;
+    wire [3-1 : 0] default_rd_channel;
+    wire [3-1 : 0] default_wr_channel;
 
 
 
@@ -193,11 +193,11 @@ module Computer_System_mm_interconnect_0_router_003
 
 
         if (destid == 0  && write_transaction) begin
-            src_channel = 6'b01;
+            src_channel = 3'b01;
         end
 
         if (destid == 0  && read_transaction) begin
-            src_channel = 6'b10;
+            src_channel = 3'b10;
         end
 
 

@@ -200,6 +200,10 @@
 					"strict" : false
 				},
 				{
+					"name" : "FPGA_I2C_SDAT",
+					"strict" : false
+				},
+				{
 					"name" : "DRAM_DQ[0]",
 					"strict" : false
 				},
@@ -261,18 +265,6 @@
 				},
 				{
 					"name" : "DRAM_DQ[15]",
-					"strict" : false
-				},
-				{
-					"name" : "FPGA_I2C_SDAT",
-					"strict" : false
-				},
-				{
-					"name" : "CLOCK_50",
-					"strict" : false
-				},
-				{
-					"name" : "KEY[0]",
 					"strict" : false
 				}
 			]

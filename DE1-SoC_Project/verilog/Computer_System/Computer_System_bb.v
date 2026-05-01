@@ -75,34 +75,6 @@ module Computer_System (
 	memory_mem_odt,
 	memory_mem_dm,
 	memory_oct_rzqin,
-	onchip_sram_0_s1_address,
-	onchip_sram_0_s1_clken,
-	onchip_sram_0_s1_chipselect,
-	onchip_sram_0_s1_write,
-	onchip_sram_0_s1_readdata,
-	onchip_sram_0_s1_writedata,
-	onchip_sram_0_s1_byteenable,
-	onchip_sram_1_s1_address,
-	onchip_sram_1_s1_clken,
-	onchip_sram_1_s1_chipselect,
-	onchip_sram_1_s1_write,
-	onchip_sram_1_s1_readdata,
-	onchip_sram_1_s1_writedata,
-	onchip_sram_1_s1_byteenable,
-	onchip_sram_2_s1_address,
-	onchip_sram_2_s1_clken,
-	onchip_sram_2_s1_chipselect,
-	onchip_sram_2_s1_write,
-	onchip_sram_2_s1_readdata,
-	onchip_sram_2_s1_writedata,
-	onchip_sram_2_s1_byteenable,
-	onchip_sram_3_s1_address,
-	onchip_sram_3_s1_clken,
-	onchip_sram_3_s1_chipselect,
-	onchip_sram_3_s1_write,
-	onchip_sram_3_s1_readdata,
-	onchip_sram_3_s1_writedata,
-	onchip_sram_3_s1_byteenable,
 	pio_best_order_external_connection_export,
 	pio_best_score_external_connection_export,
 	pio_done_external_connection_export,
@@ -130,7 +102,13 @@ module Computer_System (
 	vga_G,
 	vga_B,
 	vga_pll_ref_clk_clk,
-	vga_pll_ref_reset_reset);	
+	vga_pll_ref_reset_reset,
+	mcmc_system_0_mcmc_control_best_order_packed,
+	mcmc_system_0_mcmc_control_best_score,
+	mcmc_system_0_mcmc_control_done,
+	mcmc_system_0_mcmc_control_num_cands_packed,
+	mcmc_system_0_mcmc_control_seed,
+	mcmc_system_0_mcmc_control_start);	
 
 	inout		av_config_SDAT;
 	output		av_config_SCLK;
@@ -207,34 +185,6 @@ module Computer_System (
 	output		memory_mem_odt;
 	output	[3:0]	memory_mem_dm;
 	input		memory_oct_rzqin;
-	input	[6:0]	onchip_sram_0_s1_address;
-	input		onchip_sram_0_s1_clken;
-	input		onchip_sram_0_s1_chipselect;
-	input		onchip_sram_0_s1_write;
-	output	[63:0]	onchip_sram_0_s1_readdata;
-	input	[63:0]	onchip_sram_0_s1_writedata;
-	input	[7:0]	onchip_sram_0_s1_byteenable;
-	input	[6:0]	onchip_sram_1_s1_address;
-	input		onchip_sram_1_s1_clken;
-	input		onchip_sram_1_s1_chipselect;
-	input		onchip_sram_1_s1_write;
-	output	[63:0]	onchip_sram_1_s1_readdata;
-	input	[63:0]	onchip_sram_1_s1_writedata;
-	input	[7:0]	onchip_sram_1_s1_byteenable;
-	input	[6:0]	onchip_sram_2_s1_address;
-	input		onchip_sram_2_s1_clken;
-	input		onchip_sram_2_s1_chipselect;
-	input		onchip_sram_2_s1_write;
-	output	[63:0]	onchip_sram_2_s1_readdata;
-	input	[63:0]	onchip_sram_2_s1_writedata;
-	input	[7:0]	onchip_sram_2_s1_byteenable;
-	input	[6:0]	onchip_sram_3_s1_address;
-	input		onchip_sram_3_s1_clken;
-	input		onchip_sram_3_s1_chipselect;
-	input		onchip_sram_3_s1_write;
-	output	[63:0]	onchip_sram_3_s1_readdata;
-	input	[63:0]	onchip_sram_3_s1_writedata;
-	input	[7:0]	onchip_sram_3_s1_byteenable;
 	input	[31:0]	pio_best_order_external_connection_export;
 	input	[31:0]	pio_best_score_external_connection_export;
 	input	[31:0]	pio_done_external_connection_export;
@@ -263,4 +213,10 @@ module Computer_System (
 	output	[7:0]	vga_B;
 	input		vga_pll_ref_clk_clk;
 	input		vga_pll_ref_reset_reset;
+	output	[31:0]	mcmc_system_0_mcmc_control_best_order_packed;
+	output	[31:0]	mcmc_system_0_mcmc_control_best_score;
+	output		mcmc_system_0_mcmc_control_done;
+	input	[31:0]	mcmc_system_0_mcmc_control_num_cands_packed;
+	input	[31:0]	mcmc_system_0_mcmc_control_seed;
+	input		mcmc_system_0_mcmc_control_start;
 endmodule

@@ -13,48 +13,19 @@ state.ST_COMP_TRANS 1 0 0 1
 state.ST_UNCOMP_TRANS 1 0 1 0 
 state.ST_UNCOMP_WR_SUBBURST 1 1 0 0 
 
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_mm_interconnect_0:mm_interconnect_0|altera_merlin_burst_adapter:mcmc_system_0_avalon_slave_0_burst_adapter|altera_merlin_burst_adapter_13_1:altera_merlin_burst_adapter_13_1.burst_adapter|state
+Name state.ST_IDLE state.ST_UNCOMP_WR_SUBBURST state.ST_UNCOMP_TRANS state.ST_COMP_TRANS 
+state.ST_IDLE 0 0 0 0 
+state.ST_COMP_TRANS 1 0 0 1 
+state.ST_UNCOMP_TRANS 1 0 1 0 
+state.ST_UNCOMP_WR_SUBBURST 1 1 0 0 
+
 State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_VGA_Subsystem:vga_subsystem|Computer_System_VGA_Subsystem_VGA_Pixel_DMA:vga_pixel_dma|s_pixel_buffer
 Name s_pixel_buffer.STATE_3_MAX_PENDING_READS_STALL s_pixel_buffer.STATE_2_READ_BUFFER s_pixel_buffer.STATE_1_WAIT_FOR_LAST_PIXEL s_pixel_buffer.STATE_0_IDLE 
 s_pixel_buffer.STATE_0_IDLE 0 0 0 0 
 s_pixel_buffer.STATE_1_WAIT_FOR_LAST_PIXEL 0 0 1 1 
 s_pixel_buffer.STATE_2_READ_BUFFER 0 1 0 1 
 s_pixel_buffer.STATE_3_MAX_PENDING_READS_STALL 1 0 0 1 
-
-State Machine - |DE1_SoC_Computer|mcmc_controller:mcmc_inst|node_scorer:gen_scorers[3].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|mcmc_controller:mcmc_inst|node_scorer:gen_scorers[2].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|mcmc_controller:mcmc_inst|node_scorer:gen_scorers[1].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|mcmc_controller:mcmc_inst|node_scorer:gen_scorers[0].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
 
 State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_mm_interconnect_1:mm_interconnect_1|altera_merlin_burst_adapter:pixel_dma_addr_translation_slave_burst_adapter|altera_merlin_burst_adapter_13_1:altera_merlin_burst_adapter_13_1.burst_adapter|state
 Name state.ST_IDLE state.ST_UNCOMP_WR_SUBBURST state.ST_UNCOMP_TRANS state.ST_COMP_TRANS 
@@ -138,44 +109,6 @@ s_serial_protocol.STATE_3_START_BIT 0 0 1 0 0 1
 s_serial_protocol.STATE_4_TRANSFER 0 1 0 0 0 1 
 s_serial_protocol.STATE_5_STOP_BIT 1 0 0 0 0 1 
 
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_mm_interconnect_0:mm_interconnect_0|altera_merlin_burst_adapter:onchip_sram_1_s2_burst_adapter|altera_merlin_burst_adapter_13_1:altera_merlin_burst_adapter_13_1.burst_adapter|state
-Name state.ST_IDLE state.ST_UNCOMP_WR_SUBBURST state.ST_UNCOMP_TRANS state.ST_COMP_TRANS 
-state.ST_IDLE 0 0 0 0 
-state.ST_COMP_TRANS 1 0 0 1 
-state.ST_UNCOMP_TRANS 1 0 1 0 
-state.ST_UNCOMP_WR_SUBBURST 1 1 0 0 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_mm_interconnect_0:mm_interconnect_0|altera_merlin_burst_adapter:onchip_sram_0_s2_burst_adapter|altera_merlin_burst_adapter_13_1:altera_merlin_burst_adapter_13_1.burst_adapter|state
-Name state.ST_IDLE state.ST_UNCOMP_WR_SUBBURST state.ST_UNCOMP_TRANS state.ST_COMP_TRANS 
-state.ST_IDLE 0 0 0 0 
-state.ST_COMP_TRANS 1 0 0 1 
-state.ST_UNCOMP_TRANS 1 0 1 0 
-state.ST_UNCOMP_WR_SUBBURST 1 1 0 0 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_mm_interconnect_0:mm_interconnect_0|altera_merlin_burst_adapter:onchip_sram_2_s2_burst_adapter|altera_merlin_burst_adapter_13_1:altera_merlin_burst_adapter_13_1.burst_adapter|state
-Name state.ST_IDLE state.ST_UNCOMP_WR_SUBBURST state.ST_UNCOMP_TRANS state.ST_COMP_TRANS 
-state.ST_IDLE 0 0 0 0 
-state.ST_COMP_TRANS 1 0 0 1 
-state.ST_UNCOMP_TRANS 1 0 1 0 
-state.ST_UNCOMP_WR_SUBBURST 1 1 0 0 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_mm_interconnect_0:mm_interconnect_0|altera_merlin_burst_adapter:onchip_sram_3_s2_burst_adapter|altera_merlin_burst_adapter_13_1:altera_merlin_burst_adapter_13_1.burst_adapter|state
-Name state.ST_IDLE state.ST_UNCOMP_WR_SUBBURST state.ST_UNCOMP_TRANS state.ST_COMP_TRANS 
-state.ST_IDLE 0 0 0 0 
-state.ST_COMP_TRANS 1 0 0 1 
-state.ST_UNCOMP_TRANS 1 0 1 0 
-state.ST_UNCOMP_WR_SUBBURST 1 1 0 0 
-
-State Machine - |DE1_SoC_Computer|mcmc_controller:mcmc_inst|state
-Name state.S_DONE state.S_DECIDE state.S_WAIT_SCORE state.S_PROPOSE state.S_WAIT_INIT_SCORE state.S_INIT_SCORE state.S_IDLE 
-state.S_IDLE 0 0 0 0 0 0 0 
-state.S_INIT_SCORE 0 0 0 0 0 1 1 
-state.S_WAIT_INIT_SCORE 0 0 0 0 1 0 1 
-state.S_PROPOSE 0 0 0 1 0 0 1 
-state.S_WAIT_SCORE 0 0 1 0 0 0 1 
-state.S_DECIDE 0 1 0 0 0 0 1 
-state.S_DONE 1 0 0 0 0 0 1 
-
 State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_SDRAM:sdram|i_state
 Name i_state.111 i_state.101 i_state.011 i_state.010 i_state.001 i_state.000 
 i_state.000 0 0 0 0 0 0 
@@ -191,6 +124,25 @@ i_next.000 0 0 0 0
 i_next.010 0 0 1 1 
 i_next.101 0 1 0 1 
 i_next.111 1 0 0 1 
+
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system:mcmc_system_0|mcmc_controller:core|state
+Name state.S_DONE state.S_DECIDE state.S_WAIT_SCORE state.S_PROPOSE state.S_WAIT_INIT_SCORE state.S_INIT_SCORE state.S_IDLE 
+state.S_IDLE 0 0 0 0 0 0 0 
+state.S_INIT_SCORE 0 0 0 0 0 1 1 
+state.S_WAIT_INIT_SCORE 0 0 0 0 1 0 1 
+state.S_PROPOSE 0 0 0 1 0 0 1 
+state.S_WAIT_SCORE 0 0 1 0 0 0 1 
+state.S_DECIDE 0 1 0 0 0 0 1 
+state.S_DONE 1 0 0 0 0 0 1 
+
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system:mcmc_system_0|mcmc_controller:core|node_scorer:gen_scorers[0].scorer_inst|state
+Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
+state.IDLE 0 0 0 0 0 0 
+state.FETCH_ADDR 0 0 0 0 1 1 
+state.FETCH_DATA 0 0 0 1 0 1 
+state.WAIT_LOGADD_1 0 0 1 0 0 1 
+state.WAIT_LOGADD_2 0 1 0 0 0 1 
+state.DONE 1 0 0 0 0 1 
 
 State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_SDRAM:sdram|m_state
 Name m_state.100000000 m_state.010000000 m_state.001000000 m_state.000100000 m_state.000010000 m_state.000001000 m_state.000000100 m_state.000000010 m_state.000000001 
@@ -210,3 +162,30 @@ m_next.000000001 0 0 0 0
 m_next.000001000 0 0 1 1 
 m_next.000010000 0 1 0 1 
 m_next.010000000 1 0 0 1 
+
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system:mcmc_system_0|mcmc_controller:core|node_scorer:gen_scorers[3].scorer_inst|state
+Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
+state.IDLE 0 0 0 0 0 0 
+state.FETCH_ADDR 0 0 0 0 1 1 
+state.FETCH_DATA 0 0 0 1 0 1 
+state.WAIT_LOGADD_1 0 0 1 0 0 1 
+state.WAIT_LOGADD_2 0 1 0 0 0 1 
+state.DONE 1 0 0 0 0 1 
+
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system:mcmc_system_0|mcmc_controller:core|node_scorer:gen_scorers[2].scorer_inst|state
+Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
+state.IDLE 0 0 0 0 0 0 
+state.FETCH_ADDR 0 0 0 0 1 1 
+state.FETCH_DATA 0 0 0 1 0 1 
+state.WAIT_LOGADD_1 0 0 1 0 0 1 
+state.WAIT_LOGADD_2 0 1 0 0 0 1 
+state.DONE 1 0 0 0 0 1 
+
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system:mcmc_system_0|mcmc_controller:core|node_scorer:gen_scorers[1].scorer_inst|state
+Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
+state.IDLE 0 0 0 0 0 0 
+state.FETCH_ADDR 0 0 0 0 1 1 
+state.FETCH_DATA 0 0 0 1 0 1 
+state.WAIT_LOGADD_1 0 0 1 0 0 1 
+state.WAIT_LOGADD_2 0 1 0 0 0 1 
+state.DONE 1 0 0 0 0 1 

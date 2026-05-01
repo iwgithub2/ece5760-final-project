@@ -45,7 +45,7 @@ module Computer_System_mm_interconnect_0 (
 		input  wire         ARM_A9_HPS_h2f_axi_master_rready,                                      //                                                                .rready
 		input  wire         System_PLL_sys_clk_clk,                                                //                                              System_PLL_sys_clk.clk
 		input  wire         ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset, // ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset.reset
-		input  wire         SDRAM_reset_reset_bridge_in_reset_reset,                               //                               SDRAM_reset_reset_bridge_in_reset.reset
+		input  wire         mcmc_system_0_reset_reset_bridge_in_reset_reset,                       //                       mcmc_system_0_reset_reset_bridge_in_reset.reset
 		input  wire         VGA_Subsystem_sys_reset_reset_bridge_in_reset_reset,                   //                   VGA_Subsystem_sys_reset_reset_bridge_in_reset.reset
 		input  wire [31:0]  VGA_Subsystem_pixel_dma_master_address,                                //                                  VGA_Subsystem_pixel_dma_master.address
 		output wire         VGA_Subsystem_pixel_dma_master_waitrequest,                            //                                                                .waitrequest
@@ -53,34 +53,9 @@ module Computer_System_mm_interconnect_0 (
 		output wire [7:0]   VGA_Subsystem_pixel_dma_master_readdata,                               //                                                                .readdata
 		output wire         VGA_Subsystem_pixel_dma_master_readdatavalid,                          //                                                                .readdatavalid
 		input  wire         VGA_Subsystem_pixel_dma_master_lock,                                   //                                                                .lock
-		output wire [6:0]   Onchip_SRAM_0_s2_address,                                              //                                                Onchip_SRAM_0_s2.address
-		output wire         Onchip_SRAM_0_s2_write,                                                //                                                                .write
-		input  wire [63:0]  Onchip_SRAM_0_s2_readdata,                                             //                                                                .readdata
-		output wire [63:0]  Onchip_SRAM_0_s2_writedata,                                            //                                                                .writedata
-		output wire [7:0]   Onchip_SRAM_0_s2_byteenable,                                           //                                                                .byteenable
-		output wire         Onchip_SRAM_0_s2_chipselect,                                           //                                                                .chipselect
-		output wire         Onchip_SRAM_0_s2_clken,                                                //                                                                .clken
-		output wire [6:0]   Onchip_SRAM_1_s2_address,                                              //                                                Onchip_SRAM_1_s2.address
-		output wire         Onchip_SRAM_1_s2_write,                                                //                                                                .write
-		input  wire [63:0]  Onchip_SRAM_1_s2_readdata,                                             //                                                                .readdata
-		output wire [63:0]  Onchip_SRAM_1_s2_writedata,                                            //                                                                .writedata
-		output wire [7:0]   Onchip_SRAM_1_s2_byteenable,                                           //                                                                .byteenable
-		output wire         Onchip_SRAM_1_s2_chipselect,                                           //                                                                .chipselect
-		output wire         Onchip_SRAM_1_s2_clken,                                                //                                                                .clken
-		output wire [6:0]   Onchip_SRAM_2_s2_address,                                              //                                                Onchip_SRAM_2_s2.address
-		output wire         Onchip_SRAM_2_s2_write,                                                //                                                                .write
-		input  wire [63:0]  Onchip_SRAM_2_s2_readdata,                                             //                                                                .readdata
-		output wire [63:0]  Onchip_SRAM_2_s2_writedata,                                            //                                                                .writedata
-		output wire [7:0]   Onchip_SRAM_2_s2_byteenable,                                           //                                                                .byteenable
-		output wire         Onchip_SRAM_2_s2_chipselect,                                           //                                                                .chipselect
-		output wire         Onchip_SRAM_2_s2_clken,                                                //                                                                .clken
-		output wire [6:0]   Onchip_SRAM_3_s2_address,                                              //                                                Onchip_SRAM_3_s2.address
-		output wire         Onchip_SRAM_3_s2_write,                                                //                                                                .write
-		input  wire [63:0]  Onchip_SRAM_3_s2_readdata,                                             //                                                                .readdata
-		output wire [63:0]  Onchip_SRAM_3_s2_writedata,                                            //                                                                .writedata
-		output wire [7:0]   Onchip_SRAM_3_s2_byteenable,                                           //                                                                .byteenable
-		output wire         Onchip_SRAM_3_s2_chipselect,                                           //                                                                .chipselect
-		output wire         Onchip_SRAM_3_s2_clken,                                                //                                                                .clken
+		output wire [7:0]   mcmc_system_0_avalon_slave_0_address,                                  //                                    mcmc_system_0_avalon_slave_0.address
+		output wire         mcmc_system_0_avalon_slave_0_write,                                    //                                                                .write
+		output wire [63:0]  mcmc_system_0_avalon_slave_0_writedata,                                //                                                                .writedata
 		output wire [24:0]  SDRAM_s1_address,                                                      //                                                        SDRAM_s1.address
 		output wire         SDRAM_s1_write,                                                        //                                                                .write
 		output wire         SDRAM_s1_read,                                                         //                                                                .read
@@ -112,11 +87,35 @@ module Computer_System_mm_interconnect_0 (
 	wire    [7:0] vga_subsystem_pixel_dma_master_translator_avalon_universal_master_0_writedata;                       // VGA_Subsystem_pixel_dma_master_translator:uav_writedata -> VGA_Subsystem_pixel_dma_master_agent:av_writedata
 	wire    [0:0] vga_subsystem_pixel_dma_master_translator_avalon_universal_master_0_burstcount;                      // VGA_Subsystem_pixel_dma_master_translator:uav_burstcount -> VGA_Subsystem_pixel_dma_master_agent:av_burstcount
 	wire          rsp_mux_002_src_valid;                                                                               // rsp_mux_002:src_valid -> VGA_Subsystem_pixel_dma_master_agent:rp_valid
-	wire  [103:0] rsp_mux_002_src_data;                                                                                // rsp_mux_002:src_data -> VGA_Subsystem_pixel_dma_master_agent:rp_data
+	wire  [101:0] rsp_mux_002_src_data;                                                                                // rsp_mux_002:src_data -> VGA_Subsystem_pixel_dma_master_agent:rp_data
 	wire          rsp_mux_002_src_ready;                                                                               // VGA_Subsystem_pixel_dma_master_agent:rp_ready -> rsp_mux_002:src_ready
-	wire    [5:0] rsp_mux_002_src_channel;                                                                             // rsp_mux_002:src_channel -> VGA_Subsystem_pixel_dma_master_agent:rp_channel
+	wire    [2:0] rsp_mux_002_src_channel;                                                                             // rsp_mux_002:src_channel -> VGA_Subsystem_pixel_dma_master_agent:rp_channel
 	wire          rsp_mux_002_src_startofpacket;                                                                       // rsp_mux_002:src_startofpacket -> VGA_Subsystem_pixel_dma_master_agent:rp_startofpacket
 	wire          rsp_mux_002_src_endofpacket;                                                                         // rsp_mux_002:src_endofpacket -> VGA_Subsystem_pixel_dma_master_agent:rp_endofpacket
+	wire   [63:0] mcmc_system_0_avalon_slave_0_agent_m0_readdata;                                                      // mcmc_system_0_avalon_slave_0_translator:uav_readdata -> mcmc_system_0_avalon_slave_0_agent:m0_readdata
+	wire          mcmc_system_0_avalon_slave_0_agent_m0_waitrequest;                                                   // mcmc_system_0_avalon_slave_0_translator:uav_waitrequest -> mcmc_system_0_avalon_slave_0_agent:m0_waitrequest
+	wire          mcmc_system_0_avalon_slave_0_agent_m0_debugaccess;                                                   // mcmc_system_0_avalon_slave_0_agent:m0_debugaccess -> mcmc_system_0_avalon_slave_0_translator:uav_debugaccess
+	wire   [31:0] mcmc_system_0_avalon_slave_0_agent_m0_address;                                                       // mcmc_system_0_avalon_slave_0_agent:m0_address -> mcmc_system_0_avalon_slave_0_translator:uav_address
+	wire    [7:0] mcmc_system_0_avalon_slave_0_agent_m0_byteenable;                                                    // mcmc_system_0_avalon_slave_0_agent:m0_byteenable -> mcmc_system_0_avalon_slave_0_translator:uav_byteenable
+	wire          mcmc_system_0_avalon_slave_0_agent_m0_read;                                                          // mcmc_system_0_avalon_slave_0_agent:m0_read -> mcmc_system_0_avalon_slave_0_translator:uav_read
+	wire          mcmc_system_0_avalon_slave_0_agent_m0_readdatavalid;                                                 // mcmc_system_0_avalon_slave_0_translator:uav_readdatavalid -> mcmc_system_0_avalon_slave_0_agent:m0_readdatavalid
+	wire          mcmc_system_0_avalon_slave_0_agent_m0_lock;                                                          // mcmc_system_0_avalon_slave_0_agent:m0_lock -> mcmc_system_0_avalon_slave_0_translator:uav_lock
+	wire   [63:0] mcmc_system_0_avalon_slave_0_agent_m0_writedata;                                                     // mcmc_system_0_avalon_slave_0_agent:m0_writedata -> mcmc_system_0_avalon_slave_0_translator:uav_writedata
+	wire          mcmc_system_0_avalon_slave_0_agent_m0_write;                                                         // mcmc_system_0_avalon_slave_0_agent:m0_write -> mcmc_system_0_avalon_slave_0_translator:uav_write
+	wire    [3:0] mcmc_system_0_avalon_slave_0_agent_m0_burstcount;                                                    // mcmc_system_0_avalon_slave_0_agent:m0_burstcount -> mcmc_system_0_avalon_slave_0_translator:uav_burstcount
+	wire          mcmc_system_0_avalon_slave_0_agent_rf_source_valid;                                                  // mcmc_system_0_avalon_slave_0_agent:rf_source_valid -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_valid
+	wire  [165:0] mcmc_system_0_avalon_slave_0_agent_rf_source_data;                                                   // mcmc_system_0_avalon_slave_0_agent:rf_source_data -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_data
+	wire          mcmc_system_0_avalon_slave_0_agent_rf_source_ready;                                                  // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_ready -> mcmc_system_0_avalon_slave_0_agent:rf_source_ready
+	wire          mcmc_system_0_avalon_slave_0_agent_rf_source_startofpacket;                                          // mcmc_system_0_avalon_slave_0_agent:rf_source_startofpacket -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_startofpacket
+	wire          mcmc_system_0_avalon_slave_0_agent_rf_source_endofpacket;                                            // mcmc_system_0_avalon_slave_0_agent:rf_source_endofpacket -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:in_endofpacket
+	wire          mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_valid;                                               // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_valid -> mcmc_system_0_avalon_slave_0_agent:rf_sink_valid
+	wire  [165:0] mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_data;                                                // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_data -> mcmc_system_0_avalon_slave_0_agent:rf_sink_data
+	wire          mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_ready;                                               // mcmc_system_0_avalon_slave_0_agent:rf_sink_ready -> mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_ready
+	wire          mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_startofpacket;                                       // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_startofpacket -> mcmc_system_0_avalon_slave_0_agent:rf_sink_startofpacket
+	wire          mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_endofpacket;                                         // mcmc_system_0_avalon_slave_0_agent_rsp_fifo:out_endofpacket -> mcmc_system_0_avalon_slave_0_agent:rf_sink_endofpacket
+	wire          mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_valid;                                             // mcmc_system_0_avalon_slave_0_agent:rdata_fifo_src_valid -> mcmc_system_0_avalon_slave_0_agent_rdata_fifo:in_valid
+	wire   [65:0] mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_data;                                              // mcmc_system_0_avalon_slave_0_agent:rdata_fifo_src_data -> mcmc_system_0_avalon_slave_0_agent_rdata_fifo:in_data
+	wire          mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_ready;                                             // mcmc_system_0_avalon_slave_0_agent_rdata_fifo:in_ready -> mcmc_system_0_avalon_slave_0_agent:rdata_fifo_src_ready
 	wire    [7:0] vga_subsystem_char_buffer_slave_agent_m0_readdata;                                                   // VGA_Subsystem_char_buffer_slave_translator:uav_readdata -> VGA_Subsystem_char_buffer_slave_agent:m0_readdata
 	wire          vga_subsystem_char_buffer_slave_agent_m0_waitrequest;                                                // VGA_Subsystem_char_buffer_slave_translator:uav_waitrequest -> VGA_Subsystem_char_buffer_slave_agent:m0_waitrequest
 	wire          vga_subsystem_char_buffer_slave_agent_m0_debugaccess;                                                // VGA_Subsystem_char_buffer_slave_agent:m0_debugaccess -> VGA_Subsystem_char_buffer_slave_translator:uav_debugaccess
@@ -129,12 +128,12 @@ module Computer_System_mm_interconnect_0 (
 	wire          vga_subsystem_char_buffer_slave_agent_m0_write;                                                      // VGA_Subsystem_char_buffer_slave_agent:m0_write -> VGA_Subsystem_char_buffer_slave_translator:uav_write
 	wire    [0:0] vga_subsystem_char_buffer_slave_agent_m0_burstcount;                                                 // VGA_Subsystem_char_buffer_slave_agent:m0_burstcount -> VGA_Subsystem_char_buffer_slave_translator:uav_burstcount
 	wire          vga_subsystem_char_buffer_slave_agent_rf_source_valid;                                               // VGA_Subsystem_char_buffer_slave_agent:rf_source_valid -> VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:in_valid
-	wire  [104:0] vga_subsystem_char_buffer_slave_agent_rf_source_data;                                                // VGA_Subsystem_char_buffer_slave_agent:rf_source_data -> VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:in_data
+	wire  [102:0] vga_subsystem_char_buffer_slave_agent_rf_source_data;                                                // VGA_Subsystem_char_buffer_slave_agent:rf_source_data -> VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:in_data
 	wire          vga_subsystem_char_buffer_slave_agent_rf_source_ready;                                               // VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:in_ready -> VGA_Subsystem_char_buffer_slave_agent:rf_source_ready
 	wire          vga_subsystem_char_buffer_slave_agent_rf_source_startofpacket;                                       // VGA_Subsystem_char_buffer_slave_agent:rf_source_startofpacket -> VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:in_startofpacket
 	wire          vga_subsystem_char_buffer_slave_agent_rf_source_endofpacket;                                         // VGA_Subsystem_char_buffer_slave_agent:rf_source_endofpacket -> VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:in_endofpacket
 	wire          vga_subsystem_char_buffer_slave_agent_rsp_fifo_out_valid;                                            // VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:out_valid -> VGA_Subsystem_char_buffer_slave_agent:rf_sink_valid
-	wire  [104:0] vga_subsystem_char_buffer_slave_agent_rsp_fifo_out_data;                                             // VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:out_data -> VGA_Subsystem_char_buffer_slave_agent:rf_sink_data
+	wire  [102:0] vga_subsystem_char_buffer_slave_agent_rsp_fifo_out_data;                                             // VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:out_data -> VGA_Subsystem_char_buffer_slave_agent:rf_sink_data
 	wire          vga_subsystem_char_buffer_slave_agent_rsp_fifo_out_ready;                                            // VGA_Subsystem_char_buffer_slave_agent:rf_sink_ready -> VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:out_ready
 	wire          vga_subsystem_char_buffer_slave_agent_rsp_fifo_out_startofpacket;                                    // VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:out_startofpacket -> VGA_Subsystem_char_buffer_slave_agent:rf_sink_startofpacket
 	wire          vga_subsystem_char_buffer_slave_agent_rsp_fifo_out_endofpacket;                                      // VGA_Subsystem_char_buffer_slave_agent_rsp_fifo:out_endofpacket -> VGA_Subsystem_char_buffer_slave_agent:rf_sink_endofpacket
@@ -153,675 +152,345 @@ module Computer_System_mm_interconnect_0 (
 	wire          sdram_s1_agent_m0_write;                                                                             // SDRAM_s1_agent:m0_write -> SDRAM_s1_translator:uav_write
 	wire    [1:0] sdram_s1_agent_m0_burstcount;                                                                        // SDRAM_s1_agent:m0_burstcount -> SDRAM_s1_translator:uav_burstcount
 	wire          sdram_s1_agent_rf_source_valid;                                                                      // SDRAM_s1_agent:rf_source_valid -> SDRAM_s1_agent_rsp_fifo:in_valid
-	wire  [113:0] sdram_s1_agent_rf_source_data;                                                                       // SDRAM_s1_agent:rf_source_data -> SDRAM_s1_agent_rsp_fifo:in_data
+	wire  [111:0] sdram_s1_agent_rf_source_data;                                                                       // SDRAM_s1_agent:rf_source_data -> SDRAM_s1_agent_rsp_fifo:in_data
 	wire          sdram_s1_agent_rf_source_ready;                                                                      // SDRAM_s1_agent_rsp_fifo:in_ready -> SDRAM_s1_agent:rf_source_ready
 	wire          sdram_s1_agent_rf_source_startofpacket;                                                              // SDRAM_s1_agent:rf_source_startofpacket -> SDRAM_s1_agent_rsp_fifo:in_startofpacket
 	wire          sdram_s1_agent_rf_source_endofpacket;                                                                // SDRAM_s1_agent:rf_source_endofpacket -> SDRAM_s1_agent_rsp_fifo:in_endofpacket
 	wire          sdram_s1_agent_rsp_fifo_out_valid;                                                                   // SDRAM_s1_agent_rsp_fifo:out_valid -> SDRAM_s1_agent:rf_sink_valid
-	wire  [113:0] sdram_s1_agent_rsp_fifo_out_data;                                                                    // SDRAM_s1_agent_rsp_fifo:out_data -> SDRAM_s1_agent:rf_sink_data
+	wire  [111:0] sdram_s1_agent_rsp_fifo_out_data;                                                                    // SDRAM_s1_agent_rsp_fifo:out_data -> SDRAM_s1_agent:rf_sink_data
 	wire          sdram_s1_agent_rsp_fifo_out_ready;                                                                   // SDRAM_s1_agent:rf_sink_ready -> SDRAM_s1_agent_rsp_fifo:out_ready
 	wire          sdram_s1_agent_rsp_fifo_out_startofpacket;                                                           // SDRAM_s1_agent_rsp_fifo:out_startofpacket -> SDRAM_s1_agent:rf_sink_startofpacket
 	wire          sdram_s1_agent_rsp_fifo_out_endofpacket;                                                             // SDRAM_s1_agent_rsp_fifo:out_endofpacket -> SDRAM_s1_agent:rf_sink_endofpacket
 	wire          sdram_s1_agent_rdata_fifo_src_valid;                                                                 // SDRAM_s1_agent:rdata_fifo_src_valid -> SDRAM_s1_agent_rdata_fifo:in_valid
 	wire   [17:0] sdram_s1_agent_rdata_fifo_src_data;                                                                  // SDRAM_s1_agent:rdata_fifo_src_data -> SDRAM_s1_agent_rdata_fifo:in_data
 	wire          sdram_s1_agent_rdata_fifo_src_ready;                                                                 // SDRAM_s1_agent_rdata_fifo:in_ready -> SDRAM_s1_agent:rdata_fifo_src_ready
-	wire   [63:0] onchip_sram_0_s2_agent_m0_readdata;                                                                  // Onchip_SRAM_0_s2_translator:uav_readdata -> Onchip_SRAM_0_s2_agent:m0_readdata
-	wire          onchip_sram_0_s2_agent_m0_waitrequest;                                                               // Onchip_SRAM_0_s2_translator:uav_waitrequest -> Onchip_SRAM_0_s2_agent:m0_waitrequest
-	wire          onchip_sram_0_s2_agent_m0_debugaccess;                                                               // Onchip_SRAM_0_s2_agent:m0_debugaccess -> Onchip_SRAM_0_s2_translator:uav_debugaccess
-	wire   [31:0] onchip_sram_0_s2_agent_m0_address;                                                                   // Onchip_SRAM_0_s2_agent:m0_address -> Onchip_SRAM_0_s2_translator:uav_address
-	wire    [7:0] onchip_sram_0_s2_agent_m0_byteenable;                                                                // Onchip_SRAM_0_s2_agent:m0_byteenable -> Onchip_SRAM_0_s2_translator:uav_byteenable
-	wire          onchip_sram_0_s2_agent_m0_read;                                                                      // Onchip_SRAM_0_s2_agent:m0_read -> Onchip_SRAM_0_s2_translator:uav_read
-	wire          onchip_sram_0_s2_agent_m0_readdatavalid;                                                             // Onchip_SRAM_0_s2_translator:uav_readdatavalid -> Onchip_SRAM_0_s2_agent:m0_readdatavalid
-	wire          onchip_sram_0_s2_agent_m0_lock;                                                                      // Onchip_SRAM_0_s2_agent:m0_lock -> Onchip_SRAM_0_s2_translator:uav_lock
-	wire   [63:0] onchip_sram_0_s2_agent_m0_writedata;                                                                 // Onchip_SRAM_0_s2_agent:m0_writedata -> Onchip_SRAM_0_s2_translator:uav_writedata
-	wire          onchip_sram_0_s2_agent_m0_write;                                                                     // Onchip_SRAM_0_s2_agent:m0_write -> Onchip_SRAM_0_s2_translator:uav_write
-	wire    [3:0] onchip_sram_0_s2_agent_m0_burstcount;                                                                // Onchip_SRAM_0_s2_agent:m0_burstcount -> Onchip_SRAM_0_s2_translator:uav_burstcount
-	wire          onchip_sram_0_s2_agent_rf_source_valid;                                                              // Onchip_SRAM_0_s2_agent:rf_source_valid -> Onchip_SRAM_0_s2_agent_rsp_fifo:in_valid
-	wire  [167:0] onchip_sram_0_s2_agent_rf_source_data;                                                               // Onchip_SRAM_0_s2_agent:rf_source_data -> Onchip_SRAM_0_s2_agent_rsp_fifo:in_data
-	wire          onchip_sram_0_s2_agent_rf_source_ready;                                                              // Onchip_SRAM_0_s2_agent_rsp_fifo:in_ready -> Onchip_SRAM_0_s2_agent:rf_source_ready
-	wire          onchip_sram_0_s2_agent_rf_source_startofpacket;                                                      // Onchip_SRAM_0_s2_agent:rf_source_startofpacket -> Onchip_SRAM_0_s2_agent_rsp_fifo:in_startofpacket
-	wire          onchip_sram_0_s2_agent_rf_source_endofpacket;                                                        // Onchip_SRAM_0_s2_agent:rf_source_endofpacket -> Onchip_SRAM_0_s2_agent_rsp_fifo:in_endofpacket
-	wire          onchip_sram_0_s2_agent_rsp_fifo_out_valid;                                                           // Onchip_SRAM_0_s2_agent_rsp_fifo:out_valid -> Onchip_SRAM_0_s2_agent:rf_sink_valid
-	wire  [167:0] onchip_sram_0_s2_agent_rsp_fifo_out_data;                                                            // Onchip_SRAM_0_s2_agent_rsp_fifo:out_data -> Onchip_SRAM_0_s2_agent:rf_sink_data
-	wire          onchip_sram_0_s2_agent_rsp_fifo_out_ready;                                                           // Onchip_SRAM_0_s2_agent:rf_sink_ready -> Onchip_SRAM_0_s2_agent_rsp_fifo:out_ready
-	wire          onchip_sram_0_s2_agent_rsp_fifo_out_startofpacket;                                                   // Onchip_SRAM_0_s2_agent_rsp_fifo:out_startofpacket -> Onchip_SRAM_0_s2_agent:rf_sink_startofpacket
-	wire          onchip_sram_0_s2_agent_rsp_fifo_out_endofpacket;                                                     // Onchip_SRAM_0_s2_agent_rsp_fifo:out_endofpacket -> Onchip_SRAM_0_s2_agent:rf_sink_endofpacket
-	wire          onchip_sram_0_s2_agent_rdata_fifo_src_valid;                                                         // Onchip_SRAM_0_s2_agent:rdata_fifo_src_valid -> Onchip_SRAM_0_s2_agent_rdata_fifo:in_valid
-	wire   [65:0] onchip_sram_0_s2_agent_rdata_fifo_src_data;                                                          // Onchip_SRAM_0_s2_agent:rdata_fifo_src_data -> Onchip_SRAM_0_s2_agent_rdata_fifo:in_data
-	wire          onchip_sram_0_s2_agent_rdata_fifo_src_ready;                                                         // Onchip_SRAM_0_s2_agent_rdata_fifo:in_ready -> Onchip_SRAM_0_s2_agent:rdata_fifo_src_ready
-	wire   [63:0] onchip_sram_1_s2_agent_m0_readdata;                                                                  // Onchip_SRAM_1_s2_translator:uav_readdata -> Onchip_SRAM_1_s2_agent:m0_readdata
-	wire          onchip_sram_1_s2_agent_m0_waitrequest;                                                               // Onchip_SRAM_1_s2_translator:uav_waitrequest -> Onchip_SRAM_1_s2_agent:m0_waitrequest
-	wire          onchip_sram_1_s2_agent_m0_debugaccess;                                                               // Onchip_SRAM_1_s2_agent:m0_debugaccess -> Onchip_SRAM_1_s2_translator:uav_debugaccess
-	wire   [31:0] onchip_sram_1_s2_agent_m0_address;                                                                   // Onchip_SRAM_1_s2_agent:m0_address -> Onchip_SRAM_1_s2_translator:uav_address
-	wire    [7:0] onchip_sram_1_s2_agent_m0_byteenable;                                                                // Onchip_SRAM_1_s2_agent:m0_byteenable -> Onchip_SRAM_1_s2_translator:uav_byteenable
-	wire          onchip_sram_1_s2_agent_m0_read;                                                                      // Onchip_SRAM_1_s2_agent:m0_read -> Onchip_SRAM_1_s2_translator:uav_read
-	wire          onchip_sram_1_s2_agent_m0_readdatavalid;                                                             // Onchip_SRAM_1_s2_translator:uav_readdatavalid -> Onchip_SRAM_1_s2_agent:m0_readdatavalid
-	wire          onchip_sram_1_s2_agent_m0_lock;                                                                      // Onchip_SRAM_1_s2_agent:m0_lock -> Onchip_SRAM_1_s2_translator:uav_lock
-	wire   [63:0] onchip_sram_1_s2_agent_m0_writedata;                                                                 // Onchip_SRAM_1_s2_agent:m0_writedata -> Onchip_SRAM_1_s2_translator:uav_writedata
-	wire          onchip_sram_1_s2_agent_m0_write;                                                                     // Onchip_SRAM_1_s2_agent:m0_write -> Onchip_SRAM_1_s2_translator:uav_write
-	wire    [3:0] onchip_sram_1_s2_agent_m0_burstcount;                                                                // Onchip_SRAM_1_s2_agent:m0_burstcount -> Onchip_SRAM_1_s2_translator:uav_burstcount
-	wire          onchip_sram_1_s2_agent_rf_source_valid;                                                              // Onchip_SRAM_1_s2_agent:rf_source_valid -> Onchip_SRAM_1_s2_agent_rsp_fifo:in_valid
-	wire  [167:0] onchip_sram_1_s2_agent_rf_source_data;                                                               // Onchip_SRAM_1_s2_agent:rf_source_data -> Onchip_SRAM_1_s2_agent_rsp_fifo:in_data
-	wire          onchip_sram_1_s2_agent_rf_source_ready;                                                              // Onchip_SRAM_1_s2_agent_rsp_fifo:in_ready -> Onchip_SRAM_1_s2_agent:rf_source_ready
-	wire          onchip_sram_1_s2_agent_rf_source_startofpacket;                                                      // Onchip_SRAM_1_s2_agent:rf_source_startofpacket -> Onchip_SRAM_1_s2_agent_rsp_fifo:in_startofpacket
-	wire          onchip_sram_1_s2_agent_rf_source_endofpacket;                                                        // Onchip_SRAM_1_s2_agent:rf_source_endofpacket -> Onchip_SRAM_1_s2_agent_rsp_fifo:in_endofpacket
-	wire          onchip_sram_1_s2_agent_rsp_fifo_out_valid;                                                           // Onchip_SRAM_1_s2_agent_rsp_fifo:out_valid -> Onchip_SRAM_1_s2_agent:rf_sink_valid
-	wire  [167:0] onchip_sram_1_s2_agent_rsp_fifo_out_data;                                                            // Onchip_SRAM_1_s2_agent_rsp_fifo:out_data -> Onchip_SRAM_1_s2_agent:rf_sink_data
-	wire          onchip_sram_1_s2_agent_rsp_fifo_out_ready;                                                           // Onchip_SRAM_1_s2_agent:rf_sink_ready -> Onchip_SRAM_1_s2_agent_rsp_fifo:out_ready
-	wire          onchip_sram_1_s2_agent_rsp_fifo_out_startofpacket;                                                   // Onchip_SRAM_1_s2_agent_rsp_fifo:out_startofpacket -> Onchip_SRAM_1_s2_agent:rf_sink_startofpacket
-	wire          onchip_sram_1_s2_agent_rsp_fifo_out_endofpacket;                                                     // Onchip_SRAM_1_s2_agent_rsp_fifo:out_endofpacket -> Onchip_SRAM_1_s2_agent:rf_sink_endofpacket
-	wire          onchip_sram_1_s2_agent_rdata_fifo_src_valid;                                                         // Onchip_SRAM_1_s2_agent:rdata_fifo_src_valid -> Onchip_SRAM_1_s2_agent_rdata_fifo:in_valid
-	wire   [65:0] onchip_sram_1_s2_agent_rdata_fifo_src_data;                                                          // Onchip_SRAM_1_s2_agent:rdata_fifo_src_data -> Onchip_SRAM_1_s2_agent_rdata_fifo:in_data
-	wire          onchip_sram_1_s2_agent_rdata_fifo_src_ready;                                                         // Onchip_SRAM_1_s2_agent_rdata_fifo:in_ready -> Onchip_SRAM_1_s2_agent:rdata_fifo_src_ready
-	wire   [63:0] onchip_sram_2_s2_agent_m0_readdata;                                                                  // Onchip_SRAM_2_s2_translator:uav_readdata -> Onchip_SRAM_2_s2_agent:m0_readdata
-	wire          onchip_sram_2_s2_agent_m0_waitrequest;                                                               // Onchip_SRAM_2_s2_translator:uav_waitrequest -> Onchip_SRAM_2_s2_agent:m0_waitrequest
-	wire          onchip_sram_2_s2_agent_m0_debugaccess;                                                               // Onchip_SRAM_2_s2_agent:m0_debugaccess -> Onchip_SRAM_2_s2_translator:uav_debugaccess
-	wire   [31:0] onchip_sram_2_s2_agent_m0_address;                                                                   // Onchip_SRAM_2_s2_agent:m0_address -> Onchip_SRAM_2_s2_translator:uav_address
-	wire    [7:0] onchip_sram_2_s2_agent_m0_byteenable;                                                                // Onchip_SRAM_2_s2_agent:m0_byteenable -> Onchip_SRAM_2_s2_translator:uav_byteenable
-	wire          onchip_sram_2_s2_agent_m0_read;                                                                      // Onchip_SRAM_2_s2_agent:m0_read -> Onchip_SRAM_2_s2_translator:uav_read
-	wire          onchip_sram_2_s2_agent_m0_readdatavalid;                                                             // Onchip_SRAM_2_s2_translator:uav_readdatavalid -> Onchip_SRAM_2_s2_agent:m0_readdatavalid
-	wire          onchip_sram_2_s2_agent_m0_lock;                                                                      // Onchip_SRAM_2_s2_agent:m0_lock -> Onchip_SRAM_2_s2_translator:uav_lock
-	wire   [63:0] onchip_sram_2_s2_agent_m0_writedata;                                                                 // Onchip_SRAM_2_s2_agent:m0_writedata -> Onchip_SRAM_2_s2_translator:uav_writedata
-	wire          onchip_sram_2_s2_agent_m0_write;                                                                     // Onchip_SRAM_2_s2_agent:m0_write -> Onchip_SRAM_2_s2_translator:uav_write
-	wire    [3:0] onchip_sram_2_s2_agent_m0_burstcount;                                                                // Onchip_SRAM_2_s2_agent:m0_burstcount -> Onchip_SRAM_2_s2_translator:uav_burstcount
-	wire          onchip_sram_2_s2_agent_rf_source_valid;                                                              // Onchip_SRAM_2_s2_agent:rf_source_valid -> Onchip_SRAM_2_s2_agent_rsp_fifo:in_valid
-	wire  [167:0] onchip_sram_2_s2_agent_rf_source_data;                                                               // Onchip_SRAM_2_s2_agent:rf_source_data -> Onchip_SRAM_2_s2_agent_rsp_fifo:in_data
-	wire          onchip_sram_2_s2_agent_rf_source_ready;                                                              // Onchip_SRAM_2_s2_agent_rsp_fifo:in_ready -> Onchip_SRAM_2_s2_agent:rf_source_ready
-	wire          onchip_sram_2_s2_agent_rf_source_startofpacket;                                                      // Onchip_SRAM_2_s2_agent:rf_source_startofpacket -> Onchip_SRAM_2_s2_agent_rsp_fifo:in_startofpacket
-	wire          onchip_sram_2_s2_agent_rf_source_endofpacket;                                                        // Onchip_SRAM_2_s2_agent:rf_source_endofpacket -> Onchip_SRAM_2_s2_agent_rsp_fifo:in_endofpacket
-	wire          onchip_sram_2_s2_agent_rsp_fifo_out_valid;                                                           // Onchip_SRAM_2_s2_agent_rsp_fifo:out_valid -> Onchip_SRAM_2_s2_agent:rf_sink_valid
-	wire  [167:0] onchip_sram_2_s2_agent_rsp_fifo_out_data;                                                            // Onchip_SRAM_2_s2_agent_rsp_fifo:out_data -> Onchip_SRAM_2_s2_agent:rf_sink_data
-	wire          onchip_sram_2_s2_agent_rsp_fifo_out_ready;                                                           // Onchip_SRAM_2_s2_agent:rf_sink_ready -> Onchip_SRAM_2_s2_agent_rsp_fifo:out_ready
-	wire          onchip_sram_2_s2_agent_rsp_fifo_out_startofpacket;                                                   // Onchip_SRAM_2_s2_agent_rsp_fifo:out_startofpacket -> Onchip_SRAM_2_s2_agent:rf_sink_startofpacket
-	wire          onchip_sram_2_s2_agent_rsp_fifo_out_endofpacket;                                                     // Onchip_SRAM_2_s2_agent_rsp_fifo:out_endofpacket -> Onchip_SRAM_2_s2_agent:rf_sink_endofpacket
-	wire          onchip_sram_2_s2_agent_rdata_fifo_src_valid;                                                         // Onchip_SRAM_2_s2_agent:rdata_fifo_src_valid -> Onchip_SRAM_2_s2_agent_rdata_fifo:in_valid
-	wire   [65:0] onchip_sram_2_s2_agent_rdata_fifo_src_data;                                                          // Onchip_SRAM_2_s2_agent:rdata_fifo_src_data -> Onchip_SRAM_2_s2_agent_rdata_fifo:in_data
-	wire          onchip_sram_2_s2_agent_rdata_fifo_src_ready;                                                         // Onchip_SRAM_2_s2_agent_rdata_fifo:in_ready -> Onchip_SRAM_2_s2_agent:rdata_fifo_src_ready
-	wire   [63:0] onchip_sram_3_s2_agent_m0_readdata;                                                                  // Onchip_SRAM_3_s2_translator:uav_readdata -> Onchip_SRAM_3_s2_agent:m0_readdata
-	wire          onchip_sram_3_s2_agent_m0_waitrequest;                                                               // Onchip_SRAM_3_s2_translator:uav_waitrequest -> Onchip_SRAM_3_s2_agent:m0_waitrequest
-	wire          onchip_sram_3_s2_agent_m0_debugaccess;                                                               // Onchip_SRAM_3_s2_agent:m0_debugaccess -> Onchip_SRAM_3_s2_translator:uav_debugaccess
-	wire   [31:0] onchip_sram_3_s2_agent_m0_address;                                                                   // Onchip_SRAM_3_s2_agent:m0_address -> Onchip_SRAM_3_s2_translator:uav_address
-	wire    [7:0] onchip_sram_3_s2_agent_m0_byteenable;                                                                // Onchip_SRAM_3_s2_agent:m0_byteenable -> Onchip_SRAM_3_s2_translator:uav_byteenable
-	wire          onchip_sram_3_s2_agent_m0_read;                                                                      // Onchip_SRAM_3_s2_agent:m0_read -> Onchip_SRAM_3_s2_translator:uav_read
-	wire          onchip_sram_3_s2_agent_m0_readdatavalid;                                                             // Onchip_SRAM_3_s2_translator:uav_readdatavalid -> Onchip_SRAM_3_s2_agent:m0_readdatavalid
-	wire          onchip_sram_3_s2_agent_m0_lock;                                                                      // Onchip_SRAM_3_s2_agent:m0_lock -> Onchip_SRAM_3_s2_translator:uav_lock
-	wire   [63:0] onchip_sram_3_s2_agent_m0_writedata;                                                                 // Onchip_SRAM_3_s2_agent:m0_writedata -> Onchip_SRAM_3_s2_translator:uav_writedata
-	wire          onchip_sram_3_s2_agent_m0_write;                                                                     // Onchip_SRAM_3_s2_agent:m0_write -> Onchip_SRAM_3_s2_translator:uav_write
-	wire    [3:0] onchip_sram_3_s2_agent_m0_burstcount;                                                                // Onchip_SRAM_3_s2_agent:m0_burstcount -> Onchip_SRAM_3_s2_translator:uav_burstcount
-	wire          onchip_sram_3_s2_agent_rf_source_valid;                                                              // Onchip_SRAM_3_s2_agent:rf_source_valid -> Onchip_SRAM_3_s2_agent_rsp_fifo:in_valid
-	wire  [167:0] onchip_sram_3_s2_agent_rf_source_data;                                                               // Onchip_SRAM_3_s2_agent:rf_source_data -> Onchip_SRAM_3_s2_agent_rsp_fifo:in_data
-	wire          onchip_sram_3_s2_agent_rf_source_ready;                                                              // Onchip_SRAM_3_s2_agent_rsp_fifo:in_ready -> Onchip_SRAM_3_s2_agent:rf_source_ready
-	wire          onchip_sram_3_s2_agent_rf_source_startofpacket;                                                      // Onchip_SRAM_3_s2_agent:rf_source_startofpacket -> Onchip_SRAM_3_s2_agent_rsp_fifo:in_startofpacket
-	wire          onchip_sram_3_s2_agent_rf_source_endofpacket;                                                        // Onchip_SRAM_3_s2_agent:rf_source_endofpacket -> Onchip_SRAM_3_s2_agent_rsp_fifo:in_endofpacket
-	wire          onchip_sram_3_s2_agent_rsp_fifo_out_valid;                                                           // Onchip_SRAM_3_s2_agent_rsp_fifo:out_valid -> Onchip_SRAM_3_s2_agent:rf_sink_valid
-	wire  [167:0] onchip_sram_3_s2_agent_rsp_fifo_out_data;                                                            // Onchip_SRAM_3_s2_agent_rsp_fifo:out_data -> Onchip_SRAM_3_s2_agent:rf_sink_data
-	wire          onchip_sram_3_s2_agent_rsp_fifo_out_ready;                                                           // Onchip_SRAM_3_s2_agent:rf_sink_ready -> Onchip_SRAM_3_s2_agent_rsp_fifo:out_ready
-	wire          onchip_sram_3_s2_agent_rsp_fifo_out_startofpacket;                                                   // Onchip_SRAM_3_s2_agent_rsp_fifo:out_startofpacket -> Onchip_SRAM_3_s2_agent:rf_sink_startofpacket
-	wire          onchip_sram_3_s2_agent_rsp_fifo_out_endofpacket;                                                     // Onchip_SRAM_3_s2_agent_rsp_fifo:out_endofpacket -> Onchip_SRAM_3_s2_agent:rf_sink_endofpacket
-	wire          onchip_sram_3_s2_agent_rdata_fifo_src_valid;                                                         // Onchip_SRAM_3_s2_agent:rdata_fifo_src_valid -> Onchip_SRAM_3_s2_agent_rdata_fifo:in_valid
-	wire   [65:0] onchip_sram_3_s2_agent_rdata_fifo_src_data;                                                          // Onchip_SRAM_3_s2_agent:rdata_fifo_src_data -> Onchip_SRAM_3_s2_agent_rdata_fifo:in_data
-	wire          onchip_sram_3_s2_agent_rdata_fifo_src_ready;                                                         // Onchip_SRAM_3_s2_agent_rdata_fifo:in_ready -> Onchip_SRAM_3_s2_agent:rdata_fifo_src_ready
 	wire          arm_a9_hps_h2f_axi_master_agent_write_cp_valid;                                                      // ARM_A9_HPS_h2f_axi_master_agent:write_cp_valid -> router:sink_valid
-	wire  [238:0] arm_a9_hps_h2f_axi_master_agent_write_cp_data;                                                       // ARM_A9_HPS_h2f_axi_master_agent:write_cp_data -> router:sink_data
+	wire  [236:0] arm_a9_hps_h2f_axi_master_agent_write_cp_data;                                                       // ARM_A9_HPS_h2f_axi_master_agent:write_cp_data -> router:sink_data
 	wire          arm_a9_hps_h2f_axi_master_agent_write_cp_ready;                                                      // router:sink_ready -> ARM_A9_HPS_h2f_axi_master_agent:write_cp_ready
 	wire          arm_a9_hps_h2f_axi_master_agent_write_cp_startofpacket;                                              // ARM_A9_HPS_h2f_axi_master_agent:write_cp_startofpacket -> router:sink_startofpacket
 	wire          arm_a9_hps_h2f_axi_master_agent_write_cp_endofpacket;                                                // ARM_A9_HPS_h2f_axi_master_agent:write_cp_endofpacket -> router:sink_endofpacket
 	wire          arm_a9_hps_h2f_axi_master_agent_read_cp_valid;                                                       // ARM_A9_HPS_h2f_axi_master_agent:read_cp_valid -> router_001:sink_valid
-	wire  [238:0] arm_a9_hps_h2f_axi_master_agent_read_cp_data;                                                        // ARM_A9_HPS_h2f_axi_master_agent:read_cp_data -> router_001:sink_data
+	wire  [236:0] arm_a9_hps_h2f_axi_master_agent_read_cp_data;                                                        // ARM_A9_HPS_h2f_axi_master_agent:read_cp_data -> router_001:sink_data
 	wire          arm_a9_hps_h2f_axi_master_agent_read_cp_ready;                                                       // router_001:sink_ready -> ARM_A9_HPS_h2f_axi_master_agent:read_cp_ready
 	wire          arm_a9_hps_h2f_axi_master_agent_read_cp_startofpacket;                                               // ARM_A9_HPS_h2f_axi_master_agent:read_cp_startofpacket -> router_001:sink_startofpacket
 	wire          arm_a9_hps_h2f_axi_master_agent_read_cp_endofpacket;                                                 // ARM_A9_HPS_h2f_axi_master_agent:read_cp_endofpacket -> router_001:sink_endofpacket
 	wire          vga_subsystem_pixel_dma_master_agent_cp_valid;                                                       // VGA_Subsystem_pixel_dma_master_agent:cp_valid -> router_002:sink_valid
-	wire  [103:0] vga_subsystem_pixel_dma_master_agent_cp_data;                                                        // VGA_Subsystem_pixel_dma_master_agent:cp_data -> router_002:sink_data
+	wire  [101:0] vga_subsystem_pixel_dma_master_agent_cp_data;                                                        // VGA_Subsystem_pixel_dma_master_agent:cp_data -> router_002:sink_data
 	wire          vga_subsystem_pixel_dma_master_agent_cp_ready;                                                       // router_002:sink_ready -> VGA_Subsystem_pixel_dma_master_agent:cp_ready
 	wire          vga_subsystem_pixel_dma_master_agent_cp_startofpacket;                                               // VGA_Subsystem_pixel_dma_master_agent:cp_startofpacket -> router_002:sink_startofpacket
 	wire          vga_subsystem_pixel_dma_master_agent_cp_endofpacket;                                                 // VGA_Subsystem_pixel_dma_master_agent:cp_endofpacket -> router_002:sink_endofpacket
 	wire          router_002_src_valid;                                                                                // router_002:src_valid -> cmd_demux_002:sink_valid
-	wire  [103:0] router_002_src_data;                                                                                 // router_002:src_data -> cmd_demux_002:sink_data
+	wire  [101:0] router_002_src_data;                                                                                 // router_002:src_data -> cmd_demux_002:sink_data
 	wire          router_002_src_ready;                                                                                // cmd_demux_002:sink_ready -> router_002:src_ready
-	wire    [5:0] router_002_src_channel;                                                                              // router_002:src_channel -> cmd_demux_002:sink_channel
+	wire    [2:0] router_002_src_channel;                                                                              // router_002:src_channel -> cmd_demux_002:sink_channel
 	wire          router_002_src_startofpacket;                                                                        // router_002:src_startofpacket -> cmd_demux_002:sink_startofpacket
 	wire          router_002_src_endofpacket;                                                                          // router_002:src_endofpacket -> cmd_demux_002:sink_endofpacket
-	wire          vga_subsystem_char_buffer_slave_agent_rp_valid;                                                      // VGA_Subsystem_char_buffer_slave_agent:rp_valid -> router_003:sink_valid
-	wire  [103:0] vga_subsystem_char_buffer_slave_agent_rp_data;                                                       // VGA_Subsystem_char_buffer_slave_agent:rp_data -> router_003:sink_data
-	wire          vga_subsystem_char_buffer_slave_agent_rp_ready;                                                      // router_003:sink_ready -> VGA_Subsystem_char_buffer_slave_agent:rp_ready
-	wire          vga_subsystem_char_buffer_slave_agent_rp_startofpacket;                                              // VGA_Subsystem_char_buffer_slave_agent:rp_startofpacket -> router_003:sink_startofpacket
-	wire          vga_subsystem_char_buffer_slave_agent_rp_endofpacket;                                                // VGA_Subsystem_char_buffer_slave_agent:rp_endofpacket -> router_003:sink_endofpacket
+	wire          mcmc_system_0_avalon_slave_0_agent_rp_valid;                                                         // mcmc_system_0_avalon_slave_0_agent:rp_valid -> router_003:sink_valid
+	wire  [164:0] mcmc_system_0_avalon_slave_0_agent_rp_data;                                                          // mcmc_system_0_avalon_slave_0_agent:rp_data -> router_003:sink_data
+	wire          mcmc_system_0_avalon_slave_0_agent_rp_ready;                                                         // router_003:sink_ready -> mcmc_system_0_avalon_slave_0_agent:rp_ready
+	wire          mcmc_system_0_avalon_slave_0_agent_rp_startofpacket;                                                 // mcmc_system_0_avalon_slave_0_agent:rp_startofpacket -> router_003:sink_startofpacket
+	wire          mcmc_system_0_avalon_slave_0_agent_rp_endofpacket;                                                   // mcmc_system_0_avalon_slave_0_agent:rp_endofpacket -> router_003:sink_endofpacket
 	wire          router_003_src_valid;                                                                                // router_003:src_valid -> rsp_demux:sink_valid
-	wire  [103:0] router_003_src_data;                                                                                 // router_003:src_data -> rsp_demux:sink_data
+	wire  [164:0] router_003_src_data;                                                                                 // router_003:src_data -> rsp_demux:sink_data
 	wire          router_003_src_ready;                                                                                // rsp_demux:sink_ready -> router_003:src_ready
-	wire    [5:0] router_003_src_channel;                                                                              // router_003:src_channel -> rsp_demux:sink_channel
+	wire    [2:0] router_003_src_channel;                                                                              // router_003:src_channel -> rsp_demux:sink_channel
 	wire          router_003_src_startofpacket;                                                                        // router_003:src_startofpacket -> rsp_demux:sink_startofpacket
 	wire          router_003_src_endofpacket;                                                                          // router_003:src_endofpacket -> rsp_demux:sink_endofpacket
-	wire          sdram_s1_agent_rp_valid;                                                                             // SDRAM_s1_agent:rp_valid -> router_004:sink_valid
-	wire  [112:0] sdram_s1_agent_rp_data;                                                                              // SDRAM_s1_agent:rp_data -> router_004:sink_data
-	wire          sdram_s1_agent_rp_ready;                                                                             // router_004:sink_ready -> SDRAM_s1_agent:rp_ready
-	wire          sdram_s1_agent_rp_startofpacket;                                                                     // SDRAM_s1_agent:rp_startofpacket -> router_004:sink_startofpacket
-	wire          sdram_s1_agent_rp_endofpacket;                                                                       // SDRAM_s1_agent:rp_endofpacket -> router_004:sink_endofpacket
+	wire          vga_subsystem_char_buffer_slave_agent_rp_valid;                                                      // VGA_Subsystem_char_buffer_slave_agent:rp_valid -> router_004:sink_valid
+	wire  [101:0] vga_subsystem_char_buffer_slave_agent_rp_data;                                                       // VGA_Subsystem_char_buffer_slave_agent:rp_data -> router_004:sink_data
+	wire          vga_subsystem_char_buffer_slave_agent_rp_ready;                                                      // router_004:sink_ready -> VGA_Subsystem_char_buffer_slave_agent:rp_ready
+	wire          vga_subsystem_char_buffer_slave_agent_rp_startofpacket;                                              // VGA_Subsystem_char_buffer_slave_agent:rp_startofpacket -> router_004:sink_startofpacket
+	wire          vga_subsystem_char_buffer_slave_agent_rp_endofpacket;                                                // VGA_Subsystem_char_buffer_slave_agent:rp_endofpacket -> router_004:sink_endofpacket
 	wire          router_004_src_valid;                                                                                // router_004:src_valid -> rsp_demux_001:sink_valid
-	wire  [112:0] router_004_src_data;                                                                                 // router_004:src_data -> rsp_demux_001:sink_data
+	wire  [101:0] router_004_src_data;                                                                                 // router_004:src_data -> rsp_demux_001:sink_data
 	wire          router_004_src_ready;                                                                                // rsp_demux_001:sink_ready -> router_004:src_ready
-	wire    [5:0] router_004_src_channel;                                                                              // router_004:src_channel -> rsp_demux_001:sink_channel
+	wire    [2:0] router_004_src_channel;                                                                              // router_004:src_channel -> rsp_demux_001:sink_channel
 	wire          router_004_src_startofpacket;                                                                        // router_004:src_startofpacket -> rsp_demux_001:sink_startofpacket
 	wire          router_004_src_endofpacket;                                                                          // router_004:src_endofpacket -> rsp_demux_001:sink_endofpacket
-	wire          onchip_sram_0_s2_agent_rp_valid;                                                                     // Onchip_SRAM_0_s2_agent:rp_valid -> router_005:sink_valid
-	wire  [166:0] onchip_sram_0_s2_agent_rp_data;                                                                      // Onchip_SRAM_0_s2_agent:rp_data -> router_005:sink_data
-	wire          onchip_sram_0_s2_agent_rp_ready;                                                                     // router_005:sink_ready -> Onchip_SRAM_0_s2_agent:rp_ready
-	wire          onchip_sram_0_s2_agent_rp_startofpacket;                                                             // Onchip_SRAM_0_s2_agent:rp_startofpacket -> router_005:sink_startofpacket
-	wire          onchip_sram_0_s2_agent_rp_endofpacket;                                                               // Onchip_SRAM_0_s2_agent:rp_endofpacket -> router_005:sink_endofpacket
+	wire          sdram_s1_agent_rp_valid;                                                                             // SDRAM_s1_agent:rp_valid -> router_005:sink_valid
+	wire  [110:0] sdram_s1_agent_rp_data;                                                                              // SDRAM_s1_agent:rp_data -> router_005:sink_data
+	wire          sdram_s1_agent_rp_ready;                                                                             // router_005:sink_ready -> SDRAM_s1_agent:rp_ready
+	wire          sdram_s1_agent_rp_startofpacket;                                                                     // SDRAM_s1_agent:rp_startofpacket -> router_005:sink_startofpacket
+	wire          sdram_s1_agent_rp_endofpacket;                                                                       // SDRAM_s1_agent:rp_endofpacket -> router_005:sink_endofpacket
 	wire          router_005_src_valid;                                                                                // router_005:src_valid -> rsp_demux_002:sink_valid
-	wire  [166:0] router_005_src_data;                                                                                 // router_005:src_data -> rsp_demux_002:sink_data
+	wire  [110:0] router_005_src_data;                                                                                 // router_005:src_data -> rsp_demux_002:sink_data
 	wire          router_005_src_ready;                                                                                // rsp_demux_002:sink_ready -> router_005:src_ready
-	wire    [5:0] router_005_src_channel;                                                                              // router_005:src_channel -> rsp_demux_002:sink_channel
+	wire    [2:0] router_005_src_channel;                                                                              // router_005:src_channel -> rsp_demux_002:sink_channel
 	wire          router_005_src_startofpacket;                                                                        // router_005:src_startofpacket -> rsp_demux_002:sink_startofpacket
 	wire          router_005_src_endofpacket;                                                                          // router_005:src_endofpacket -> rsp_demux_002:sink_endofpacket
-	wire          onchip_sram_1_s2_agent_rp_valid;                                                                     // Onchip_SRAM_1_s2_agent:rp_valid -> router_006:sink_valid
-	wire  [166:0] onchip_sram_1_s2_agent_rp_data;                                                                      // Onchip_SRAM_1_s2_agent:rp_data -> router_006:sink_data
-	wire          onchip_sram_1_s2_agent_rp_ready;                                                                     // router_006:sink_ready -> Onchip_SRAM_1_s2_agent:rp_ready
-	wire          onchip_sram_1_s2_agent_rp_startofpacket;                                                             // Onchip_SRAM_1_s2_agent:rp_startofpacket -> router_006:sink_startofpacket
-	wire          onchip_sram_1_s2_agent_rp_endofpacket;                                                               // Onchip_SRAM_1_s2_agent:rp_endofpacket -> router_006:sink_endofpacket
-	wire          router_006_src_valid;                                                                                // router_006:src_valid -> rsp_demux_003:sink_valid
-	wire  [166:0] router_006_src_data;                                                                                 // router_006:src_data -> rsp_demux_003:sink_data
-	wire          router_006_src_ready;                                                                                // rsp_demux_003:sink_ready -> router_006:src_ready
-	wire    [5:0] router_006_src_channel;                                                                              // router_006:src_channel -> rsp_demux_003:sink_channel
-	wire          router_006_src_startofpacket;                                                                        // router_006:src_startofpacket -> rsp_demux_003:sink_startofpacket
-	wire          router_006_src_endofpacket;                                                                          // router_006:src_endofpacket -> rsp_demux_003:sink_endofpacket
-	wire          onchip_sram_2_s2_agent_rp_valid;                                                                     // Onchip_SRAM_2_s2_agent:rp_valid -> router_007:sink_valid
-	wire  [166:0] onchip_sram_2_s2_agent_rp_data;                                                                      // Onchip_SRAM_2_s2_agent:rp_data -> router_007:sink_data
-	wire          onchip_sram_2_s2_agent_rp_ready;                                                                     // router_007:sink_ready -> Onchip_SRAM_2_s2_agent:rp_ready
-	wire          onchip_sram_2_s2_agent_rp_startofpacket;                                                             // Onchip_SRAM_2_s2_agent:rp_startofpacket -> router_007:sink_startofpacket
-	wire          onchip_sram_2_s2_agent_rp_endofpacket;                                                               // Onchip_SRAM_2_s2_agent:rp_endofpacket -> router_007:sink_endofpacket
-	wire          router_007_src_valid;                                                                                // router_007:src_valid -> rsp_demux_004:sink_valid
-	wire  [166:0] router_007_src_data;                                                                                 // router_007:src_data -> rsp_demux_004:sink_data
-	wire          router_007_src_ready;                                                                                // rsp_demux_004:sink_ready -> router_007:src_ready
-	wire    [5:0] router_007_src_channel;                                                                              // router_007:src_channel -> rsp_demux_004:sink_channel
-	wire          router_007_src_startofpacket;                                                                        // router_007:src_startofpacket -> rsp_demux_004:sink_startofpacket
-	wire          router_007_src_endofpacket;                                                                          // router_007:src_endofpacket -> rsp_demux_004:sink_endofpacket
-	wire          onchip_sram_3_s2_agent_rp_valid;                                                                     // Onchip_SRAM_3_s2_agent:rp_valid -> router_008:sink_valid
-	wire  [166:0] onchip_sram_3_s2_agent_rp_data;                                                                      // Onchip_SRAM_3_s2_agent:rp_data -> router_008:sink_data
-	wire          onchip_sram_3_s2_agent_rp_ready;                                                                     // router_008:sink_ready -> Onchip_SRAM_3_s2_agent:rp_ready
-	wire          onchip_sram_3_s2_agent_rp_startofpacket;                                                             // Onchip_SRAM_3_s2_agent:rp_startofpacket -> router_008:sink_startofpacket
-	wire          onchip_sram_3_s2_agent_rp_endofpacket;                                                               // Onchip_SRAM_3_s2_agent:rp_endofpacket -> router_008:sink_endofpacket
-	wire          router_008_src_valid;                                                                                // router_008:src_valid -> rsp_demux_005:sink_valid
-	wire  [166:0] router_008_src_data;                                                                                 // router_008:src_data -> rsp_demux_005:sink_data
-	wire          router_008_src_ready;                                                                                // rsp_demux_005:sink_ready -> router_008:src_ready
-	wire    [5:0] router_008_src_channel;                                                                              // router_008:src_channel -> rsp_demux_005:sink_channel
-	wire          router_008_src_startofpacket;                                                                        // router_008:src_startofpacket -> rsp_demux_005:sink_startofpacket
-	wire          router_008_src_endofpacket;                                                                          // router_008:src_endofpacket -> rsp_demux_005:sink_endofpacket
 	wire          router_src_valid;                                                                                    // router:src_valid -> ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_sink_valid
-	wire  [238:0] router_src_data;                                                                                     // router:src_data -> ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_sink_data
+	wire  [236:0] router_src_data;                                                                                     // router:src_data -> ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_sink_data
 	wire          router_src_ready;                                                                                    // ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_sink_ready -> router:src_ready
-	wire    [5:0] router_src_channel;                                                                                  // router:src_channel -> ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_sink_channel
+	wire    [2:0] router_src_channel;                                                                                  // router:src_channel -> ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_sink_channel
 	wire          router_src_startofpacket;                                                                            // router:src_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_sink_startofpacket
 	wire          router_src_endofpacket;                                                                              // router:src_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_sink_endofpacket
-	wire  [238:0] arm_a9_hps_h2f_axi_master_wr_limiter_cmd_src_data;                                                   // ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_src_data -> cmd_demux:sink_data
+	wire  [236:0] arm_a9_hps_h2f_axi_master_wr_limiter_cmd_src_data;                                                   // ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_src_data -> cmd_demux:sink_data
 	wire          arm_a9_hps_h2f_axi_master_wr_limiter_cmd_src_ready;                                                  // cmd_demux:sink_ready -> ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_src_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_wr_limiter_cmd_src_channel;                                                // ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_src_channel -> cmd_demux:sink_channel
+	wire    [2:0] arm_a9_hps_h2f_axi_master_wr_limiter_cmd_src_channel;                                                // ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_src_channel -> cmd_demux:sink_channel
 	wire          arm_a9_hps_h2f_axi_master_wr_limiter_cmd_src_startofpacket;                                          // ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_src_startofpacket -> cmd_demux:sink_startofpacket
 	wire          arm_a9_hps_h2f_axi_master_wr_limiter_cmd_src_endofpacket;                                            // ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_src_endofpacket -> cmd_demux:sink_endofpacket
 	wire          rsp_mux_src_valid;                                                                                   // rsp_mux:src_valid -> ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_sink_valid
-	wire  [238:0] rsp_mux_src_data;                                                                                    // rsp_mux:src_data -> ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_sink_data
+	wire  [236:0] rsp_mux_src_data;                                                                                    // rsp_mux:src_data -> ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_sink_data
 	wire          rsp_mux_src_ready;                                                                                   // ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_sink_ready -> rsp_mux:src_ready
-	wire    [5:0] rsp_mux_src_channel;                                                                                 // rsp_mux:src_channel -> ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_sink_channel
+	wire    [2:0] rsp_mux_src_channel;                                                                                 // rsp_mux:src_channel -> ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_sink_channel
 	wire          rsp_mux_src_startofpacket;                                                                           // rsp_mux:src_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_sink_startofpacket
 	wire          rsp_mux_src_endofpacket;                                                                             // rsp_mux:src_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_sink_endofpacket
 	wire          arm_a9_hps_h2f_axi_master_wr_limiter_rsp_src_valid;                                                  // ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_src_valid -> ARM_A9_HPS_h2f_axi_master_agent:write_rp_valid
-	wire  [238:0] arm_a9_hps_h2f_axi_master_wr_limiter_rsp_src_data;                                                   // ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_src_data -> ARM_A9_HPS_h2f_axi_master_agent:write_rp_data
+	wire  [236:0] arm_a9_hps_h2f_axi_master_wr_limiter_rsp_src_data;                                                   // ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_src_data -> ARM_A9_HPS_h2f_axi_master_agent:write_rp_data
 	wire          arm_a9_hps_h2f_axi_master_wr_limiter_rsp_src_ready;                                                  // ARM_A9_HPS_h2f_axi_master_agent:write_rp_ready -> ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_src_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_wr_limiter_rsp_src_channel;                                                // ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_src_channel -> ARM_A9_HPS_h2f_axi_master_agent:write_rp_channel
+	wire    [2:0] arm_a9_hps_h2f_axi_master_wr_limiter_rsp_src_channel;                                                // ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_src_channel -> ARM_A9_HPS_h2f_axi_master_agent:write_rp_channel
 	wire          arm_a9_hps_h2f_axi_master_wr_limiter_rsp_src_startofpacket;                                          // ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_src_startofpacket -> ARM_A9_HPS_h2f_axi_master_agent:write_rp_startofpacket
 	wire          arm_a9_hps_h2f_axi_master_wr_limiter_rsp_src_endofpacket;                                            // ARM_A9_HPS_h2f_axi_master_wr_limiter:rsp_src_endofpacket -> ARM_A9_HPS_h2f_axi_master_agent:write_rp_endofpacket
 	wire          router_001_src_valid;                                                                                // router_001:src_valid -> ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_sink_valid
-	wire  [238:0] router_001_src_data;                                                                                 // router_001:src_data -> ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_sink_data
+	wire  [236:0] router_001_src_data;                                                                                 // router_001:src_data -> ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_sink_data
 	wire          router_001_src_ready;                                                                                // ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_sink_ready -> router_001:src_ready
-	wire    [5:0] router_001_src_channel;                                                                              // router_001:src_channel -> ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_sink_channel
+	wire    [2:0] router_001_src_channel;                                                                              // router_001:src_channel -> ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_sink_channel
 	wire          router_001_src_startofpacket;                                                                        // router_001:src_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_sink_startofpacket
 	wire          router_001_src_endofpacket;                                                                          // router_001:src_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_sink_endofpacket
-	wire  [238:0] arm_a9_hps_h2f_axi_master_rd_limiter_cmd_src_data;                                                   // ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_src_data -> cmd_demux_001:sink_data
+	wire  [236:0] arm_a9_hps_h2f_axi_master_rd_limiter_cmd_src_data;                                                   // ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_src_data -> cmd_demux_001:sink_data
 	wire          arm_a9_hps_h2f_axi_master_rd_limiter_cmd_src_ready;                                                  // cmd_demux_001:sink_ready -> ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_src_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_rd_limiter_cmd_src_channel;                                                // ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_src_channel -> cmd_demux_001:sink_channel
+	wire    [2:0] arm_a9_hps_h2f_axi_master_rd_limiter_cmd_src_channel;                                                // ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_src_channel -> cmd_demux_001:sink_channel
 	wire          arm_a9_hps_h2f_axi_master_rd_limiter_cmd_src_startofpacket;                                          // ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_src_startofpacket -> cmd_demux_001:sink_startofpacket
 	wire          arm_a9_hps_h2f_axi_master_rd_limiter_cmd_src_endofpacket;                                            // ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_src_endofpacket -> cmd_demux_001:sink_endofpacket
 	wire          rsp_mux_001_src_valid;                                                                               // rsp_mux_001:src_valid -> ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_sink_valid
-	wire  [238:0] rsp_mux_001_src_data;                                                                                // rsp_mux_001:src_data -> ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_sink_data
+	wire  [236:0] rsp_mux_001_src_data;                                                                                // rsp_mux_001:src_data -> ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_sink_data
 	wire          rsp_mux_001_src_ready;                                                                               // ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_sink_ready -> rsp_mux_001:src_ready
-	wire    [5:0] rsp_mux_001_src_channel;                                                                             // rsp_mux_001:src_channel -> ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_sink_channel
+	wire    [2:0] rsp_mux_001_src_channel;                                                                             // rsp_mux_001:src_channel -> ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_sink_channel
 	wire          rsp_mux_001_src_startofpacket;                                                                       // rsp_mux_001:src_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_sink_startofpacket
 	wire          rsp_mux_001_src_endofpacket;                                                                         // rsp_mux_001:src_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_sink_endofpacket
 	wire          arm_a9_hps_h2f_axi_master_rd_limiter_rsp_src_valid;                                                  // ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_src_valid -> ARM_A9_HPS_h2f_axi_master_agent:read_rp_valid
-	wire  [238:0] arm_a9_hps_h2f_axi_master_rd_limiter_rsp_src_data;                                                   // ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_src_data -> ARM_A9_HPS_h2f_axi_master_agent:read_rp_data
+	wire  [236:0] arm_a9_hps_h2f_axi_master_rd_limiter_rsp_src_data;                                                   // ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_src_data -> ARM_A9_HPS_h2f_axi_master_agent:read_rp_data
 	wire          arm_a9_hps_h2f_axi_master_rd_limiter_rsp_src_ready;                                                  // ARM_A9_HPS_h2f_axi_master_agent:read_rp_ready -> ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_src_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_rd_limiter_rsp_src_channel;                                                // ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_src_channel -> ARM_A9_HPS_h2f_axi_master_agent:read_rp_channel
+	wire    [2:0] arm_a9_hps_h2f_axi_master_rd_limiter_rsp_src_channel;                                                // ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_src_channel -> ARM_A9_HPS_h2f_axi_master_agent:read_rp_channel
 	wire          arm_a9_hps_h2f_axi_master_rd_limiter_rsp_src_startofpacket;                                          // ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_src_startofpacket -> ARM_A9_HPS_h2f_axi_master_agent:read_rp_startofpacket
 	wire          arm_a9_hps_h2f_axi_master_rd_limiter_rsp_src_endofpacket;                                            // ARM_A9_HPS_h2f_axi_master_rd_limiter:rsp_src_endofpacket -> ARM_A9_HPS_h2f_axi_master_agent:read_rp_endofpacket
-	wire          cmd_mux_src_valid;                                                                                   // cmd_mux:src_valid -> VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_valid
-	wire  [103:0] cmd_mux_src_data;                                                                                    // cmd_mux:src_data -> VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_data
-	wire          cmd_mux_src_ready;                                                                                   // VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_ready -> cmd_mux:src_ready
-	wire    [5:0] cmd_mux_src_channel;                                                                                 // cmd_mux:src_channel -> VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_channel
-	wire          cmd_mux_src_startofpacket;                                                                           // cmd_mux:src_startofpacket -> VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_startofpacket
-	wire          cmd_mux_src_endofpacket;                                                                             // cmd_mux:src_endofpacket -> VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_endofpacket
+	wire          cmd_mux_src_valid;                                                                                   // cmd_mux:src_valid -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_valid
+	wire  [164:0] cmd_mux_src_data;                                                                                    // cmd_mux:src_data -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_data
+	wire          cmd_mux_src_ready;                                                                                   // mcmc_system_0_avalon_slave_0_burst_adapter:sink0_ready -> cmd_mux:src_ready
+	wire    [2:0] cmd_mux_src_channel;                                                                                 // cmd_mux:src_channel -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_channel
+	wire          cmd_mux_src_startofpacket;                                                                           // cmd_mux:src_startofpacket -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_startofpacket
+	wire          cmd_mux_src_endofpacket;                                                                             // cmd_mux:src_endofpacket -> mcmc_system_0_avalon_slave_0_burst_adapter:sink0_endofpacket
+	wire          mcmc_system_0_avalon_slave_0_burst_adapter_source0_valid;                                            // mcmc_system_0_avalon_slave_0_burst_adapter:source0_valid -> mcmc_system_0_avalon_slave_0_agent:cp_valid
+	wire  [164:0] mcmc_system_0_avalon_slave_0_burst_adapter_source0_data;                                             // mcmc_system_0_avalon_slave_0_burst_adapter:source0_data -> mcmc_system_0_avalon_slave_0_agent:cp_data
+	wire          mcmc_system_0_avalon_slave_0_burst_adapter_source0_ready;                                            // mcmc_system_0_avalon_slave_0_agent:cp_ready -> mcmc_system_0_avalon_slave_0_burst_adapter:source0_ready
+	wire    [2:0] mcmc_system_0_avalon_slave_0_burst_adapter_source0_channel;                                          // mcmc_system_0_avalon_slave_0_burst_adapter:source0_channel -> mcmc_system_0_avalon_slave_0_agent:cp_channel
+	wire          mcmc_system_0_avalon_slave_0_burst_adapter_source0_startofpacket;                                    // mcmc_system_0_avalon_slave_0_burst_adapter:source0_startofpacket -> mcmc_system_0_avalon_slave_0_agent:cp_startofpacket
+	wire          mcmc_system_0_avalon_slave_0_burst_adapter_source0_endofpacket;                                      // mcmc_system_0_avalon_slave_0_burst_adapter:source0_endofpacket -> mcmc_system_0_avalon_slave_0_agent:cp_endofpacket
+	wire          cmd_mux_001_src_valid;                                                                               // cmd_mux_001:src_valid -> VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_valid
+	wire  [101:0] cmd_mux_001_src_data;                                                                                // cmd_mux_001:src_data -> VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_data
+	wire          cmd_mux_001_src_ready;                                                                               // VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_ready -> cmd_mux_001:src_ready
+	wire    [2:0] cmd_mux_001_src_channel;                                                                             // cmd_mux_001:src_channel -> VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_channel
+	wire          cmd_mux_001_src_startofpacket;                                                                       // cmd_mux_001:src_startofpacket -> VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_startofpacket
+	wire          cmd_mux_001_src_endofpacket;                                                                         // cmd_mux_001:src_endofpacket -> VGA_Subsystem_char_buffer_slave_burst_adapter:sink0_endofpacket
 	wire          vga_subsystem_char_buffer_slave_burst_adapter_source0_valid;                                         // VGA_Subsystem_char_buffer_slave_burst_adapter:source0_valid -> VGA_Subsystem_char_buffer_slave_agent:cp_valid
-	wire  [103:0] vga_subsystem_char_buffer_slave_burst_adapter_source0_data;                                          // VGA_Subsystem_char_buffer_slave_burst_adapter:source0_data -> VGA_Subsystem_char_buffer_slave_agent:cp_data
+	wire  [101:0] vga_subsystem_char_buffer_slave_burst_adapter_source0_data;                                          // VGA_Subsystem_char_buffer_slave_burst_adapter:source0_data -> VGA_Subsystem_char_buffer_slave_agent:cp_data
 	wire          vga_subsystem_char_buffer_slave_burst_adapter_source0_ready;                                         // VGA_Subsystem_char_buffer_slave_agent:cp_ready -> VGA_Subsystem_char_buffer_slave_burst_adapter:source0_ready
-	wire    [5:0] vga_subsystem_char_buffer_slave_burst_adapter_source0_channel;                                       // VGA_Subsystem_char_buffer_slave_burst_adapter:source0_channel -> VGA_Subsystem_char_buffer_slave_agent:cp_channel
+	wire    [2:0] vga_subsystem_char_buffer_slave_burst_adapter_source0_channel;                                       // VGA_Subsystem_char_buffer_slave_burst_adapter:source0_channel -> VGA_Subsystem_char_buffer_slave_agent:cp_channel
 	wire          vga_subsystem_char_buffer_slave_burst_adapter_source0_startofpacket;                                 // VGA_Subsystem_char_buffer_slave_burst_adapter:source0_startofpacket -> VGA_Subsystem_char_buffer_slave_agent:cp_startofpacket
 	wire          vga_subsystem_char_buffer_slave_burst_adapter_source0_endofpacket;                                   // VGA_Subsystem_char_buffer_slave_burst_adapter:source0_endofpacket -> VGA_Subsystem_char_buffer_slave_agent:cp_endofpacket
-	wire          cmd_mux_001_src_valid;                                                                               // cmd_mux_001:src_valid -> SDRAM_s1_burst_adapter:sink0_valid
-	wire  [112:0] cmd_mux_001_src_data;                                                                                // cmd_mux_001:src_data -> SDRAM_s1_burst_adapter:sink0_data
-	wire          cmd_mux_001_src_ready;                                                                               // SDRAM_s1_burst_adapter:sink0_ready -> cmd_mux_001:src_ready
-	wire    [5:0] cmd_mux_001_src_channel;                                                                             // cmd_mux_001:src_channel -> SDRAM_s1_burst_adapter:sink0_channel
-	wire          cmd_mux_001_src_startofpacket;                                                                       // cmd_mux_001:src_startofpacket -> SDRAM_s1_burst_adapter:sink0_startofpacket
-	wire          cmd_mux_001_src_endofpacket;                                                                         // cmd_mux_001:src_endofpacket -> SDRAM_s1_burst_adapter:sink0_endofpacket
+	wire          cmd_mux_002_src_valid;                                                                               // cmd_mux_002:src_valid -> SDRAM_s1_burst_adapter:sink0_valid
+	wire  [110:0] cmd_mux_002_src_data;                                                                                // cmd_mux_002:src_data -> SDRAM_s1_burst_adapter:sink0_data
+	wire          cmd_mux_002_src_ready;                                                                               // SDRAM_s1_burst_adapter:sink0_ready -> cmd_mux_002:src_ready
+	wire    [2:0] cmd_mux_002_src_channel;                                                                             // cmd_mux_002:src_channel -> SDRAM_s1_burst_adapter:sink0_channel
+	wire          cmd_mux_002_src_startofpacket;                                                                       // cmd_mux_002:src_startofpacket -> SDRAM_s1_burst_adapter:sink0_startofpacket
+	wire          cmd_mux_002_src_endofpacket;                                                                         // cmd_mux_002:src_endofpacket -> SDRAM_s1_burst_adapter:sink0_endofpacket
 	wire          sdram_s1_burst_adapter_source0_valid;                                                                // SDRAM_s1_burst_adapter:source0_valid -> SDRAM_s1_agent:cp_valid
-	wire  [112:0] sdram_s1_burst_adapter_source0_data;                                                                 // SDRAM_s1_burst_adapter:source0_data -> SDRAM_s1_agent:cp_data
+	wire  [110:0] sdram_s1_burst_adapter_source0_data;                                                                 // SDRAM_s1_burst_adapter:source0_data -> SDRAM_s1_agent:cp_data
 	wire          sdram_s1_burst_adapter_source0_ready;                                                                // SDRAM_s1_agent:cp_ready -> SDRAM_s1_burst_adapter:source0_ready
-	wire    [5:0] sdram_s1_burst_adapter_source0_channel;                                                              // SDRAM_s1_burst_adapter:source0_channel -> SDRAM_s1_agent:cp_channel
+	wire    [2:0] sdram_s1_burst_adapter_source0_channel;                                                              // SDRAM_s1_burst_adapter:source0_channel -> SDRAM_s1_agent:cp_channel
 	wire          sdram_s1_burst_adapter_source0_startofpacket;                                                        // SDRAM_s1_burst_adapter:source0_startofpacket -> SDRAM_s1_agent:cp_startofpacket
 	wire          sdram_s1_burst_adapter_source0_endofpacket;                                                          // SDRAM_s1_burst_adapter:source0_endofpacket -> SDRAM_s1_agent:cp_endofpacket
-	wire          cmd_mux_002_src_valid;                                                                               // cmd_mux_002:src_valid -> Onchip_SRAM_0_s2_burst_adapter:sink0_valid
-	wire  [166:0] cmd_mux_002_src_data;                                                                                // cmd_mux_002:src_data -> Onchip_SRAM_0_s2_burst_adapter:sink0_data
-	wire          cmd_mux_002_src_ready;                                                                               // Onchip_SRAM_0_s2_burst_adapter:sink0_ready -> cmd_mux_002:src_ready
-	wire    [5:0] cmd_mux_002_src_channel;                                                                             // cmd_mux_002:src_channel -> Onchip_SRAM_0_s2_burst_adapter:sink0_channel
-	wire          cmd_mux_002_src_startofpacket;                                                                       // cmd_mux_002:src_startofpacket -> Onchip_SRAM_0_s2_burst_adapter:sink0_startofpacket
-	wire          cmd_mux_002_src_endofpacket;                                                                         // cmd_mux_002:src_endofpacket -> Onchip_SRAM_0_s2_burst_adapter:sink0_endofpacket
-	wire          onchip_sram_0_s2_burst_adapter_source0_valid;                                                        // Onchip_SRAM_0_s2_burst_adapter:source0_valid -> Onchip_SRAM_0_s2_agent:cp_valid
-	wire  [166:0] onchip_sram_0_s2_burst_adapter_source0_data;                                                         // Onchip_SRAM_0_s2_burst_adapter:source0_data -> Onchip_SRAM_0_s2_agent:cp_data
-	wire          onchip_sram_0_s2_burst_adapter_source0_ready;                                                        // Onchip_SRAM_0_s2_agent:cp_ready -> Onchip_SRAM_0_s2_burst_adapter:source0_ready
-	wire    [5:0] onchip_sram_0_s2_burst_adapter_source0_channel;                                                      // Onchip_SRAM_0_s2_burst_adapter:source0_channel -> Onchip_SRAM_0_s2_agent:cp_channel
-	wire          onchip_sram_0_s2_burst_adapter_source0_startofpacket;                                                // Onchip_SRAM_0_s2_burst_adapter:source0_startofpacket -> Onchip_SRAM_0_s2_agent:cp_startofpacket
-	wire          onchip_sram_0_s2_burst_adapter_source0_endofpacket;                                                  // Onchip_SRAM_0_s2_burst_adapter:source0_endofpacket -> Onchip_SRAM_0_s2_agent:cp_endofpacket
-	wire          cmd_mux_003_src_valid;                                                                               // cmd_mux_003:src_valid -> Onchip_SRAM_1_s2_burst_adapter:sink0_valid
-	wire  [166:0] cmd_mux_003_src_data;                                                                                // cmd_mux_003:src_data -> Onchip_SRAM_1_s2_burst_adapter:sink0_data
-	wire          cmd_mux_003_src_ready;                                                                               // Onchip_SRAM_1_s2_burst_adapter:sink0_ready -> cmd_mux_003:src_ready
-	wire    [5:0] cmd_mux_003_src_channel;                                                                             // cmd_mux_003:src_channel -> Onchip_SRAM_1_s2_burst_adapter:sink0_channel
-	wire          cmd_mux_003_src_startofpacket;                                                                       // cmd_mux_003:src_startofpacket -> Onchip_SRAM_1_s2_burst_adapter:sink0_startofpacket
-	wire          cmd_mux_003_src_endofpacket;                                                                         // cmd_mux_003:src_endofpacket -> Onchip_SRAM_1_s2_burst_adapter:sink0_endofpacket
-	wire          onchip_sram_1_s2_burst_adapter_source0_valid;                                                        // Onchip_SRAM_1_s2_burst_adapter:source0_valid -> Onchip_SRAM_1_s2_agent:cp_valid
-	wire  [166:0] onchip_sram_1_s2_burst_adapter_source0_data;                                                         // Onchip_SRAM_1_s2_burst_adapter:source0_data -> Onchip_SRAM_1_s2_agent:cp_data
-	wire          onchip_sram_1_s2_burst_adapter_source0_ready;                                                        // Onchip_SRAM_1_s2_agent:cp_ready -> Onchip_SRAM_1_s2_burst_adapter:source0_ready
-	wire    [5:0] onchip_sram_1_s2_burst_adapter_source0_channel;                                                      // Onchip_SRAM_1_s2_burst_adapter:source0_channel -> Onchip_SRAM_1_s2_agent:cp_channel
-	wire          onchip_sram_1_s2_burst_adapter_source0_startofpacket;                                                // Onchip_SRAM_1_s2_burst_adapter:source0_startofpacket -> Onchip_SRAM_1_s2_agent:cp_startofpacket
-	wire          onchip_sram_1_s2_burst_adapter_source0_endofpacket;                                                  // Onchip_SRAM_1_s2_burst_adapter:source0_endofpacket -> Onchip_SRAM_1_s2_agent:cp_endofpacket
-	wire          cmd_mux_004_src_valid;                                                                               // cmd_mux_004:src_valid -> Onchip_SRAM_2_s2_burst_adapter:sink0_valid
-	wire  [166:0] cmd_mux_004_src_data;                                                                                // cmd_mux_004:src_data -> Onchip_SRAM_2_s2_burst_adapter:sink0_data
-	wire          cmd_mux_004_src_ready;                                                                               // Onchip_SRAM_2_s2_burst_adapter:sink0_ready -> cmd_mux_004:src_ready
-	wire    [5:0] cmd_mux_004_src_channel;                                                                             // cmd_mux_004:src_channel -> Onchip_SRAM_2_s2_burst_adapter:sink0_channel
-	wire          cmd_mux_004_src_startofpacket;                                                                       // cmd_mux_004:src_startofpacket -> Onchip_SRAM_2_s2_burst_adapter:sink0_startofpacket
-	wire          cmd_mux_004_src_endofpacket;                                                                         // cmd_mux_004:src_endofpacket -> Onchip_SRAM_2_s2_burst_adapter:sink0_endofpacket
-	wire          onchip_sram_2_s2_burst_adapter_source0_valid;                                                        // Onchip_SRAM_2_s2_burst_adapter:source0_valid -> Onchip_SRAM_2_s2_agent:cp_valid
-	wire  [166:0] onchip_sram_2_s2_burst_adapter_source0_data;                                                         // Onchip_SRAM_2_s2_burst_adapter:source0_data -> Onchip_SRAM_2_s2_agent:cp_data
-	wire          onchip_sram_2_s2_burst_adapter_source0_ready;                                                        // Onchip_SRAM_2_s2_agent:cp_ready -> Onchip_SRAM_2_s2_burst_adapter:source0_ready
-	wire    [5:0] onchip_sram_2_s2_burst_adapter_source0_channel;                                                      // Onchip_SRAM_2_s2_burst_adapter:source0_channel -> Onchip_SRAM_2_s2_agent:cp_channel
-	wire          onchip_sram_2_s2_burst_adapter_source0_startofpacket;                                                // Onchip_SRAM_2_s2_burst_adapter:source0_startofpacket -> Onchip_SRAM_2_s2_agent:cp_startofpacket
-	wire          onchip_sram_2_s2_burst_adapter_source0_endofpacket;                                                  // Onchip_SRAM_2_s2_burst_adapter:source0_endofpacket -> Onchip_SRAM_2_s2_agent:cp_endofpacket
-	wire          cmd_mux_005_src_valid;                                                                               // cmd_mux_005:src_valid -> Onchip_SRAM_3_s2_burst_adapter:sink0_valid
-	wire  [166:0] cmd_mux_005_src_data;                                                                                // cmd_mux_005:src_data -> Onchip_SRAM_3_s2_burst_adapter:sink0_data
-	wire          cmd_mux_005_src_ready;                                                                               // Onchip_SRAM_3_s2_burst_adapter:sink0_ready -> cmd_mux_005:src_ready
-	wire    [5:0] cmd_mux_005_src_channel;                                                                             // cmd_mux_005:src_channel -> Onchip_SRAM_3_s2_burst_adapter:sink0_channel
-	wire          cmd_mux_005_src_startofpacket;                                                                       // cmd_mux_005:src_startofpacket -> Onchip_SRAM_3_s2_burst_adapter:sink0_startofpacket
-	wire          cmd_mux_005_src_endofpacket;                                                                         // cmd_mux_005:src_endofpacket -> Onchip_SRAM_3_s2_burst_adapter:sink0_endofpacket
-	wire          onchip_sram_3_s2_burst_adapter_source0_valid;                                                        // Onchip_SRAM_3_s2_burst_adapter:source0_valid -> Onchip_SRAM_3_s2_agent:cp_valid
-	wire  [166:0] onchip_sram_3_s2_burst_adapter_source0_data;                                                         // Onchip_SRAM_3_s2_burst_adapter:source0_data -> Onchip_SRAM_3_s2_agent:cp_data
-	wire          onchip_sram_3_s2_burst_adapter_source0_ready;                                                        // Onchip_SRAM_3_s2_agent:cp_ready -> Onchip_SRAM_3_s2_burst_adapter:source0_ready
-	wire    [5:0] onchip_sram_3_s2_burst_adapter_source0_channel;                                                      // Onchip_SRAM_3_s2_burst_adapter:source0_channel -> Onchip_SRAM_3_s2_agent:cp_channel
-	wire          onchip_sram_3_s2_burst_adapter_source0_startofpacket;                                                // Onchip_SRAM_3_s2_burst_adapter:source0_startofpacket -> Onchip_SRAM_3_s2_agent:cp_startofpacket
-	wire          onchip_sram_3_s2_burst_adapter_source0_endofpacket;                                                  // Onchip_SRAM_3_s2_burst_adapter:source0_endofpacket -> Onchip_SRAM_3_s2_agent:cp_endofpacket
-	wire          cmd_demux_src0_valid;                                                                                // cmd_demux:src0_valid -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_src0_data;                                                                                 // cmd_demux:src0_data -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_data
-	wire          cmd_demux_src0_ready;                                                                                // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_ready -> cmd_demux:src0_ready
-	wire    [5:0] cmd_demux_src0_channel;                                                                              // cmd_demux:src0_channel -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_channel
-	wire          cmd_demux_src0_startofpacket;                                                                        // cmd_demux:src0_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_src0_endofpacket;                                                                          // cmd_demux:src0_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_valid;         // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_valid -> cmd_mux:sink0_valid
-	wire  [103:0] arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_data;          // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_data -> cmd_mux:sink0_data
-	wire          arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_ready;         // cmd_mux:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_channel;       // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_channel -> cmd_mux:sink0_channel
-	wire          arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_startofpacket; // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_startofpacket -> cmd_mux:sink0_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_endofpacket;   // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_endofpacket -> cmd_mux:sink0_endofpacket
-	wire          cmd_demux_src1_valid;                                                                                // cmd_demux:src1_valid -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_src1_data;                                                                                 // cmd_demux:src1_data -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_data
-	wire          cmd_demux_src1_ready;                                                                                // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_ready -> cmd_demux:src1_ready
-	wire    [5:0] cmd_demux_src1_channel;                                                                              // cmd_demux:src1_channel -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_channel
-	wire          cmd_demux_src1_startofpacket;                                                                        // cmd_demux:src1_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_src1_endofpacket;                                                                          // cmd_demux:src1_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_valid;                                // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_valid -> cmd_mux_001:sink0_valid
-	wire  [112:0] arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_data;                                 // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_data -> cmd_mux_001:sink0_data
-	wire          arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_ready;                                // cmd_mux_001:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_channel;                              // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_channel -> cmd_mux_001:sink0_channel
-	wire          arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_startofpacket;                        // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_startofpacket -> cmd_mux_001:sink0_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_endofpacket;                          // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_endofpacket -> cmd_mux_001:sink0_endofpacket
-	wire          cmd_demux_src2_valid;                                                                                // cmd_demux:src2_valid -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_src2_data;                                                                                 // cmd_demux:src2_data -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_data
-	wire          cmd_demux_src2_ready;                                                                                // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_ready -> cmd_demux:src2_ready
-	wire    [5:0] cmd_demux_src2_channel;                                                                              // cmd_demux:src2_channel -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_channel
-	wire          cmd_demux_src2_startofpacket;                                                                        // cmd_demux:src2_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_src2_endofpacket;                                                                          // cmd_demux:src2_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_valid;                        // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_valid -> cmd_mux_002:sink0_valid
-	wire  [166:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_data;                         // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_data -> cmd_mux_002:sink0_data
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_ready;                        // cmd_mux_002:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_channel;                      // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_channel -> cmd_mux_002:sink0_channel
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_startofpacket;                // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_startofpacket -> cmd_mux_002:sink0_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_endofpacket;                  // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_endofpacket -> cmd_mux_002:sink0_endofpacket
-	wire          cmd_demux_src3_valid;                                                                                // cmd_demux:src3_valid -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_src3_data;                                                                                 // cmd_demux:src3_data -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_data
-	wire          cmd_demux_src3_ready;                                                                                // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_ready -> cmd_demux:src3_ready
-	wire    [5:0] cmd_demux_src3_channel;                                                                              // cmd_demux:src3_channel -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_channel
-	wire          cmd_demux_src3_startofpacket;                                                                        // cmd_demux:src3_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_src3_endofpacket;                                                                          // cmd_demux:src3_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_valid;                        // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_valid -> cmd_mux_003:sink0_valid
-	wire  [166:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_data;                         // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_data -> cmd_mux_003:sink0_data
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_ready;                        // cmd_mux_003:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_channel;                      // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_channel -> cmd_mux_003:sink0_channel
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_startofpacket;                // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_startofpacket -> cmd_mux_003:sink0_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_endofpacket;                  // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_endofpacket -> cmd_mux_003:sink0_endofpacket
-	wire          cmd_demux_src4_valid;                                                                                // cmd_demux:src4_valid -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_src4_data;                                                                                 // cmd_demux:src4_data -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_data
-	wire          cmd_demux_src4_ready;                                                                                // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_ready -> cmd_demux:src4_ready
-	wire    [5:0] cmd_demux_src4_channel;                                                                              // cmd_demux:src4_channel -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_channel
-	wire          cmd_demux_src4_startofpacket;                                                                        // cmd_demux:src4_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_src4_endofpacket;                                                                          // cmd_demux:src4_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_valid;                        // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_valid -> cmd_mux_004:sink0_valid
-	wire  [166:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_data;                         // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_data -> cmd_mux_004:sink0_data
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_ready;                        // cmd_mux_004:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_channel;                      // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_channel -> cmd_mux_004:sink0_channel
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_startofpacket;                // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_startofpacket -> cmd_mux_004:sink0_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_endofpacket;                  // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_endofpacket -> cmd_mux_004:sink0_endofpacket
-	wire          cmd_demux_src5_valid;                                                                                // cmd_demux:src5_valid -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_src5_data;                                                                                 // cmd_demux:src5_data -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_data
-	wire          cmd_demux_src5_ready;                                                                                // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_ready -> cmd_demux:src5_ready
-	wire    [5:0] cmd_demux_src5_channel;                                                                              // cmd_demux:src5_channel -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_channel
-	wire          cmd_demux_src5_startofpacket;                                                                        // cmd_demux:src5_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_src5_endofpacket;                                                                          // cmd_demux:src5_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_valid;                        // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_valid -> cmd_mux_005:sink0_valid
-	wire  [166:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_data;                         // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_data -> cmd_mux_005:sink0_data
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_ready;                        // cmd_mux_005:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_channel;                      // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_channel -> cmd_mux_005:sink0_channel
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_startofpacket;                // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_startofpacket -> cmd_mux_005:sink0_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_endofpacket;                  // ARM_A9_HPS_h2f_axi_master_wr_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_endofpacket -> cmd_mux_005:sink0_endofpacket
-	wire          cmd_demux_001_src0_valid;                                                                            // cmd_demux_001:src0_valid -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_001_src0_data;                                                                             // cmd_demux_001:src0_data -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_data
-	wire          cmd_demux_001_src0_ready;                                                                            // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_ready -> cmd_demux_001:src0_ready
-	wire    [5:0] cmd_demux_001_src0_channel;                                                                          // cmd_demux_001:src0_channel -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_channel
-	wire          cmd_demux_001_src0_startofpacket;                                                                    // cmd_demux_001:src0_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_001_src0_endofpacket;                                                                      // cmd_demux_001:src0_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_valid;         // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_valid -> cmd_mux:sink1_valid
-	wire  [103:0] arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_data;          // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_data -> cmd_mux:sink1_data
-	wire          arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_ready;         // cmd_mux:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_channel;       // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_channel -> cmd_mux:sink1_channel
-	wire          arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_startofpacket; // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_startofpacket -> cmd_mux:sink1_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_endofpacket;   // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_endofpacket -> cmd_mux:sink1_endofpacket
-	wire          cmd_demux_001_src1_valid;                                                                            // cmd_demux_001:src1_valid -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_001_src1_data;                                                                             // cmd_demux_001:src1_data -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_data
-	wire          cmd_demux_001_src1_ready;                                                                            // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_ready -> cmd_demux_001:src1_ready
-	wire    [5:0] cmd_demux_001_src1_channel;                                                                          // cmd_demux_001:src1_channel -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_channel
-	wire          cmd_demux_001_src1_startofpacket;                                                                    // cmd_demux_001:src1_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_001_src1_endofpacket;                                                                      // cmd_demux_001:src1_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_valid;                                // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_valid -> cmd_mux_001:sink1_valid
-	wire  [112:0] arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_data;                                 // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_data -> cmd_mux_001:sink1_data
-	wire          arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_ready;                                // cmd_mux_001:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_channel;                              // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_channel -> cmd_mux_001:sink1_channel
-	wire          arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_startofpacket;                        // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_startofpacket -> cmd_mux_001:sink1_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_endofpacket;                          // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_endofpacket -> cmd_mux_001:sink1_endofpacket
-	wire          cmd_demux_001_src2_valid;                                                                            // cmd_demux_001:src2_valid -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_001_src2_data;                                                                             // cmd_demux_001:src2_data -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_data
-	wire          cmd_demux_001_src2_ready;                                                                            // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_ready -> cmd_demux_001:src2_ready
-	wire    [5:0] cmd_demux_001_src2_channel;                                                                          // cmd_demux_001:src2_channel -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_channel
-	wire          cmd_demux_001_src2_startofpacket;                                                                    // cmd_demux_001:src2_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_001_src2_endofpacket;                                                                      // cmd_demux_001:src2_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_valid;                        // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_valid -> cmd_mux_002:sink1_valid
-	wire  [166:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_data;                         // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_data -> cmd_mux_002:sink1_data
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_ready;                        // cmd_mux_002:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_channel;                      // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_channel -> cmd_mux_002:sink1_channel
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_startofpacket;                // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_startofpacket -> cmd_mux_002:sink1_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_endofpacket;                  // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_0_s2_cmd_width_adapter:out_endofpacket -> cmd_mux_002:sink1_endofpacket
-	wire          cmd_demux_001_src3_valid;                                                                            // cmd_demux_001:src3_valid -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_001_src3_data;                                                                             // cmd_demux_001:src3_data -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_data
-	wire          cmd_demux_001_src3_ready;                                                                            // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_ready -> cmd_demux_001:src3_ready
-	wire    [5:0] cmd_demux_001_src3_channel;                                                                          // cmd_demux_001:src3_channel -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_channel
-	wire          cmd_demux_001_src3_startofpacket;                                                                    // cmd_demux_001:src3_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_001_src3_endofpacket;                                                                      // cmd_demux_001:src3_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_valid;                        // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_valid -> cmd_mux_003:sink1_valid
-	wire  [166:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_data;                         // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_data -> cmd_mux_003:sink1_data
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_ready;                        // cmd_mux_003:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_channel;                      // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_channel -> cmd_mux_003:sink1_channel
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_startofpacket;                // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_startofpacket -> cmd_mux_003:sink1_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_endofpacket;                  // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_1_s2_cmd_width_adapter:out_endofpacket -> cmd_mux_003:sink1_endofpacket
-	wire          cmd_demux_001_src4_valid;                                                                            // cmd_demux_001:src4_valid -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_001_src4_data;                                                                             // cmd_demux_001:src4_data -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_data
-	wire          cmd_demux_001_src4_ready;                                                                            // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_ready -> cmd_demux_001:src4_ready
-	wire    [5:0] cmd_demux_001_src4_channel;                                                                          // cmd_demux_001:src4_channel -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_channel
-	wire          cmd_demux_001_src4_startofpacket;                                                                    // cmd_demux_001:src4_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_001_src4_endofpacket;                                                                      // cmd_demux_001:src4_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_valid;                        // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_valid -> cmd_mux_004:sink1_valid
-	wire  [166:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_data;                         // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_data -> cmd_mux_004:sink1_data
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_ready;                        // cmd_mux_004:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_channel;                      // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_channel -> cmd_mux_004:sink1_channel
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_startofpacket;                // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_startofpacket -> cmd_mux_004:sink1_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_endofpacket;                  // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_2_s2_cmd_width_adapter:out_endofpacket -> cmd_mux_004:sink1_endofpacket
-	wire          cmd_demux_001_src5_valid;                                                                            // cmd_demux_001:src5_valid -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_valid
-	wire  [238:0] cmd_demux_001_src5_data;                                                                             // cmd_demux_001:src5_data -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_data
-	wire          cmd_demux_001_src5_ready;                                                                            // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_ready -> cmd_demux_001:src5_ready
-	wire    [5:0] cmd_demux_001_src5_channel;                                                                          // cmd_demux_001:src5_channel -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_channel
-	wire          cmd_demux_001_src5_startofpacket;                                                                    // cmd_demux_001:src5_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_startofpacket
-	wire          cmd_demux_001_src5_endofpacket;                                                                      // cmd_demux_001:src5_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:in_endofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_valid;                        // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_valid -> cmd_mux_005:sink1_valid
-	wire  [166:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_data;                         // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_data -> cmd_mux_005:sink1_data
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_ready;                        // cmd_mux_005:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_ready
-	wire    [5:0] arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_channel;                      // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_channel -> cmd_mux_005:sink1_channel
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_startofpacket;                // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_startofpacket -> cmd_mux_005:sink1_startofpacket
-	wire          arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_endofpacket;                  // ARM_A9_HPS_h2f_axi_master_rd_to_Onchip_SRAM_3_s2_cmd_width_adapter:out_endofpacket -> cmd_mux_005:sink1_endofpacket
+	wire          cmd_demux_src0_valid;                                                                                // cmd_demux:src0_valid -> ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_valid
+	wire  [236:0] cmd_demux_src0_data;                                                                                 // cmd_demux:src0_data -> ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_data
+	wire          cmd_demux_src0_ready;                                                                                // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_ready -> cmd_demux:src0_ready
+	wire    [2:0] cmd_demux_src0_channel;                                                                              // cmd_demux:src0_channel -> ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_channel
+	wire          cmd_demux_src0_startofpacket;                                                                        // cmd_demux:src0_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_startofpacket
+	wire          cmd_demux_src0_endofpacket;                                                                          // cmd_demux:src0_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_endofpacket
+	wire          arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_valid;            // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_valid -> cmd_mux:sink0_valid
+	wire  [164:0] arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_data;             // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_data -> cmd_mux:sink0_data
+	wire          arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_ready;            // cmd_mux:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_ready
+	wire    [2:0] arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_channel;          // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_channel -> cmd_mux:sink0_channel
+	wire          arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_startofpacket;    // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_startofpacket -> cmd_mux:sink0_startofpacket
+	wire          arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_endofpacket;      // ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_endofpacket -> cmd_mux:sink0_endofpacket
+	wire          cmd_demux_src1_valid;                                                                                // cmd_demux:src1_valid -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_valid
+	wire  [236:0] cmd_demux_src1_data;                                                                                 // cmd_demux:src1_data -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_data
+	wire          cmd_demux_src1_ready;                                                                                // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_ready -> cmd_demux:src1_ready
+	wire    [2:0] cmd_demux_src1_channel;                                                                              // cmd_demux:src1_channel -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_channel
+	wire          cmd_demux_src1_startofpacket;                                                                        // cmd_demux:src1_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_startofpacket
+	wire          cmd_demux_src1_endofpacket;                                                                          // cmd_demux:src1_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_endofpacket
+	wire          arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_valid;         // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_valid -> cmd_mux_001:sink0_valid
+	wire  [101:0] arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_data;          // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_data -> cmd_mux_001:sink0_data
+	wire          arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_ready;         // cmd_mux_001:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_ready
+	wire    [2:0] arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_channel;       // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_channel -> cmd_mux_001:sink0_channel
+	wire          arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_startofpacket; // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_startofpacket -> cmd_mux_001:sink0_startofpacket
+	wire          arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_endofpacket;   // ARM_A9_HPS_h2f_axi_master_wr_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_endofpacket -> cmd_mux_001:sink0_endofpacket
+	wire          cmd_demux_src2_valid;                                                                                // cmd_demux:src2_valid -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_valid
+	wire  [236:0] cmd_demux_src2_data;                                                                                 // cmd_demux:src2_data -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_data
+	wire          cmd_demux_src2_ready;                                                                                // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_ready -> cmd_demux:src2_ready
+	wire    [2:0] cmd_demux_src2_channel;                                                                              // cmd_demux:src2_channel -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_channel
+	wire          cmd_demux_src2_startofpacket;                                                                        // cmd_demux:src2_startofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_startofpacket
+	wire          cmd_demux_src2_endofpacket;                                                                          // cmd_demux:src2_endofpacket -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:in_endofpacket
+	wire          arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_valid;                                // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_valid -> cmd_mux_002:sink0_valid
+	wire  [110:0] arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_data;                                 // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_data -> cmd_mux_002:sink0_data
+	wire          arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_ready;                                // cmd_mux_002:sink0_ready -> ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_ready
+	wire    [2:0] arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_channel;                              // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_channel -> cmd_mux_002:sink0_channel
+	wire          arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_startofpacket;                        // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_startofpacket -> cmd_mux_002:sink0_startofpacket
+	wire          arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_endofpacket;                          // ARM_A9_HPS_h2f_axi_master_wr_to_SDRAM_s1_cmd_width_adapter:out_endofpacket -> cmd_mux_002:sink0_endofpacket
+	wire          cmd_demux_001_src0_valid;                                                                            // cmd_demux_001:src0_valid -> ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_valid
+	wire  [236:0] cmd_demux_001_src0_data;                                                                             // cmd_demux_001:src0_data -> ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_data
+	wire          cmd_demux_001_src0_ready;                                                                            // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_ready -> cmd_demux_001:src0_ready
+	wire    [2:0] cmd_demux_001_src0_channel;                                                                          // cmd_demux_001:src0_channel -> ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_channel
+	wire          cmd_demux_001_src0_startofpacket;                                                                    // cmd_demux_001:src0_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_startofpacket
+	wire          cmd_demux_001_src0_endofpacket;                                                                      // cmd_demux_001:src0_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:in_endofpacket
+	wire          arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_valid;            // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_valid -> cmd_mux:sink1_valid
+	wire  [164:0] arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_data;             // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_data -> cmd_mux:sink1_data
+	wire          arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_ready;            // cmd_mux:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_ready
+	wire    [2:0] arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_channel;          // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_channel -> cmd_mux:sink1_channel
+	wire          arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_startofpacket;    // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_startofpacket -> cmd_mux:sink1_startofpacket
+	wire          arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_endofpacket;      // ARM_A9_HPS_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter:out_endofpacket -> cmd_mux:sink1_endofpacket
+	wire          cmd_demux_001_src1_valid;                                                                            // cmd_demux_001:src1_valid -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_valid
+	wire  [236:0] cmd_demux_001_src1_data;                                                                             // cmd_demux_001:src1_data -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_data
+	wire          cmd_demux_001_src1_ready;                                                                            // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_ready -> cmd_demux_001:src1_ready
+	wire    [2:0] cmd_demux_001_src1_channel;                                                                          // cmd_demux_001:src1_channel -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_channel
+	wire          cmd_demux_001_src1_startofpacket;                                                                    // cmd_demux_001:src1_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_startofpacket
+	wire          cmd_demux_001_src1_endofpacket;                                                                      // cmd_demux_001:src1_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:in_endofpacket
+	wire          arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_valid;         // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_valid -> cmd_mux_001:sink1_valid
+	wire  [101:0] arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_data;          // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_data -> cmd_mux_001:sink1_data
+	wire          arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_ready;         // cmd_mux_001:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_ready
+	wire    [2:0] arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_channel;       // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_channel -> cmd_mux_001:sink1_channel
+	wire          arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_startofpacket; // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_startofpacket -> cmd_mux_001:sink1_startofpacket
+	wire          arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_endofpacket;   // ARM_A9_HPS_h2f_axi_master_rd_to_VGA_Subsystem_char_buffer_slave_cmd_width_adapter:out_endofpacket -> cmd_mux_001:sink1_endofpacket
+	wire          cmd_demux_001_src2_valid;                                                                            // cmd_demux_001:src2_valid -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_valid
+	wire  [236:0] cmd_demux_001_src2_data;                                                                             // cmd_demux_001:src2_data -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_data
+	wire          cmd_demux_001_src2_ready;                                                                            // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_ready -> cmd_demux_001:src2_ready
+	wire    [2:0] cmd_demux_001_src2_channel;                                                                          // cmd_demux_001:src2_channel -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_channel
+	wire          cmd_demux_001_src2_startofpacket;                                                                    // cmd_demux_001:src2_startofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_startofpacket
+	wire          cmd_demux_001_src2_endofpacket;                                                                      // cmd_demux_001:src2_endofpacket -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:in_endofpacket
+	wire          arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_valid;                                // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_valid -> cmd_mux_002:sink1_valid
+	wire  [110:0] arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_data;                                 // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_data -> cmd_mux_002:sink1_data
+	wire          arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_ready;                                // cmd_mux_002:sink1_ready -> ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_ready
+	wire    [2:0] arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_channel;                              // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_channel -> cmd_mux_002:sink1_channel
+	wire          arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_startofpacket;                        // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_startofpacket -> cmd_mux_002:sink1_startofpacket
+	wire          arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_endofpacket;                          // ARM_A9_HPS_h2f_axi_master_rd_to_SDRAM_s1_cmd_width_adapter:out_endofpacket -> cmd_mux_002:sink1_endofpacket
 	wire          cmd_demux_002_src0_valid;                                                                            // cmd_demux_002:src0_valid -> VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:in_valid
-	wire  [103:0] cmd_demux_002_src0_data;                                                                             // cmd_demux_002:src0_data -> VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:in_data
+	wire  [101:0] cmd_demux_002_src0_data;                                                                             // cmd_demux_002:src0_data -> VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:in_data
 	wire          cmd_demux_002_src0_ready;                                                                            // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:in_ready -> cmd_demux_002:src0_ready
-	wire    [5:0] cmd_demux_002_src0_channel;                                                                          // cmd_demux_002:src0_channel -> VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:in_channel
+	wire    [2:0] cmd_demux_002_src0_channel;                                                                          // cmd_demux_002:src0_channel -> VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:in_channel
 	wire          cmd_demux_002_src0_startofpacket;                                                                    // cmd_demux_002:src0_startofpacket -> VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:in_startofpacket
 	wire          cmd_demux_002_src0_endofpacket;                                                                      // cmd_demux_002:src0_endofpacket -> VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:in_endofpacket
-	wire          vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_valid;                              // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_valid -> cmd_mux_001:sink2_valid
-	wire  [112:0] vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_data;                               // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_data -> cmd_mux_001:sink2_data
-	wire          vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_ready;                              // cmd_mux_001:sink2_ready -> VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_ready
-	wire    [5:0] vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_channel;                            // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_channel -> cmd_mux_001:sink2_channel
-	wire          vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_startofpacket;                      // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_startofpacket -> cmd_mux_001:sink2_startofpacket
-	wire          vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_endofpacket;                        // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_endofpacket -> cmd_mux_001:sink2_endofpacket
-	wire          rsp_demux_src0_valid;                                                                                // rsp_demux:src0_valid -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
-	wire  [103:0] rsp_demux_src0_data;                                                                                 // rsp_demux:src0_data -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
-	wire          rsp_demux_src0_ready;                                                                                // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux:src0_ready
-	wire    [5:0] rsp_demux_src0_channel;                                                                              // rsp_demux:src0_channel -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
-	wire          rsp_demux_src0_startofpacket;                                                                        // rsp_demux:src0_startofpacket -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_src0_endofpacket;                                                                          // rsp_demux:src0_endofpacket -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_endofpacket
-	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid;         // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_valid -> rsp_mux:sink0_valid
-	wire  [238:0] vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data;          // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_data -> rsp_mux:sink0_data
-	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready;         // rsp_mux:sink0_ready -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_ready
-	wire    [5:0] vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel;       // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_channel -> rsp_mux:sink0_channel
-	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket; // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink0_startofpacket
-	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;   // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink0_endofpacket
-	wire          rsp_demux_src1_valid;                                                                                // rsp_demux:src1_valid -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
-	wire  [103:0] rsp_demux_src1_data;                                                                                 // rsp_demux:src1_data -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
-	wire          rsp_demux_src1_ready;                                                                                // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux:src1_ready
-	wire    [5:0] rsp_demux_src1_channel;                                                                              // rsp_demux:src1_channel -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
-	wire          rsp_demux_src1_startofpacket;                                                                        // rsp_demux:src1_startofpacket -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_src1_endofpacket;                                                                          // rsp_demux:src1_endofpacket -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_endofpacket
-	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid;         // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_valid -> rsp_mux_001:sink0_valid
-	wire  [238:0] vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data;          // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_data -> rsp_mux_001:sink0_data
-	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready;         // rsp_mux_001:sink0_ready -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_ready
-	wire    [5:0] vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel;       // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_channel -> rsp_mux_001:sink0_channel
-	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket; // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_startofpacket -> rsp_mux_001:sink0_startofpacket
-	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket;   // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_endofpacket -> rsp_mux_001:sink0_endofpacket
-	wire          rsp_demux_001_src0_valid;                                                                            // rsp_demux_001:src0_valid -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
-	wire  [112:0] rsp_demux_001_src0_data;                                                                             // rsp_demux_001:src0_data -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
-	wire          rsp_demux_001_src0_ready;                                                                            // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux_001:src0_ready
-	wire    [5:0] rsp_demux_001_src0_channel;                                                                          // rsp_demux_001:src0_channel -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
-	wire          rsp_demux_001_src0_startofpacket;                                                                    // rsp_demux_001:src0_startofpacket -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_001_src0_endofpacket;                                                                      // rsp_demux_001:src0_endofpacket -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_endofpacket
-	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid;                                // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_valid -> rsp_mux:sink1_valid
-	wire  [238:0] sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data;                                 // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_data -> rsp_mux:sink1_data
-	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready;                                // rsp_mux:sink1_ready -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_ready
-	wire    [5:0] sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel;                              // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_channel -> rsp_mux:sink1_channel
-	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket;                        // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink1_startofpacket
-	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;                          // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink1_endofpacket
-	wire          rsp_demux_001_src1_valid;                                                                            // rsp_demux_001:src1_valid -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
-	wire  [112:0] rsp_demux_001_src1_data;                                                                             // rsp_demux_001:src1_data -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
-	wire          rsp_demux_001_src1_ready;                                                                            // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux_001:src1_ready
-	wire    [5:0] rsp_demux_001_src1_channel;                                                                          // rsp_demux_001:src1_channel -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
-	wire          rsp_demux_001_src1_startofpacket;                                                                    // rsp_demux_001:src1_startofpacket -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_001_src1_endofpacket;                                                                      // rsp_demux_001:src1_endofpacket -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_endofpacket
-	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid;                                // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_valid -> rsp_mux_001:sink1_valid
-	wire  [238:0] sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data;                                 // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_data -> rsp_mux_001:sink1_data
-	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready;                                // rsp_mux_001:sink1_ready -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_ready
-	wire    [5:0] sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel;                              // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_channel -> rsp_mux_001:sink1_channel
-	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket;                        // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_startofpacket -> rsp_mux_001:sink1_startofpacket
-	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket;                          // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_endofpacket -> rsp_mux_001:sink1_endofpacket
-	wire          rsp_demux_001_src2_valid;                                                                            // rsp_demux_001:src2_valid -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_valid
-	wire  [112:0] rsp_demux_001_src2_data;                                                                             // rsp_demux_001:src2_data -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_data
-	wire          rsp_demux_001_src2_ready;                                                                            // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_ready -> rsp_demux_001:src2_ready
-	wire    [5:0] rsp_demux_001_src2_channel;                                                                          // rsp_demux_001:src2_channel -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_channel
-	wire          rsp_demux_001_src2_startofpacket;                                                                    // rsp_demux_001:src2_startofpacket -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_001_src2_endofpacket;                                                                      // rsp_demux_001:src2_endofpacket -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_endofpacket
+	wire          vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_valid;                              // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_valid -> cmd_mux_002:sink2_valid
+	wire  [110:0] vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_data;                               // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_data -> cmd_mux_002:sink2_data
+	wire          vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_ready;                              // cmd_mux_002:sink2_ready -> VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_ready
+	wire    [2:0] vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_channel;                            // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_channel -> cmd_mux_002:sink2_channel
+	wire          vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_startofpacket;                      // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_startofpacket -> cmd_mux_002:sink2_startofpacket
+	wire          vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_endofpacket;                        // VGA_Subsystem_pixel_dma_master_to_SDRAM_s1_cmd_width_adapter:out_endofpacket -> cmd_mux_002:sink2_endofpacket
+	wire          rsp_demux_src0_valid;                                                                                // rsp_demux:src0_valid -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
+	wire  [164:0] rsp_demux_src0_data;                                                                                 // rsp_demux:src0_data -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
+	wire          rsp_demux_src0_ready;                                                                                // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux:src0_ready
+	wire    [2:0] rsp_demux_src0_channel;                                                                              // rsp_demux:src0_channel -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
+	wire          rsp_demux_src0_startofpacket;                                                                        // rsp_demux:src0_startofpacket -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
+	wire          rsp_demux_src0_endofpacket;                                                                          // rsp_demux:src0_endofpacket -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_endofpacket
+	wire          mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid;            // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_valid -> rsp_mux:sink0_valid
+	wire  [236:0] mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data;             // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_data -> rsp_mux:sink0_data
+	wire          mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready;            // rsp_mux:sink0_ready -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_ready
+	wire    [2:0] mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel;          // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_channel -> rsp_mux:sink0_channel
+	wire          mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket;    // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink0_startofpacket
+	wire          mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;      // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink0_endofpacket
+	wire          rsp_demux_src1_valid;                                                                                // rsp_demux:src1_valid -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
+	wire  [164:0] rsp_demux_src1_data;                                                                                 // rsp_demux:src1_data -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
+	wire          rsp_demux_src1_ready;                                                                                // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux:src1_ready
+	wire    [2:0] rsp_demux_src1_channel;                                                                              // rsp_demux:src1_channel -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
+	wire          rsp_demux_src1_startofpacket;                                                                        // rsp_demux:src1_startofpacket -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
+	wire          rsp_demux_src1_endofpacket;                                                                          // rsp_demux:src1_endofpacket -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_endofpacket
+	wire          mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid;            // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_valid -> rsp_mux_001:sink0_valid
+	wire  [236:0] mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data;             // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_data -> rsp_mux_001:sink0_data
+	wire          mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready;            // rsp_mux_001:sink0_ready -> mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_ready
+	wire    [2:0] mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel;          // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_channel -> rsp_mux_001:sink0_channel
+	wire          mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket;    // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_startofpacket -> rsp_mux_001:sink0_startofpacket
+	wire          mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket;      // mcmc_system_0_avalon_slave_0_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_endofpacket -> rsp_mux_001:sink0_endofpacket
+	wire          rsp_demux_001_src0_valid;                                                                            // rsp_demux_001:src0_valid -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
+	wire  [101:0] rsp_demux_001_src0_data;                                                                             // rsp_demux_001:src0_data -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
+	wire          rsp_demux_001_src0_ready;                                                                            // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux_001:src0_ready
+	wire    [2:0] rsp_demux_001_src0_channel;                                                                          // rsp_demux_001:src0_channel -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
+	wire          rsp_demux_001_src0_startofpacket;                                                                    // rsp_demux_001:src0_startofpacket -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
+	wire          rsp_demux_001_src0_endofpacket;                                                                      // rsp_demux_001:src0_endofpacket -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_endofpacket
+	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid;         // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_valid -> rsp_mux:sink1_valid
+	wire  [236:0] vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data;          // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_data -> rsp_mux:sink1_data
+	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready;         // rsp_mux:sink1_ready -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_ready
+	wire    [2:0] vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel;       // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_channel -> rsp_mux:sink1_channel
+	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket; // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink1_startofpacket
+	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;   // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink1_endofpacket
+	wire          rsp_demux_001_src1_valid;                                                                            // rsp_demux_001:src1_valid -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
+	wire  [101:0] rsp_demux_001_src1_data;                                                                             // rsp_demux_001:src1_data -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
+	wire          rsp_demux_001_src1_ready;                                                                            // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux_001:src1_ready
+	wire    [2:0] rsp_demux_001_src1_channel;                                                                          // rsp_demux_001:src1_channel -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
+	wire          rsp_demux_001_src1_startofpacket;                                                                    // rsp_demux_001:src1_startofpacket -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
+	wire          rsp_demux_001_src1_endofpacket;                                                                      // rsp_demux_001:src1_endofpacket -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_endofpacket
+	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid;         // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_valid -> rsp_mux_001:sink1_valid
+	wire  [236:0] vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data;          // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_data -> rsp_mux_001:sink1_data
+	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready;         // rsp_mux_001:sink1_ready -> VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_ready
+	wire    [2:0] vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel;       // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_channel -> rsp_mux_001:sink1_channel
+	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket; // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_startofpacket -> rsp_mux_001:sink1_startofpacket
+	wire          vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket;   // VGA_Subsystem_char_buffer_slave_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_endofpacket -> rsp_mux_001:sink1_endofpacket
+	wire          rsp_demux_002_src0_valid;                                                                            // rsp_demux_002:src0_valid -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
+	wire  [110:0] rsp_demux_002_src0_data;                                                                             // rsp_demux_002:src0_data -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
+	wire          rsp_demux_002_src0_ready;                                                                            // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux_002:src0_ready
+	wire    [2:0] rsp_demux_002_src0_channel;                                                                          // rsp_demux_002:src0_channel -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
+	wire          rsp_demux_002_src0_startofpacket;                                                                    // rsp_demux_002:src0_startofpacket -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
+	wire          rsp_demux_002_src0_endofpacket;                                                                      // rsp_demux_002:src0_endofpacket -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_endofpacket
+	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid;                                // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_valid -> rsp_mux:sink2_valid
+	wire  [236:0] sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data;                                 // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_data -> rsp_mux:sink2_data
+	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready;                                // rsp_mux:sink2_ready -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_ready
+	wire    [2:0] sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel;                              // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_channel -> rsp_mux:sink2_channel
+	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket;                        // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink2_startofpacket
+	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;                          // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink2_endofpacket
+	wire          rsp_demux_002_src1_valid;                                                                            // rsp_demux_002:src1_valid -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
+	wire  [110:0] rsp_demux_002_src1_data;                                                                             // rsp_demux_002:src1_data -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
+	wire          rsp_demux_002_src1_ready;                                                                            // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux_002:src1_ready
+	wire    [2:0] rsp_demux_002_src1_channel;                                                                          // rsp_demux_002:src1_channel -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
+	wire          rsp_demux_002_src1_startofpacket;                                                                    // rsp_demux_002:src1_startofpacket -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
+	wire          rsp_demux_002_src1_endofpacket;                                                                      // rsp_demux_002:src1_endofpacket -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_endofpacket
+	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid;                                // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_valid -> rsp_mux_001:sink2_valid
+	wire  [236:0] sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data;                                 // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_data -> rsp_mux_001:sink2_data
+	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready;                                // rsp_mux_001:sink2_ready -> SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_ready
+	wire    [2:0] sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel;                              // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_channel -> rsp_mux_001:sink2_channel
+	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket;                        // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_startofpacket -> rsp_mux_001:sink2_startofpacket
+	wire          sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket;                          // SDRAM_s1_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_endofpacket -> rsp_mux_001:sink2_endofpacket
+	wire          rsp_demux_002_src2_valid;                                                                            // rsp_demux_002:src2_valid -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_valid
+	wire  [110:0] rsp_demux_002_src2_data;                                                                             // rsp_demux_002:src2_data -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_data
+	wire          rsp_demux_002_src2_ready;                                                                            // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_ready -> rsp_demux_002:src2_ready
+	wire    [2:0] rsp_demux_002_src2_channel;                                                                          // rsp_demux_002:src2_channel -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_channel
+	wire          rsp_demux_002_src2_startofpacket;                                                                    // rsp_demux_002:src2_startofpacket -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_startofpacket
+	wire          rsp_demux_002_src2_endofpacket;                                                                      // rsp_demux_002:src2_endofpacket -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:in_endofpacket
 	wire          sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_valid;                              // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:out_valid -> rsp_mux_002:sink0_valid
-	wire  [103:0] sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_data;                               // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:out_data -> rsp_mux_002:sink0_data
+	wire  [101:0] sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_data;                               // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:out_data -> rsp_mux_002:sink0_data
 	wire          sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_ready;                              // rsp_mux_002:sink0_ready -> SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:out_ready
-	wire    [5:0] sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_channel;                            // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:out_channel -> rsp_mux_002:sink0_channel
+	wire    [2:0] sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_channel;                            // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:out_channel -> rsp_mux_002:sink0_channel
 	wire          sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_startofpacket;                      // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:out_startofpacket -> rsp_mux_002:sink0_startofpacket
 	wire          sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_endofpacket;                        // SDRAM_s1_to_VGA_Subsystem_pixel_dma_master_rsp_width_adapter:out_endofpacket -> rsp_mux_002:sink0_endofpacket
-	wire          rsp_demux_002_src0_valid;                                                                            // rsp_demux_002:src0_valid -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
-	wire  [166:0] rsp_demux_002_src0_data;                                                                             // rsp_demux_002:src0_data -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
-	wire          rsp_demux_002_src0_ready;                                                                            // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux_002:src0_ready
-	wire    [5:0] rsp_demux_002_src0_channel;                                                                          // rsp_demux_002:src0_channel -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
-	wire          rsp_demux_002_src0_startofpacket;                                                                    // rsp_demux_002:src0_startofpacket -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_002_src0_endofpacket;                                                                      // rsp_demux_002:src0_endofpacket -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_endofpacket
-	wire          onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid;                        // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_valid -> rsp_mux:sink2_valid
-	wire  [238:0] onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data;                         // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_data -> rsp_mux:sink2_data
-	wire          onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready;                        // rsp_mux:sink2_ready -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_ready
-	wire    [5:0] onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel;                      // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_channel -> rsp_mux:sink2_channel
-	wire          onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket;                // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink2_startofpacket
-	wire          onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;                  // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink2_endofpacket
-	wire          rsp_demux_002_src1_valid;                                                                            // rsp_demux_002:src1_valid -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
-	wire  [166:0] rsp_demux_002_src1_data;                                                                             // rsp_demux_002:src1_data -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
-	wire          rsp_demux_002_src1_ready;                                                                            // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux_002:src1_ready
-	wire    [5:0] rsp_demux_002_src1_channel;                                                                          // rsp_demux_002:src1_channel -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
-	wire          rsp_demux_002_src1_startofpacket;                                                                    // rsp_demux_002:src1_startofpacket -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_002_src1_endofpacket;                                                                      // rsp_demux_002:src1_endofpacket -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_endofpacket
-	wire          onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid;                        // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_valid -> rsp_mux_001:sink2_valid
-	wire  [238:0] onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data;                         // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_data -> rsp_mux_001:sink2_data
-	wire          onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready;                        // rsp_mux_001:sink2_ready -> Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_ready
-	wire    [5:0] onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel;                      // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_channel -> rsp_mux_001:sink2_channel
-	wire          onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket;                // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_startofpacket -> rsp_mux_001:sink2_startofpacket
-	wire          onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket;                  // Onchip_SRAM_0_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_endofpacket -> rsp_mux_001:sink2_endofpacket
-	wire          rsp_demux_003_src0_valid;                                                                            // rsp_demux_003:src0_valid -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
-	wire  [166:0] rsp_demux_003_src0_data;                                                                             // rsp_demux_003:src0_data -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
-	wire          rsp_demux_003_src0_ready;                                                                            // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux_003:src0_ready
-	wire    [5:0] rsp_demux_003_src0_channel;                                                                          // rsp_demux_003:src0_channel -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
-	wire          rsp_demux_003_src0_startofpacket;                                                                    // rsp_demux_003:src0_startofpacket -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_003_src0_endofpacket;                                                                      // rsp_demux_003:src0_endofpacket -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_endofpacket
-	wire          onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid;                        // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_valid -> rsp_mux:sink3_valid
-	wire  [238:0] onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data;                         // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_data -> rsp_mux:sink3_data
-	wire          onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready;                        // rsp_mux:sink3_ready -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_ready
-	wire    [5:0] onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel;                      // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_channel -> rsp_mux:sink3_channel
-	wire          onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket;                // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink3_startofpacket
-	wire          onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;                  // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink3_endofpacket
-	wire          rsp_demux_003_src1_valid;                                                                            // rsp_demux_003:src1_valid -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
-	wire  [166:0] rsp_demux_003_src1_data;                                                                             // rsp_demux_003:src1_data -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
-	wire          rsp_demux_003_src1_ready;                                                                            // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux_003:src1_ready
-	wire    [5:0] rsp_demux_003_src1_channel;                                                                          // rsp_demux_003:src1_channel -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
-	wire          rsp_demux_003_src1_startofpacket;                                                                    // rsp_demux_003:src1_startofpacket -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_003_src1_endofpacket;                                                                      // rsp_demux_003:src1_endofpacket -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_endofpacket
-	wire          onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid;                        // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_valid -> rsp_mux_001:sink3_valid
-	wire  [238:0] onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data;                         // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_data -> rsp_mux_001:sink3_data
-	wire          onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready;                        // rsp_mux_001:sink3_ready -> Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_ready
-	wire    [5:0] onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel;                      // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_channel -> rsp_mux_001:sink3_channel
-	wire          onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket;                // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_startofpacket -> rsp_mux_001:sink3_startofpacket
-	wire          onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket;                  // Onchip_SRAM_1_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_endofpacket -> rsp_mux_001:sink3_endofpacket
-	wire          rsp_demux_004_src0_valid;                                                                            // rsp_demux_004:src0_valid -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
-	wire  [166:0] rsp_demux_004_src0_data;                                                                             // rsp_demux_004:src0_data -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
-	wire          rsp_demux_004_src0_ready;                                                                            // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux_004:src0_ready
-	wire    [5:0] rsp_demux_004_src0_channel;                                                                          // rsp_demux_004:src0_channel -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
-	wire          rsp_demux_004_src0_startofpacket;                                                                    // rsp_demux_004:src0_startofpacket -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_004_src0_endofpacket;                                                                      // rsp_demux_004:src0_endofpacket -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_endofpacket
-	wire          onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid;                        // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_valid -> rsp_mux:sink4_valid
-	wire  [238:0] onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data;                         // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_data -> rsp_mux:sink4_data
-	wire          onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready;                        // rsp_mux:sink4_ready -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_ready
-	wire    [5:0] onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel;                      // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_channel -> rsp_mux:sink4_channel
-	wire          onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket;                // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink4_startofpacket
-	wire          onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;                  // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink4_endofpacket
-	wire          rsp_demux_004_src1_valid;                                                                            // rsp_demux_004:src1_valid -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
-	wire  [166:0] rsp_demux_004_src1_data;                                                                             // rsp_demux_004:src1_data -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
-	wire          rsp_demux_004_src1_ready;                                                                            // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux_004:src1_ready
-	wire    [5:0] rsp_demux_004_src1_channel;                                                                          // rsp_demux_004:src1_channel -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
-	wire          rsp_demux_004_src1_startofpacket;                                                                    // rsp_demux_004:src1_startofpacket -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_004_src1_endofpacket;                                                                      // rsp_demux_004:src1_endofpacket -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_endofpacket
-	wire          onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid;                        // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_valid -> rsp_mux_001:sink4_valid
-	wire  [238:0] onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data;                         // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_data -> rsp_mux_001:sink4_data
-	wire          onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready;                        // rsp_mux_001:sink4_ready -> Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_ready
-	wire    [5:0] onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel;                      // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_channel -> rsp_mux_001:sink4_channel
-	wire          onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket;                // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_startofpacket -> rsp_mux_001:sink4_startofpacket
-	wire          onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket;                  // Onchip_SRAM_2_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_endofpacket -> rsp_mux_001:sink4_endofpacket
-	wire          rsp_demux_005_src0_valid;                                                                            // rsp_demux_005:src0_valid -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_valid
-	wire  [166:0] rsp_demux_005_src0_data;                                                                             // rsp_demux_005:src0_data -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_data
-	wire          rsp_demux_005_src0_ready;                                                                            // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_ready -> rsp_demux_005:src0_ready
-	wire    [5:0] rsp_demux_005_src0_channel;                                                                          // rsp_demux_005:src0_channel -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_channel
-	wire          rsp_demux_005_src0_startofpacket;                                                                    // rsp_demux_005:src0_startofpacket -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_005_src0_endofpacket;                                                                      // rsp_demux_005:src0_endofpacket -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:in_endofpacket
-	wire          onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid;                        // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_valid -> rsp_mux:sink5_valid
-	wire  [238:0] onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data;                         // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_data -> rsp_mux:sink5_data
-	wire          onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready;                        // rsp_mux:sink5_ready -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_ready
-	wire    [5:0] onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel;                      // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_channel -> rsp_mux:sink5_channel
-	wire          onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket;                // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_startofpacket -> rsp_mux:sink5_startofpacket
-	wire          onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket;                  // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_wr_rsp_width_adapter:out_endofpacket -> rsp_mux:sink5_endofpacket
-	wire          rsp_demux_005_src1_valid;                                                                            // rsp_demux_005:src1_valid -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_valid
-	wire  [166:0] rsp_demux_005_src1_data;                                                                             // rsp_demux_005:src1_data -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_data
-	wire          rsp_demux_005_src1_ready;                                                                            // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_ready -> rsp_demux_005:src1_ready
-	wire    [5:0] rsp_demux_005_src1_channel;                                                                          // rsp_demux_005:src1_channel -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_channel
-	wire          rsp_demux_005_src1_startofpacket;                                                                    // rsp_demux_005:src1_startofpacket -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_startofpacket
-	wire          rsp_demux_005_src1_endofpacket;                                                                      // rsp_demux_005:src1_endofpacket -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:in_endofpacket
-	wire          onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid;                        // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_valid -> rsp_mux_001:sink5_valid
-	wire  [238:0] onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data;                         // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_data -> rsp_mux_001:sink5_data
-	wire          onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready;                        // rsp_mux_001:sink5_ready -> Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_ready
-	wire    [5:0] onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel;                      // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_channel -> rsp_mux_001:sink5_channel
-	wire          onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket;                // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_startofpacket -> rsp_mux_001:sink5_startofpacket
-	wire          onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket;                  // Onchip_SRAM_3_s2_to_ARM_A9_HPS_h2f_axi_master_rd_rsp_width_adapter:out_endofpacket -> rsp_mux_001:sink5_endofpacket
-	wire    [5:0] arm_a9_hps_h2f_axi_master_wr_limiter_cmd_valid_data;                                                 // ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_src_valid -> cmd_demux:sink_valid
-	wire    [5:0] arm_a9_hps_h2f_axi_master_rd_limiter_cmd_valid_data;                                                 // ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_src_valid -> cmd_demux_001:sink_valid
-	wire          vga_subsystem_char_buffer_slave_agent_rdata_fifo_out_valid;                                          // VGA_Subsystem_char_buffer_slave_agent_rdata_fifo:out_valid -> avalon_st_adapter:in_0_valid
-	wire    [9:0] vga_subsystem_char_buffer_slave_agent_rdata_fifo_out_data;                                           // VGA_Subsystem_char_buffer_slave_agent_rdata_fifo:out_data -> avalon_st_adapter:in_0_data
-	wire          vga_subsystem_char_buffer_slave_agent_rdata_fifo_out_ready;                                          // avalon_st_adapter:in_0_ready -> VGA_Subsystem_char_buffer_slave_agent_rdata_fifo:out_ready
-	wire          avalon_st_adapter_out_0_valid;                                                                       // avalon_st_adapter:out_0_valid -> VGA_Subsystem_char_buffer_slave_agent:rdata_fifo_sink_valid
-	wire    [9:0] avalon_st_adapter_out_0_data;                                                                        // avalon_st_adapter:out_0_data -> VGA_Subsystem_char_buffer_slave_agent:rdata_fifo_sink_data
-	wire          avalon_st_adapter_out_0_ready;                                                                       // VGA_Subsystem_char_buffer_slave_agent:rdata_fifo_sink_ready -> avalon_st_adapter:out_0_ready
-	wire    [0:0] avalon_st_adapter_out_0_error;                                                                       // avalon_st_adapter:out_0_error -> VGA_Subsystem_char_buffer_slave_agent:rdata_fifo_sink_error
-	wire          sdram_s1_agent_rdata_fifo_out_valid;                                                                 // SDRAM_s1_agent_rdata_fifo:out_valid -> avalon_st_adapter_001:in_0_valid
-	wire   [17:0] sdram_s1_agent_rdata_fifo_out_data;                                                                  // SDRAM_s1_agent_rdata_fifo:out_data -> avalon_st_adapter_001:in_0_data
-	wire          sdram_s1_agent_rdata_fifo_out_ready;                                                                 // avalon_st_adapter_001:in_0_ready -> SDRAM_s1_agent_rdata_fifo:out_ready
-	wire          avalon_st_adapter_001_out_0_valid;                                                                   // avalon_st_adapter_001:out_0_valid -> SDRAM_s1_agent:rdata_fifo_sink_valid
-	wire   [17:0] avalon_st_adapter_001_out_0_data;                                                                    // avalon_st_adapter_001:out_0_data -> SDRAM_s1_agent:rdata_fifo_sink_data
-	wire          avalon_st_adapter_001_out_0_ready;                                                                   // SDRAM_s1_agent:rdata_fifo_sink_ready -> avalon_st_adapter_001:out_0_ready
-	wire    [0:0] avalon_st_adapter_001_out_0_error;                                                                   // avalon_st_adapter_001:out_0_error -> SDRAM_s1_agent:rdata_fifo_sink_error
-	wire          onchip_sram_0_s2_agent_rdata_fifo_out_valid;                                                         // Onchip_SRAM_0_s2_agent_rdata_fifo:out_valid -> avalon_st_adapter_002:in_0_valid
-	wire   [65:0] onchip_sram_0_s2_agent_rdata_fifo_out_data;                                                          // Onchip_SRAM_0_s2_agent_rdata_fifo:out_data -> avalon_st_adapter_002:in_0_data
-	wire          onchip_sram_0_s2_agent_rdata_fifo_out_ready;                                                         // avalon_st_adapter_002:in_0_ready -> Onchip_SRAM_0_s2_agent_rdata_fifo:out_ready
-	wire          avalon_st_adapter_002_out_0_valid;                                                                   // avalon_st_adapter_002:out_0_valid -> Onchip_SRAM_0_s2_agent:rdata_fifo_sink_valid
-	wire   [65:0] avalon_st_adapter_002_out_0_data;                                                                    // avalon_st_adapter_002:out_0_data -> Onchip_SRAM_0_s2_agent:rdata_fifo_sink_data
-	wire          avalon_st_adapter_002_out_0_ready;                                                                   // Onchip_SRAM_0_s2_agent:rdata_fifo_sink_ready -> avalon_st_adapter_002:out_0_ready
-	wire    [0:0] avalon_st_adapter_002_out_0_error;                                                                   // avalon_st_adapter_002:out_0_error -> Onchip_SRAM_0_s2_agent:rdata_fifo_sink_error
-	wire          onchip_sram_1_s2_agent_rdata_fifo_out_valid;                                                         // Onchip_SRAM_1_s2_agent_rdata_fifo:out_valid -> avalon_st_adapter_003:in_0_valid
-	wire   [65:0] onchip_sram_1_s2_agent_rdata_fifo_out_data;                                                          // Onchip_SRAM_1_s2_agent_rdata_fifo:out_data -> avalon_st_adapter_003:in_0_data
-	wire          onchip_sram_1_s2_agent_rdata_fifo_out_ready;                                                         // avalon_st_adapter_003:in_0_ready -> Onchip_SRAM_1_s2_agent_rdata_fifo:out_ready
-	wire          avalon_st_adapter_003_out_0_valid;                                                                   // avalon_st_adapter_003:out_0_valid -> Onchip_SRAM_1_s2_agent:rdata_fifo_sink_valid
-	wire   [65:0] avalon_st_adapter_003_out_0_data;                                                                    // avalon_st_adapter_003:out_0_data -> Onchip_SRAM_1_s2_agent:rdata_fifo_sink_data
-	wire          avalon_st_adapter_003_out_0_ready;                                                                   // Onchip_SRAM_1_s2_agent:rdata_fifo_sink_ready -> avalon_st_adapter_003:out_0_ready
-	wire    [0:0] avalon_st_adapter_003_out_0_error;                                                                   // avalon_st_adapter_003:out_0_error -> Onchip_SRAM_1_s2_agent:rdata_fifo_sink_error
-	wire          onchip_sram_2_s2_agent_rdata_fifo_out_valid;                                                         // Onchip_SRAM_2_s2_agent_rdata_fifo:out_valid -> avalon_st_adapter_004:in_0_valid
-	wire   [65:0] onchip_sram_2_s2_agent_rdata_fifo_out_data;                                                          // Onchip_SRAM_2_s2_agent_rdata_fifo:out_data -> avalon_st_adapter_004:in_0_data
-	wire          onchip_sram_2_s2_agent_rdata_fifo_out_ready;                                                         // avalon_st_adapter_004:in_0_ready -> Onchip_SRAM_2_s2_agent_rdata_fifo:out_ready
-	wire          avalon_st_adapter_004_out_0_valid;                                                                   // avalon_st_adapter_004:out_0_valid -> Onchip_SRAM_2_s2_agent:rdata_fifo_sink_valid
-	wire   [65:0] avalon_st_adapter_004_out_0_data;                                                                    // avalon_st_adapter_004:out_0_data -> Onchip_SRAM_2_s2_agent:rdata_fifo_sink_data
-	wire          avalon_st_adapter_004_out_0_ready;                                                                   // Onchip_SRAM_2_s2_agent:rdata_fifo_sink_ready -> avalon_st_adapter_004:out_0_ready
-	wire    [0:0] avalon_st_adapter_004_out_0_error;                                                                   // avalon_st_adapter_004:out_0_error -> Onchip_SRAM_2_s2_agent:rdata_fifo_sink_error
-	wire          onchip_sram_3_s2_agent_rdata_fifo_out_valid;                                                         // Onchip_SRAM_3_s2_agent_rdata_fifo:out_valid -> avalon_st_adapter_005:in_0_valid
-	wire   [65:0] onchip_sram_3_s2_agent_rdata_fifo_out_data;                                                          // Onchip_SRAM_3_s2_agent_rdata_fifo:out_data -> avalon_st_adapter_005:in_0_data
-	wire          onchip_sram_3_s2_agent_rdata_fifo_out_ready;                                                         // avalon_st_adapter_005:in_0_ready -> Onchip_SRAM_3_s2_agent_rdata_fifo:out_ready
-	wire          avalon_st_adapter_005_out_0_valid;                                                                   // avalon_st_adapter_005:out_0_valid -> Onchip_SRAM_3_s2_agent:rdata_fifo_sink_valid
-	wire   [65:0] avalon_st_adapter_005_out_0_data;                                                                    // avalon_st_adapter_005:out_0_data -> Onchip_SRAM_3_s2_agent:rdata_fifo_sink_data
-	wire          avalon_st_adapter_005_out_0_ready;                                                                   // Onchip_SRAM_3_s2_agent:rdata_fifo_sink_ready -> avalon_st_adapter_005:out_0_ready
-	wire    [0:0] avalon_st_adapter_005_out_0_error;                                                                   // avalon_st_adapter_005:out_0_error -> Onchip_SRAM_3_s2_agent:rdata_fifo_sink_error
+	wire    [2:0] arm_a9_hps_h2f_axi_master_wr_limiter_cmd_valid_data;                                                 // ARM_A9_HPS_h2f_axi_master_wr_limiter:cmd_src_valid -> cmd_demux:sink_valid
+	wire    [2:0] arm_a9_hps_h2f_axi_master_rd_limiter_cmd_valid_data;                                                 // ARM_A9_HPS_h2f_axi_master_rd_limiter:cmd_src_valid -> cmd_demux_001:sink_valid
+	wire          mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_valid;                                             // mcmc_system_0_avalon_slave_0_agent_rdata_fifo:out_valid -> avalon_st_adapter:in_0_valid
+	wire   [65:0] mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_data;                                              // mcmc_system_0_avalon_slave_0_agent_rdata_fifo:out_data -> avalon_st_adapter:in_0_data
+	wire          mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_ready;                                             // avalon_st_adapter:in_0_ready -> mcmc_system_0_avalon_slave_0_agent_rdata_fifo:out_ready
+	wire          avalon_st_adapter_out_0_valid;                                                                       // avalon_st_adapter:out_0_valid -> mcmc_system_0_avalon_slave_0_agent:rdata_fifo_sink_valid
+	wire   [65:0] avalon_st_adapter_out_0_data;                                                                        // avalon_st_adapter:out_0_data -> mcmc_system_0_avalon_slave_0_agent:rdata_fifo_sink_data
+	wire          avalon_st_adapter_out_0_ready;                                                                       // mcmc_system_0_avalon_slave_0_agent:rdata_fifo_sink_ready -> avalon_st_adapter:out_0_ready
+	wire    [0:0] avalon_st_adapter_out_0_error;                                                                       // avalon_st_adapter:out_0_error -> mcmc_system_0_avalon_slave_0_agent:rdata_fifo_sink_error
+	wire          vga_subsystem_char_buffer_slave_agent_rdata_fifo_out_valid;                                          // VGA_Subsystem_char_buffer_slave_agent_rdata_fifo:out_valid -> avalon_st_adapter_001:in_0_valid
+	wire    [9:0] vga_subsystem_char_buffer_slave_agent_rdata_fifo_out_data;                                           // VGA_Subsystem_char_buffer_slave_agent_rdata_fifo:out_data -> avalon_st_adapter_001:in_0_data
+	wire          vga_subsystem_char_buffer_slave_agent_rdata_fifo_out_ready;                                          // avalon_st_adapter_001:in_0_ready -> VGA_Subsystem_char_buffer_slave_agent_rdata_fifo:out_ready
+	wire          avalon_st_adapter_001_out_0_valid;                                                                   // avalon_st_adapter_001:out_0_valid -> VGA_Subsystem_char_buffer_slave_agent:rdata_fifo_sink_valid
+	wire    [9:0] avalon_st_adapter_001_out_0_data;                                                                    // avalon_st_adapter_001:out_0_data -> VGA_Subsystem_char_buffer_slave_agent:rdata_fifo_sink_data
+	wire          avalon_st_adapter_001_out_0_ready;                                                                   // VGA_Subsystem_char_buffer_slave_agent:rdata_fifo_sink_ready -> avalon_st_adapter_001:out_0_ready
+	wire    [0:0] avalon_st_adapter_001_out_0_error;                                                                   // avalon_st_adapter_001:out_0_error -> VGA_Subsystem_char_buffer_slave_agent:rdata_fifo_sink_error
+	wire          sdram_s1_agent_rdata_fifo_out_valid;                                                                 // SDRAM_s1_agent_rdata_fifo:out_valid -> avalon_st_adapter_002:in_0_valid
+	wire   [17:0] sdram_s1_agent_rdata_fifo_out_data;                                                                  // SDRAM_s1_agent_rdata_fifo:out_data -> avalon_st_adapter_002:in_0_data
+	wire          sdram_s1_agent_rdata_fifo_out_ready;                                                                 // avalon_st_adapter_002:in_0_ready -> SDRAM_s1_agent_rdata_fifo:out_ready
+	wire          avalon_st_adapter_002_out_0_valid;                                                                   // avalon_st_adapter_002:out_0_valid -> SDRAM_s1_agent:rdata_fifo_sink_valid
+	wire   [17:0] avalon_st_adapter_002_out_0_data;                                                                    // avalon_st_adapter_002:out_0_data -> SDRAM_s1_agent:rdata_fifo_sink_data
+	wire          avalon_st_adapter_002_out_0_ready;                                                                   // SDRAM_s1_agent:rdata_fifo_sink_ready -> avalon_st_adapter_002:out_0_ready
+	wire    [0:0] avalon_st_adapter_002_out_0_error;                                                                   // avalon_st_adapter_002:out_0_error -> SDRAM_s1_agent:rdata_fifo_sink_error
 
 	altera_merlin_master_translator #(
 		.AV_ADDRESS_W                (32),
@@ -849,7 +518,7 @@ module Computer_System_mm_interconnect_0 (
 		.AV_REGISTERINCOMINGSIGNALS  (0)
 	) vga_subsystem_pixel_dma_master_translator (
 		.clk                    (System_PLL_sys_clk_clk),                                                            //                       clk.clk
-		.reset                  (SDRAM_reset_reset_bridge_in_reset_reset),                                           //                     reset.reset
+		.reset                  (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                   //                     reset.reset
 		.uav_address            (vga_subsystem_pixel_dma_master_translator_avalon_universal_master_0_address),       // avalon_universal_master_0.address
 		.uav_burstcount         (vga_subsystem_pixel_dma_master_translator_avalon_universal_master_0_burstcount),    //                          .burstcount
 		.uav_read               (vga_subsystem_pixel_dma_master_translator_avalon_universal_master_0_read),          //                          .read
@@ -884,6 +553,70 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_translator #(
+		.AV_ADDRESS_W                   (8),
+		.AV_DATA_W                      (64),
+		.UAV_DATA_W                     (64),
+		.AV_BURSTCOUNT_W                (1),
+		.AV_BYTEENABLE_W                (8),
+		.UAV_BYTEENABLE_W               (8),
+		.UAV_ADDRESS_W                  (32),
+		.UAV_BURSTCOUNT_W               (4),
+		.AV_READLATENCY                 (0),
+		.USE_READDATAVALID              (0),
+		.USE_WAITREQUEST                (0),
+		.USE_UAV_CLKEN                  (0),
+		.USE_READRESPONSE               (0),
+		.USE_WRITERESPONSE              (0),
+		.AV_SYMBOLS_PER_WORD            (8),
+		.AV_ADDRESS_SYMBOLS             (0),
+		.AV_BURSTCOUNT_SYMBOLS          (0),
+		.AV_CONSTANT_BURST_BEHAVIOR     (0),
+		.UAV_CONSTANT_BURST_BEHAVIOR    (0),
+		.AV_REQUIRE_UNALIGNED_ADDRESSES (0),
+		.CHIPSELECT_THROUGH_READLATENCY (0),
+		.AV_READ_WAIT_CYCLES            (1),
+		.AV_WRITE_WAIT_CYCLES           (0),
+		.AV_SETUP_WAIT_CYCLES           (0),
+		.AV_DATA_HOLD_CYCLES            (0)
+	) mcmc_system_0_avalon_slave_0_translator (
+		.clk                    (System_PLL_sys_clk_clk),                                               //                      clk.clk
+		.reset                  (mcmc_system_0_reset_reset_bridge_in_reset_reset),                      //                    reset.reset
+		.uav_address            (mcmc_system_0_avalon_slave_0_agent_m0_address),                        // avalon_universal_slave_0.address
+		.uav_burstcount         (mcmc_system_0_avalon_slave_0_agent_m0_burstcount),                     //                         .burstcount
+		.uav_read               (mcmc_system_0_avalon_slave_0_agent_m0_read),                           //                         .read
+		.uav_write              (mcmc_system_0_avalon_slave_0_agent_m0_write),                          //                         .write
+		.uav_waitrequest        (mcmc_system_0_avalon_slave_0_agent_m0_waitrequest),                    //                         .waitrequest
+		.uav_readdatavalid      (mcmc_system_0_avalon_slave_0_agent_m0_readdatavalid),                  //                         .readdatavalid
+		.uav_byteenable         (mcmc_system_0_avalon_slave_0_agent_m0_byteenable),                     //                         .byteenable
+		.uav_readdata           (mcmc_system_0_avalon_slave_0_agent_m0_readdata),                       //                         .readdata
+		.uav_writedata          (mcmc_system_0_avalon_slave_0_agent_m0_writedata),                      //                         .writedata
+		.uav_lock               (mcmc_system_0_avalon_slave_0_agent_m0_lock),                           //                         .lock
+		.uav_debugaccess        (mcmc_system_0_avalon_slave_0_agent_m0_debugaccess),                    //                         .debugaccess
+		.av_address             (mcmc_system_0_avalon_slave_0_address),                                 //      avalon_anti_slave_0.address
+		.av_write               (mcmc_system_0_avalon_slave_0_write),                                   //                         .write
+		.av_writedata           (mcmc_system_0_avalon_slave_0_writedata),                               //                         .writedata
+		.av_read                (),                                                                     //              (terminated)
+		.av_readdata            (64'b0000000000000000000000000000000011011110101011011101111010101101), //              (terminated)
+		.av_begintransfer       (),                                                                     //              (terminated)
+		.av_beginbursttransfer  (),                                                                     //              (terminated)
+		.av_burstcount          (),                                                                     //              (terminated)
+		.av_byteenable          (),                                                                     //              (terminated)
+		.av_readdatavalid       (1'b0),                                                                 //              (terminated)
+		.av_waitrequest         (1'b0),                                                                 //              (terminated)
+		.av_writebyteenable     (),                                                                     //              (terminated)
+		.av_lock                (),                                                                     //              (terminated)
+		.av_chipselect          (),                                                                     //              (terminated)
+		.av_clken               (),                                                                     //              (terminated)
+		.uav_clken              (1'b0),                                                                 //              (terminated)
+		.av_debugaccess         (),                                                                     //              (terminated)
+		.av_outputenable        (),                                                                     //              (terminated)
+		.uav_response           (),                                                                     //              (terminated)
+		.av_response            (2'b00),                                                                //              (terminated)
+		.uav_writeresponsevalid (),                                                                     //              (terminated)
+		.av_writeresponsevalid  (1'b0)                                                                  //              (terminated)
+	);
+
+	altera_merlin_slave_translator #(
 		.AV_ADDRESS_W                   (13),
 		.AV_DATA_W                      (8),
 		.UAV_DATA_W                     (8),
@@ -911,7 +644,7 @@ module Computer_System_mm_interconnect_0 (
 		.AV_DATA_HOLD_CYCLES            (0)
 	) vga_subsystem_char_buffer_slave_translator (
 		.clk                    (System_PLL_sys_clk_clk),                                 //                      clk.clk
-		.reset                  (SDRAM_reset_reset_bridge_in_reset_reset),                //                    reset.reset
+		.reset                  (mcmc_system_0_reset_reset_bridge_in_reset_reset),        //                    reset.reset
 		.uav_address            (vga_subsystem_char_buffer_slave_agent_m0_address),       // avalon_universal_slave_0.address
 		.uav_burstcount         (vga_subsystem_char_buffer_slave_agent_m0_burstcount),    //                         .burstcount
 		.uav_read               (vga_subsystem_char_buffer_slave_agent_m0_read),          //                         .read
@@ -974,297 +707,41 @@ module Computer_System_mm_interconnect_0 (
 		.AV_SETUP_WAIT_CYCLES           (0),
 		.AV_DATA_HOLD_CYCLES            (0)
 	) sdram_s1_translator (
-		.clk                    (System_PLL_sys_clk_clk),                  //                      clk.clk
-		.reset                  (SDRAM_reset_reset_bridge_in_reset_reset), //                    reset.reset
-		.uav_address            (sdram_s1_agent_m0_address),               // avalon_universal_slave_0.address
-		.uav_burstcount         (sdram_s1_agent_m0_burstcount),            //                         .burstcount
-		.uav_read               (sdram_s1_agent_m0_read),                  //                         .read
-		.uav_write              (sdram_s1_agent_m0_write),                 //                         .write
-		.uav_waitrequest        (sdram_s1_agent_m0_waitrequest),           //                         .waitrequest
-		.uav_readdatavalid      (sdram_s1_agent_m0_readdatavalid),         //                         .readdatavalid
-		.uav_byteenable         (sdram_s1_agent_m0_byteenable),            //                         .byteenable
-		.uav_readdata           (sdram_s1_agent_m0_readdata),              //                         .readdata
-		.uav_writedata          (sdram_s1_agent_m0_writedata),             //                         .writedata
-		.uav_lock               (sdram_s1_agent_m0_lock),                  //                         .lock
-		.uav_debugaccess        (sdram_s1_agent_m0_debugaccess),           //                         .debugaccess
-		.av_address             (SDRAM_s1_address),                        //      avalon_anti_slave_0.address
-		.av_write               (SDRAM_s1_write),                          //                         .write
-		.av_read                (SDRAM_s1_read),                           //                         .read
-		.av_readdata            (SDRAM_s1_readdata),                       //                         .readdata
-		.av_writedata           (SDRAM_s1_writedata),                      //                         .writedata
-		.av_byteenable          (SDRAM_s1_byteenable),                     //                         .byteenable
-		.av_readdatavalid       (SDRAM_s1_readdatavalid),                  //                         .readdatavalid
-		.av_waitrequest         (SDRAM_s1_waitrequest),                    //                         .waitrequest
-		.av_chipselect          (SDRAM_s1_chipselect),                     //                         .chipselect
-		.av_begintransfer       (),                                        //              (terminated)
-		.av_beginbursttransfer  (),                                        //              (terminated)
-		.av_burstcount          (),                                        //              (terminated)
-		.av_writebyteenable     (),                                        //              (terminated)
-		.av_lock                (),                                        //              (terminated)
-		.av_clken               (),                                        //              (terminated)
-		.uav_clken              (1'b0),                                    //              (terminated)
-		.av_debugaccess         (),                                        //              (terminated)
-		.av_outputenable        (),                                        //              (terminated)
-		.uav_response           (),                                        //              (terminated)
-		.av_response            (2'b00),                                   //              (terminated)
-		.uav_writeresponsevalid (),                                        //              (terminated)
-		.av_writeresponsevalid  (1'b0)                                     //              (terminated)
-	);
-
-	altera_merlin_slave_translator #(
-		.AV_ADDRESS_W                   (7),
-		.AV_DATA_W                      (64),
-		.UAV_DATA_W                     (64),
-		.AV_BURSTCOUNT_W                (1),
-		.AV_BYTEENABLE_W                (8),
-		.UAV_BYTEENABLE_W               (8),
-		.UAV_ADDRESS_W                  (32),
-		.UAV_BURSTCOUNT_W               (4),
-		.AV_READLATENCY                 (1),
-		.USE_READDATAVALID              (0),
-		.USE_WAITREQUEST                (0),
-		.USE_UAV_CLKEN                  (0),
-		.USE_READRESPONSE               (0),
-		.USE_WRITERESPONSE              (0),
-		.AV_SYMBOLS_PER_WORD            (8),
-		.AV_ADDRESS_SYMBOLS             (0),
-		.AV_BURSTCOUNT_SYMBOLS          (0),
-		.AV_CONSTANT_BURST_BEHAVIOR     (0),
-		.UAV_CONSTANT_BURST_BEHAVIOR    (0),
-		.AV_REQUIRE_UNALIGNED_ADDRESSES (0),
-		.CHIPSELECT_THROUGH_READLATENCY (0),
-		.AV_READ_WAIT_CYCLES            (0),
-		.AV_WRITE_WAIT_CYCLES           (0),
-		.AV_SETUP_WAIT_CYCLES           (0),
-		.AV_DATA_HOLD_CYCLES            (0)
-	) onchip_sram_0_s2_translator (
-		.clk                    (System_PLL_sys_clk_clk),                  //                      clk.clk
-		.reset                  (SDRAM_reset_reset_bridge_in_reset_reset), //                    reset.reset
-		.uav_address            (onchip_sram_0_s2_agent_m0_address),       // avalon_universal_slave_0.address
-		.uav_burstcount         (onchip_sram_0_s2_agent_m0_burstcount),    //                         .burstcount
-		.uav_read               (onchip_sram_0_s2_agent_m0_read),          //                         .read
-		.uav_write              (onchip_sram_0_s2_agent_m0_write),         //                         .write
-		.uav_waitrequest        (onchip_sram_0_s2_agent_m0_waitrequest),   //                         .waitrequest
-		.uav_readdatavalid      (onchip_sram_0_s2_agent_m0_readdatavalid), //                         .readdatavalid
-		.uav_byteenable         (onchip_sram_0_s2_agent_m0_byteenable),    //                         .byteenable
-		.uav_readdata           (onchip_sram_0_s2_agent_m0_readdata),      //                         .readdata
-		.uav_writedata          (onchip_sram_0_s2_agent_m0_writedata),     //                         .writedata
-		.uav_lock               (onchip_sram_0_s2_agent_m0_lock),          //                         .lock
-		.uav_debugaccess        (onchip_sram_0_s2_agent_m0_debugaccess),   //                         .debugaccess
-		.av_address             (Onchip_SRAM_0_s2_address),                //      avalon_anti_slave_0.address
-		.av_write               (Onchip_SRAM_0_s2_write),                  //                         .write
-		.av_readdata            (Onchip_SRAM_0_s2_readdata),               //                         .readdata
-		.av_writedata           (Onchip_SRAM_0_s2_writedata),              //                         .writedata
-		.av_byteenable          (Onchip_SRAM_0_s2_byteenable),             //                         .byteenable
-		.av_chipselect          (Onchip_SRAM_0_s2_chipselect),             //                         .chipselect
-		.av_clken               (Onchip_SRAM_0_s2_clken),                  //                         .clken
-		.av_read                (),                                        //              (terminated)
-		.av_begintransfer       (),                                        //              (terminated)
-		.av_beginbursttransfer  (),                                        //              (terminated)
-		.av_burstcount          (),                                        //              (terminated)
-		.av_readdatavalid       (1'b0),                                    //              (terminated)
-		.av_waitrequest         (1'b0),                                    //              (terminated)
-		.av_writebyteenable     (),                                        //              (terminated)
-		.av_lock                (),                                        //              (terminated)
-		.uav_clken              (1'b0),                                    //              (terminated)
-		.av_debugaccess         (),                                        //              (terminated)
-		.av_outputenable        (),                                        //              (terminated)
-		.uav_response           (),                                        //              (terminated)
-		.av_response            (2'b00),                                   //              (terminated)
-		.uav_writeresponsevalid (),                                        //              (terminated)
-		.av_writeresponsevalid  (1'b0)                                     //              (terminated)
-	);
-
-	altera_merlin_slave_translator #(
-		.AV_ADDRESS_W                   (7),
-		.AV_DATA_W                      (64),
-		.UAV_DATA_W                     (64),
-		.AV_BURSTCOUNT_W                (1),
-		.AV_BYTEENABLE_W                (8),
-		.UAV_BYTEENABLE_W               (8),
-		.UAV_ADDRESS_W                  (32),
-		.UAV_BURSTCOUNT_W               (4),
-		.AV_READLATENCY                 (1),
-		.USE_READDATAVALID              (0),
-		.USE_WAITREQUEST                (0),
-		.USE_UAV_CLKEN                  (0),
-		.USE_READRESPONSE               (0),
-		.USE_WRITERESPONSE              (0),
-		.AV_SYMBOLS_PER_WORD            (8),
-		.AV_ADDRESS_SYMBOLS             (0),
-		.AV_BURSTCOUNT_SYMBOLS          (0),
-		.AV_CONSTANT_BURST_BEHAVIOR     (0),
-		.UAV_CONSTANT_BURST_BEHAVIOR    (0),
-		.AV_REQUIRE_UNALIGNED_ADDRESSES (0),
-		.CHIPSELECT_THROUGH_READLATENCY (0),
-		.AV_READ_WAIT_CYCLES            (0),
-		.AV_WRITE_WAIT_CYCLES           (0),
-		.AV_SETUP_WAIT_CYCLES           (0),
-		.AV_DATA_HOLD_CYCLES            (0)
-	) onchip_sram_1_s2_translator (
-		.clk                    (System_PLL_sys_clk_clk),                  //                      clk.clk
-		.reset                  (SDRAM_reset_reset_bridge_in_reset_reset), //                    reset.reset
-		.uav_address            (onchip_sram_1_s2_agent_m0_address),       // avalon_universal_slave_0.address
-		.uav_burstcount         (onchip_sram_1_s2_agent_m0_burstcount),    //                         .burstcount
-		.uav_read               (onchip_sram_1_s2_agent_m0_read),          //                         .read
-		.uav_write              (onchip_sram_1_s2_agent_m0_write),         //                         .write
-		.uav_waitrequest        (onchip_sram_1_s2_agent_m0_waitrequest),   //                         .waitrequest
-		.uav_readdatavalid      (onchip_sram_1_s2_agent_m0_readdatavalid), //                         .readdatavalid
-		.uav_byteenable         (onchip_sram_1_s2_agent_m0_byteenable),    //                         .byteenable
-		.uav_readdata           (onchip_sram_1_s2_agent_m0_readdata),      //                         .readdata
-		.uav_writedata          (onchip_sram_1_s2_agent_m0_writedata),     //                         .writedata
-		.uav_lock               (onchip_sram_1_s2_agent_m0_lock),          //                         .lock
-		.uav_debugaccess        (onchip_sram_1_s2_agent_m0_debugaccess),   //                         .debugaccess
-		.av_address             (Onchip_SRAM_1_s2_address),                //      avalon_anti_slave_0.address
-		.av_write               (Onchip_SRAM_1_s2_write),                  //                         .write
-		.av_readdata            (Onchip_SRAM_1_s2_readdata),               //                         .readdata
-		.av_writedata           (Onchip_SRAM_1_s2_writedata),              //                         .writedata
-		.av_byteenable          (Onchip_SRAM_1_s2_byteenable),             //                         .byteenable
-		.av_chipselect          (Onchip_SRAM_1_s2_chipselect),             //                         .chipselect
-		.av_clken               (Onchip_SRAM_1_s2_clken),                  //                         .clken
-		.av_read                (),                                        //              (terminated)
-		.av_begintransfer       (),                                        //              (terminated)
-		.av_beginbursttransfer  (),                                        //              (terminated)
-		.av_burstcount          (),                                        //              (terminated)
-		.av_readdatavalid       (1'b0),                                    //              (terminated)
-		.av_waitrequest         (1'b0),                                    //              (terminated)
-		.av_writebyteenable     (),                                        //              (terminated)
-		.av_lock                (),                                        //              (terminated)
-		.uav_clken              (1'b0),                                    //              (terminated)
-		.av_debugaccess         (),                                        //              (terminated)
-		.av_outputenable        (),                                        //              (terminated)
-		.uav_response           (),                                        //              (terminated)
-		.av_response            (2'b00),                                   //              (terminated)
-		.uav_writeresponsevalid (),                                        //              (terminated)
-		.av_writeresponsevalid  (1'b0)                                     //              (terminated)
-	);
-
-	altera_merlin_slave_translator #(
-		.AV_ADDRESS_W                   (7),
-		.AV_DATA_W                      (64),
-		.UAV_DATA_W                     (64),
-		.AV_BURSTCOUNT_W                (1),
-		.AV_BYTEENABLE_W                (8),
-		.UAV_BYTEENABLE_W               (8),
-		.UAV_ADDRESS_W                  (32),
-		.UAV_BURSTCOUNT_W               (4),
-		.AV_READLATENCY                 (1),
-		.USE_READDATAVALID              (0),
-		.USE_WAITREQUEST                (0),
-		.USE_UAV_CLKEN                  (0),
-		.USE_READRESPONSE               (0),
-		.USE_WRITERESPONSE              (0),
-		.AV_SYMBOLS_PER_WORD            (8),
-		.AV_ADDRESS_SYMBOLS             (0),
-		.AV_BURSTCOUNT_SYMBOLS          (0),
-		.AV_CONSTANT_BURST_BEHAVIOR     (0),
-		.UAV_CONSTANT_BURST_BEHAVIOR    (0),
-		.AV_REQUIRE_UNALIGNED_ADDRESSES (0),
-		.CHIPSELECT_THROUGH_READLATENCY (0),
-		.AV_READ_WAIT_CYCLES            (0),
-		.AV_WRITE_WAIT_CYCLES           (0),
-		.AV_SETUP_WAIT_CYCLES           (0),
-		.AV_DATA_HOLD_CYCLES            (0)
-	) onchip_sram_2_s2_translator (
-		.clk                    (System_PLL_sys_clk_clk),                  //                      clk.clk
-		.reset                  (SDRAM_reset_reset_bridge_in_reset_reset), //                    reset.reset
-		.uav_address            (onchip_sram_2_s2_agent_m0_address),       // avalon_universal_slave_0.address
-		.uav_burstcount         (onchip_sram_2_s2_agent_m0_burstcount),    //                         .burstcount
-		.uav_read               (onchip_sram_2_s2_agent_m0_read),          //                         .read
-		.uav_write              (onchip_sram_2_s2_agent_m0_write),         //                         .write
-		.uav_waitrequest        (onchip_sram_2_s2_agent_m0_waitrequest),   //                         .waitrequest
-		.uav_readdatavalid      (onchip_sram_2_s2_agent_m0_readdatavalid), //                         .readdatavalid
-		.uav_byteenable         (onchip_sram_2_s2_agent_m0_byteenable),    //                         .byteenable
-		.uav_readdata           (onchip_sram_2_s2_agent_m0_readdata),      //                         .readdata
-		.uav_writedata          (onchip_sram_2_s2_agent_m0_writedata),     //                         .writedata
-		.uav_lock               (onchip_sram_2_s2_agent_m0_lock),          //                         .lock
-		.uav_debugaccess        (onchip_sram_2_s2_agent_m0_debugaccess),   //                         .debugaccess
-		.av_address             (Onchip_SRAM_2_s2_address),                //      avalon_anti_slave_0.address
-		.av_write               (Onchip_SRAM_2_s2_write),                  //                         .write
-		.av_readdata            (Onchip_SRAM_2_s2_readdata),               //                         .readdata
-		.av_writedata           (Onchip_SRAM_2_s2_writedata),              //                         .writedata
-		.av_byteenable          (Onchip_SRAM_2_s2_byteenable),             //                         .byteenable
-		.av_chipselect          (Onchip_SRAM_2_s2_chipselect),             //                         .chipselect
-		.av_clken               (Onchip_SRAM_2_s2_clken),                  //                         .clken
-		.av_read                (),                                        //              (terminated)
-		.av_begintransfer       (),                                        //              (terminated)
-		.av_beginbursttransfer  (),                                        //              (terminated)
-		.av_burstcount          (),                                        //              (terminated)
-		.av_readdatavalid       (1'b0),                                    //              (terminated)
-		.av_waitrequest         (1'b0),                                    //              (terminated)
-		.av_writebyteenable     (),                                        //              (terminated)
-		.av_lock                (),                                        //              (terminated)
-		.uav_clken              (1'b0),                                    //              (terminated)
-		.av_debugaccess         (),                                        //              (terminated)
-		.av_outputenable        (),                                        //              (terminated)
-		.uav_response           (),                                        //              (terminated)
-		.av_response            (2'b00),                                   //              (terminated)
-		.uav_writeresponsevalid (),                                        //              (terminated)
-		.av_writeresponsevalid  (1'b0)                                     //              (terminated)
-	);
-
-	altera_merlin_slave_translator #(
-		.AV_ADDRESS_W                   (7),
-		.AV_DATA_W                      (64),
-		.UAV_DATA_W                     (64),
-		.AV_BURSTCOUNT_W                (1),
-		.AV_BYTEENABLE_W                (8),
-		.UAV_BYTEENABLE_W               (8),
-		.UAV_ADDRESS_W                  (32),
-		.UAV_BURSTCOUNT_W               (4),
-		.AV_READLATENCY                 (1),
-		.USE_READDATAVALID              (0),
-		.USE_WAITREQUEST                (0),
-		.USE_UAV_CLKEN                  (0),
-		.USE_READRESPONSE               (0),
-		.USE_WRITERESPONSE              (0),
-		.AV_SYMBOLS_PER_WORD            (8),
-		.AV_ADDRESS_SYMBOLS             (0),
-		.AV_BURSTCOUNT_SYMBOLS          (0),
-		.AV_CONSTANT_BURST_BEHAVIOR     (0),
-		.UAV_CONSTANT_BURST_BEHAVIOR    (0),
-		.AV_REQUIRE_UNALIGNED_ADDRESSES (0),
-		.CHIPSELECT_THROUGH_READLATENCY (0),
-		.AV_READ_WAIT_CYCLES            (0),
-		.AV_WRITE_WAIT_CYCLES           (0),
-		.AV_SETUP_WAIT_CYCLES           (0),
-		.AV_DATA_HOLD_CYCLES            (0)
-	) onchip_sram_3_s2_translator (
-		.clk                    (System_PLL_sys_clk_clk),                  //                      clk.clk
-		.reset                  (SDRAM_reset_reset_bridge_in_reset_reset), //                    reset.reset
-		.uav_address            (onchip_sram_3_s2_agent_m0_address),       // avalon_universal_slave_0.address
-		.uav_burstcount         (onchip_sram_3_s2_agent_m0_burstcount),    //                         .burstcount
-		.uav_read               (onchip_sram_3_s2_agent_m0_read),          //                         .read
-		.uav_write              (onchip_sram_3_s2_agent_m0_write),         //                         .write
-		.uav_waitrequest        (onchip_sram_3_s2_agent_m0_waitrequest),   //                         .waitrequest
-		.uav_readdatavalid      (onchip_sram_3_s2_agent_m0_readdatavalid), //                         .readdatavalid
-		.uav_byteenable         (onchip_sram_3_s2_agent_m0_byteenable),    //                         .byteenable
-		.uav_readdata           (onchip_sram_3_s2_agent_m0_readdata),      //                         .readdata
-		.uav_writedata          (onchip_sram_3_s2_agent_m0_writedata),     //                         .writedata
-		.uav_lock               (onchip_sram_3_s2_agent_m0_lock),          //                         .lock
-		.uav_debugaccess        (onchip_sram_3_s2_agent_m0_debugaccess),   //                         .debugaccess
-		.av_address             (Onchip_SRAM_3_s2_address),                //      avalon_anti_slave_0.address
-		.av_write               (Onchip_SRAM_3_s2_write),                  //                         .write
-		.av_readdata            (Onchip_SRAM_3_s2_readdata),               //                         .readdata
-		.av_writedata           (Onchip_SRAM_3_s2_writedata),              //                         .writedata
-		.av_byteenable          (Onchip_SRAM_3_s2_byteenable),             //                         .byteenable
-		.av_chipselect          (Onchip_SRAM_3_s2_chipselect),             //                         .chipselect
-		.av_clken               (Onchip_SRAM_3_s2_clken),                  //                         .clken
-		.av_read                (),                                        //              (terminated)
-		.av_begintransfer       (),                                        //              (terminated)
-		.av_beginbursttransfer  (),                                        //              (terminated)
-		.av_burstcount          (),                                        //              (terminated)
-		.av_readdatavalid       (1'b0),                                    //              (terminated)
-		.av_waitrequest         (1'b0),                                    //              (terminated)
-		.av_writebyteenable     (),                                        //              (terminated)
-		.av_lock                (),                                        //              (terminated)
-		.uav_clken              (1'b0),                                    //              (terminated)
-		.av_debugaccess         (),                                        //              (terminated)
-		.av_outputenable        (),                                        //              (terminated)
-		.uav_response           (),                                        //              (terminated)
-		.av_response            (2'b00),                                   //              (terminated)
-		.uav_writeresponsevalid (),                                        //              (terminated)
-		.av_writeresponsevalid  (1'b0)                                     //              (terminated)
+		.clk                    (System_PLL_sys_clk_clk),                          //                      clk.clk
+		.reset                  (mcmc_system_0_reset_reset_bridge_in_reset_reset), //                    reset.reset
+		.uav_address            (sdram_s1_agent_m0_address),                       // avalon_universal_slave_0.address
+		.uav_burstcount         (sdram_s1_agent_m0_burstcount),                    //                         .burstcount
+		.uav_read               (sdram_s1_agent_m0_read),                          //                         .read
+		.uav_write              (sdram_s1_agent_m0_write),                         //                         .write
+		.uav_waitrequest        (sdram_s1_agent_m0_waitrequest),                   //                         .waitrequest
+		.uav_readdatavalid      (sdram_s1_agent_m0_readdatavalid),                 //                         .readdatavalid
+		.uav_byteenable         (sdram_s1_agent_m0_byteenable),                    //                         .byteenable
+		.uav_readdata           (sdram_s1_agent_m0_readdata),                      //                         .readdata
+		.uav_writedata          (sdram_s1_agent_m0_writedata),                     //                         .writedata
+		.uav_lock               (sdram_s1_agent_m0_lock),                          //                         .lock
+		.uav_debugaccess        (sdram_s1_agent_m0_debugaccess),                   //                         .debugaccess
+		.av_address             (SDRAM_s1_address),                                //      avalon_anti_slave_0.address
+		.av_write               (SDRAM_s1_write),                                  //                         .write
+		.av_read                (SDRAM_s1_read),                                   //                         .read
+		.av_readdata            (SDRAM_s1_readdata),                               //                         .readdata
+		.av_writedata           (SDRAM_s1_writedata),                              //                         .writedata
+		.av_byteenable          (SDRAM_s1_byteenable),                             //                         .byteenable
+		.av_readdatavalid       (SDRAM_s1_readdatavalid),                          //                         .readdatavalid
+		.av_waitrequest         (SDRAM_s1_waitrequest),                            //                         .waitrequest
+		.av_chipselect          (SDRAM_s1_chipselect),                             //                         .chipselect
+		.av_begintransfer       (),                                                //              (terminated)
+		.av_beginbursttransfer  (),                                                //              (terminated)
+		.av_burstcount          (),                                                //              (terminated)
+		.av_writebyteenable     (),                                                //              (terminated)
+		.av_lock                (),                                                //              (terminated)
+		.av_clken               (),                                                //              (terminated)
+		.uav_clken              (1'b0),                                            //              (terminated)
+		.av_debugaccess         (),                                                //              (terminated)
+		.av_outputenable        (),                                                //              (terminated)
+		.uav_response           (),                                                //              (terminated)
+		.av_response            (2'b00),                                           //              (terminated)
+		.uav_writeresponsevalid (),                                                //              (terminated)
+		.av_writeresponsevalid  (1'b0)                                             //              (terminated)
 	);
 
 	altera_merlin_axi_master_ni #(
@@ -1280,18 +757,18 @@ module Computer_System_mm_interconnect_0 (
 		.WRITE_ISSUING_CAPABILITY  (8),
 		.READ_ISSUING_CAPABILITY   (8),
 		.PKT_BEGIN_BURST           (207),
-		.PKT_CACHE_H               (233),
-		.PKT_CACHE_L               (230),
+		.PKT_CACHE_H               (231),
+		.PKT_CACHE_L               (228),
 		.PKT_ADDR_SIDEBAND_H       (205),
 		.PKT_ADDR_SIDEBAND_L       (205),
-		.PKT_PROTECTION_H          (229),
-		.PKT_PROTECTION_L          (227),
+		.PKT_PROTECTION_H          (227),
+		.PKT_PROTECTION_L          (225),
 		.PKT_BURST_SIZE_H          (202),
 		.PKT_BURST_SIZE_L          (200),
 		.PKT_BURST_TYPE_H          (204),
 		.PKT_BURST_TYPE_L          (203),
-		.PKT_RESPONSE_STATUS_L     (234),
-		.PKT_RESPONSE_STATUS_H     (235),
+		.PKT_RESPONSE_STATUS_L     (232),
+		.PKT_RESPONSE_STATUS_H     (233),
 		.PKT_BURSTWRAP_H           (199),
 		.PKT_BURSTWRAP_L           (191),
 		.PKT_BYTE_CNT_H            (190),
@@ -1308,20 +785,20 @@ module Computer_System_mm_interconnect_0 (
 		.PKT_DATA_L                (0),
 		.PKT_BYTEEN_H              (143),
 		.PKT_BYTEEN_L              (128),
-		.PKT_SRC_ID_H              (211),
+		.PKT_SRC_ID_H              (210),
 		.PKT_SRC_ID_L              (209),
-		.PKT_DEST_ID_H             (214),
-		.PKT_DEST_ID_L             (212),
-		.PKT_THREAD_ID_H           (226),
-		.PKT_THREAD_ID_L           (215),
+		.PKT_DEST_ID_H             (212),
+		.PKT_DEST_ID_L             (211),
+		.PKT_THREAD_ID_H           (224),
+		.PKT_THREAD_ID_L           (213),
 		.PKT_QOS_L                 (208),
 		.PKT_QOS_H                 (208),
-		.PKT_ORI_BURST_SIZE_L      (236),
-		.PKT_ORI_BURST_SIZE_H      (238),
+		.PKT_ORI_BURST_SIZE_L      (234),
+		.PKT_ORI_BURST_SIZE_H      (236),
 		.PKT_DATA_SIDEBAND_H       (206),
 		.PKT_DATA_SIDEBAND_L       (206),
-		.ST_DATA_W                 (239),
-		.ST_CHANNEL_W              (6),
+		.ST_DATA_W                 (237),
+		.ST_CHANNEL_W              (3),
 		.ID                        (0)
 	) arm_a9_hps_h2f_axi_master_agent (
 		.aclk                   (System_PLL_sys_clk_clk),                                                 //              clk.clk
@@ -1396,10 +873,10 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_master_agent #(
-		.PKT_ORI_BURST_SIZE_H      (103),
-		.PKT_ORI_BURST_SIZE_L      (101),
-		.PKT_RESPONSE_STATUS_H     (100),
-		.PKT_RESPONSE_STATUS_L     (99),
+		.PKT_ORI_BURST_SIZE_H      (101),
+		.PKT_ORI_BURST_SIZE_L      (99),
+		.PKT_RESPONSE_STATUS_H     (98),
+		.PKT_RESPONSE_STATUS_L     (97),
 		.PKT_QOS_H                 (73),
 		.PKT_QOS_L                 (73),
 		.PKT_DATA_SIDEBAND_H       (71),
@@ -1408,17 +885,17 @@ module Computer_System_mm_interconnect_0 (
 		.PKT_ADDR_SIDEBAND_L       (70),
 		.PKT_BURST_TYPE_H          (69),
 		.PKT_BURST_TYPE_L          (68),
-		.PKT_CACHE_H               (98),
-		.PKT_CACHE_L               (95),
-		.PKT_THREAD_ID_H           (91),
-		.PKT_THREAD_ID_L           (80),
+		.PKT_CACHE_H               (96),
+		.PKT_CACHE_L               (93),
+		.PKT_THREAD_ID_H           (89),
+		.PKT_THREAD_ID_L           (78),
 		.PKT_BURST_SIZE_H          (67),
 		.PKT_BURST_SIZE_L          (65),
 		.PKT_TRANS_EXCLUSIVE       (46),
 		.PKT_TRANS_LOCK            (45),
 		.PKT_BEGIN_BURST           (72),
-		.PKT_PROTECTION_H          (94),
-		.PKT_PROTECTION_L          (92),
+		.PKT_PROTECTION_H          (92),
+		.PKT_PROTECTION_L          (90),
 		.PKT_BURSTWRAP_H           (64),
 		.PKT_BURSTWRAP_L           (56),
 		.PKT_BYTE_CNT_H            (55),
@@ -1433,12 +910,12 @@ module Computer_System_mm_interconnect_0 (
 		.PKT_DATA_L                (0),
 		.PKT_BYTEEN_H              (8),
 		.PKT_BYTEEN_L              (8),
-		.PKT_SRC_ID_H              (76),
+		.PKT_SRC_ID_H              (75),
 		.PKT_SRC_ID_L              (74),
-		.PKT_DEST_ID_H             (79),
-		.PKT_DEST_ID_L             (77),
-		.ST_DATA_W                 (104),
-		.ST_CHANNEL_W              (6),
+		.PKT_DEST_ID_H             (77),
+		.PKT_DEST_ID_L             (76),
+		.ST_DATA_W                 (102),
+		.ST_CHANNEL_W              (3),
 		.AV_BURSTCOUNT_W           (1),
 		.SUPPRESS_0_BYTEEN_RSP     (1),
 		.ID                        (1),
@@ -1449,7 +926,7 @@ module Computer_System_mm_interconnect_0 (
 		.USE_WRITERESPONSE         (0)
 	) vga_subsystem_pixel_dma_master_agent (
 		.clk                   (System_PLL_sys_clk_clk),                                                            //       clk.clk
-		.reset                 (SDRAM_reset_reset_bridge_in_reset_reset),                                           // clk_reset.reset
+		.reset                 (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                   // clk_reset.reset
 		.av_address            (vga_subsystem_pixel_dma_master_translator_avalon_universal_master_0_address),       //        av.address
 		.av_write              (vga_subsystem_pixel_dma_master_translator_avalon_universal_master_0_write),         //          .write
 		.av_read               (vga_subsystem_pixel_dma_master_translator_avalon_universal_master_0_read),          //          .read
@@ -1477,16 +954,182 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_agent #(
-		.PKT_ORI_BURST_SIZE_H      (103),
-		.PKT_ORI_BURST_SIZE_L      (101),
-		.PKT_RESPONSE_STATUS_H     (100),
-		.PKT_RESPONSE_STATUS_L     (99),
+		.PKT_ORI_BURST_SIZE_H      (164),
+		.PKT_ORI_BURST_SIZE_L      (162),
+		.PKT_RESPONSE_STATUS_H     (161),
+		.PKT_RESPONSE_STATUS_L     (160),
+		.PKT_BURST_SIZE_H          (130),
+		.PKT_BURST_SIZE_L          (128),
+		.PKT_TRANS_LOCK            (108),
+		.PKT_BEGIN_BURST           (135),
+		.PKT_PROTECTION_H          (155),
+		.PKT_PROTECTION_L          (153),
+		.PKT_BURSTWRAP_H           (127),
+		.PKT_BURSTWRAP_L           (119),
+		.PKT_BYTE_CNT_H            (118),
+		.PKT_BYTE_CNT_L            (110),
+		.PKT_ADDR_H                (103),
+		.PKT_ADDR_L                (72),
+		.PKT_TRANS_COMPRESSED_READ (104),
+		.PKT_TRANS_POSTED          (105),
+		.PKT_TRANS_WRITE           (106),
+		.PKT_TRANS_READ            (107),
+		.PKT_DATA_H                (63),
+		.PKT_DATA_L                (0),
+		.PKT_BYTEEN_H              (71),
+		.PKT_BYTEEN_L              (64),
+		.PKT_SRC_ID_H              (138),
+		.PKT_SRC_ID_L              (137),
+		.PKT_DEST_ID_H             (140),
+		.PKT_DEST_ID_L             (139),
+		.PKT_SYMBOL_W              (8),
+		.ST_CHANNEL_W              (3),
+		.ST_DATA_W                 (165),
+		.AVS_BURSTCOUNT_W          (4),
+		.SUPPRESS_0_BYTEEN_CMD     (1),
+		.PREVENT_FIFO_OVERFLOW     (1),
+		.USE_READRESPONSE          (0),
+		.USE_WRITERESPONSE         (0),
+		.ECC_ENABLE                (0)
+	) mcmc_system_0_avalon_slave_0_agent (
+		.clk                     (System_PLL_sys_clk_clk),                                           //             clk.clk
+		.reset                   (mcmc_system_0_reset_reset_bridge_in_reset_reset),                  //       clk_reset.reset
+		.m0_address              (mcmc_system_0_avalon_slave_0_agent_m0_address),                    //              m0.address
+		.m0_burstcount           (mcmc_system_0_avalon_slave_0_agent_m0_burstcount),                 //                .burstcount
+		.m0_byteenable           (mcmc_system_0_avalon_slave_0_agent_m0_byteenable),                 //                .byteenable
+		.m0_debugaccess          (mcmc_system_0_avalon_slave_0_agent_m0_debugaccess),                //                .debugaccess
+		.m0_lock                 (mcmc_system_0_avalon_slave_0_agent_m0_lock),                       //                .lock
+		.m0_readdata             (mcmc_system_0_avalon_slave_0_agent_m0_readdata),                   //                .readdata
+		.m0_readdatavalid        (mcmc_system_0_avalon_slave_0_agent_m0_readdatavalid),              //                .readdatavalid
+		.m0_read                 (mcmc_system_0_avalon_slave_0_agent_m0_read),                       //                .read
+		.m0_waitrequest          (mcmc_system_0_avalon_slave_0_agent_m0_waitrequest),                //                .waitrequest
+		.m0_writedata            (mcmc_system_0_avalon_slave_0_agent_m0_writedata),                  //                .writedata
+		.m0_write                (mcmc_system_0_avalon_slave_0_agent_m0_write),                      //                .write
+		.rp_endofpacket          (mcmc_system_0_avalon_slave_0_agent_rp_endofpacket),                //              rp.endofpacket
+		.rp_ready                (mcmc_system_0_avalon_slave_0_agent_rp_ready),                      //                .ready
+		.rp_valid                (mcmc_system_0_avalon_slave_0_agent_rp_valid),                      //                .valid
+		.rp_data                 (mcmc_system_0_avalon_slave_0_agent_rp_data),                       //                .data
+		.rp_startofpacket        (mcmc_system_0_avalon_slave_0_agent_rp_startofpacket),              //                .startofpacket
+		.cp_ready                (mcmc_system_0_avalon_slave_0_burst_adapter_source0_ready),         //              cp.ready
+		.cp_valid                (mcmc_system_0_avalon_slave_0_burst_adapter_source0_valid),         //                .valid
+		.cp_data                 (mcmc_system_0_avalon_slave_0_burst_adapter_source0_data),          //                .data
+		.cp_startofpacket        (mcmc_system_0_avalon_slave_0_burst_adapter_source0_startofpacket), //                .startofpacket
+		.cp_endofpacket          (mcmc_system_0_avalon_slave_0_burst_adapter_source0_endofpacket),   //                .endofpacket
+		.cp_channel              (mcmc_system_0_avalon_slave_0_burst_adapter_source0_channel),       //                .channel
+		.rf_sink_ready           (mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_ready),            //         rf_sink.ready
+		.rf_sink_valid           (mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_valid),            //                .valid
+		.rf_sink_startofpacket   (mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_startofpacket),    //                .startofpacket
+		.rf_sink_endofpacket     (mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_endofpacket),      //                .endofpacket
+		.rf_sink_data            (mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_data),             //                .data
+		.rf_source_ready         (mcmc_system_0_avalon_slave_0_agent_rf_source_ready),               //       rf_source.ready
+		.rf_source_valid         (mcmc_system_0_avalon_slave_0_agent_rf_source_valid),               //                .valid
+		.rf_source_startofpacket (mcmc_system_0_avalon_slave_0_agent_rf_source_startofpacket),       //                .startofpacket
+		.rf_source_endofpacket   (mcmc_system_0_avalon_slave_0_agent_rf_source_endofpacket),         //                .endofpacket
+		.rf_source_data          (mcmc_system_0_avalon_slave_0_agent_rf_source_data),                //                .data
+		.rdata_fifo_sink_ready   (avalon_st_adapter_out_0_ready),                                    // rdata_fifo_sink.ready
+		.rdata_fifo_sink_valid   (avalon_st_adapter_out_0_valid),                                    //                .valid
+		.rdata_fifo_sink_data    (avalon_st_adapter_out_0_data),                                     //                .data
+		.rdata_fifo_sink_error   (avalon_st_adapter_out_0_error),                                    //                .error
+		.rdata_fifo_src_ready    (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_ready),          //  rdata_fifo_src.ready
+		.rdata_fifo_src_valid    (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_valid),          //                .valid
+		.rdata_fifo_src_data     (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_data),           //                .data
+		.m0_response             (2'b00),                                                            //     (terminated)
+		.m0_writeresponsevalid   (1'b0)                                                              //     (terminated)
+	);
+
+	altera_avalon_sc_fifo #(
+		.SYMBOLS_PER_BEAT    (1),
+		.BITS_PER_SYMBOL     (166),
+		.FIFO_DEPTH          (2),
+		.CHANNEL_WIDTH       (0),
+		.ERROR_WIDTH         (0),
+		.USE_PACKETS         (1),
+		.USE_FILL_LEVEL      (0),
+		.EMPTY_LATENCY       (1),
+		.USE_MEMORY_BLOCKS   (0),
+		.USE_STORE_FORWARD   (0),
+		.USE_ALMOST_FULL_IF  (0),
+		.USE_ALMOST_EMPTY_IF (0)
+	) mcmc_system_0_avalon_slave_0_agent_rsp_fifo (
+		.clk               (System_PLL_sys_clk_clk),                                        //       clk.clk
+		.reset             (mcmc_system_0_reset_reset_bridge_in_reset_reset),               // clk_reset.reset
+		.in_data           (mcmc_system_0_avalon_slave_0_agent_rf_source_data),             //        in.data
+		.in_valid          (mcmc_system_0_avalon_slave_0_agent_rf_source_valid),            //          .valid
+		.in_ready          (mcmc_system_0_avalon_slave_0_agent_rf_source_ready),            //          .ready
+		.in_startofpacket  (mcmc_system_0_avalon_slave_0_agent_rf_source_startofpacket),    //          .startofpacket
+		.in_endofpacket    (mcmc_system_0_avalon_slave_0_agent_rf_source_endofpacket),      //          .endofpacket
+		.out_data          (mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_data),          //       out.data
+		.out_valid         (mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_valid),         //          .valid
+		.out_ready         (mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_ready),         //          .ready
+		.out_startofpacket (mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_startofpacket), //          .startofpacket
+		.out_endofpacket   (mcmc_system_0_avalon_slave_0_agent_rsp_fifo_out_endofpacket),   //          .endofpacket
+		.csr_address       (2'b00),                                                         // (terminated)
+		.csr_read          (1'b0),                                                          // (terminated)
+		.csr_write         (1'b0),                                                          // (terminated)
+		.csr_readdata      (),                                                              // (terminated)
+		.csr_writedata     (32'b00000000000000000000000000000000),                          // (terminated)
+		.almost_full_data  (),                                                              // (terminated)
+		.almost_empty_data (),                                                              // (terminated)
+		.in_empty          (1'b0),                                                          // (terminated)
+		.out_empty         (),                                                              // (terminated)
+		.in_error          (1'b0),                                                          // (terminated)
+		.out_error         (),                                                              // (terminated)
+		.in_channel        (1'b0),                                                          // (terminated)
+		.out_channel       ()                                                               // (terminated)
+	);
+
+	altera_avalon_sc_fifo #(
+		.SYMBOLS_PER_BEAT    (1),
+		.BITS_PER_SYMBOL     (66),
+		.FIFO_DEPTH          (2),
+		.CHANNEL_WIDTH       (0),
+		.ERROR_WIDTH         (0),
+		.USE_PACKETS         (0),
+		.USE_FILL_LEVEL      (0),
+		.EMPTY_LATENCY       (0),
+		.USE_MEMORY_BLOCKS   (0),
+		.USE_STORE_FORWARD   (0),
+		.USE_ALMOST_FULL_IF  (0),
+		.USE_ALMOST_EMPTY_IF (0)
+	) mcmc_system_0_avalon_slave_0_agent_rdata_fifo (
+		.clk               (System_PLL_sys_clk_clk),                                  //       clk.clk
+		.reset             (mcmc_system_0_reset_reset_bridge_in_reset_reset),         // clk_reset.reset
+		.in_data           (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_data),  //        in.data
+		.in_valid          (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_valid), //          .valid
+		.in_ready          (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_src_ready), //          .ready
+		.out_data          (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_data),  //       out.data
+		.out_valid         (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_valid), //          .valid
+		.out_ready         (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_ready), //          .ready
+		.csr_address       (2'b00),                                                   // (terminated)
+		.csr_read          (1'b0),                                                    // (terminated)
+		.csr_write         (1'b0),                                                    // (terminated)
+		.csr_readdata      (),                                                        // (terminated)
+		.csr_writedata     (32'b00000000000000000000000000000000),                    // (terminated)
+		.almost_full_data  (),                                                        // (terminated)
+		.almost_empty_data (),                                                        // (terminated)
+		.in_startofpacket  (1'b0),                                                    // (terminated)
+		.in_endofpacket    (1'b0),                                                    // (terminated)
+		.out_startofpacket (),                                                        // (terminated)
+		.out_endofpacket   (),                                                        // (terminated)
+		.in_empty          (1'b0),                                                    // (terminated)
+		.out_empty         (),                                                        // (terminated)
+		.in_error          (1'b0),                                                    // (terminated)
+		.out_error         (),                                                        // (terminated)
+		.in_channel        (1'b0),                                                    // (terminated)
+		.out_channel       ()                                                         // (terminated)
+	);
+
+	altera_merlin_slave_agent #(
+		.PKT_ORI_BURST_SIZE_H      (101),
+		.PKT_ORI_BURST_SIZE_L      (99),
+		.PKT_RESPONSE_STATUS_H     (98),
+		.PKT_RESPONSE_STATUS_L     (97),
 		.PKT_BURST_SIZE_H          (67),
 		.PKT_BURST_SIZE_L          (65),
 		.PKT_TRANS_LOCK            (45),
 		.PKT_BEGIN_BURST           (72),
-		.PKT_PROTECTION_H          (94),
-		.PKT_PROTECTION_L          (92),
+		.PKT_PROTECTION_H          (92),
+		.PKT_PROTECTION_L          (90),
 		.PKT_BURSTWRAP_H           (64),
 		.PKT_BURSTWRAP_L           (56),
 		.PKT_BYTE_CNT_H            (55),
@@ -1501,13 +1144,13 @@ module Computer_System_mm_interconnect_0 (
 		.PKT_DATA_L                (0),
 		.PKT_BYTEEN_H              (8),
 		.PKT_BYTEEN_L              (8),
-		.PKT_SRC_ID_H              (76),
+		.PKT_SRC_ID_H              (75),
 		.PKT_SRC_ID_L              (74),
-		.PKT_DEST_ID_H             (79),
-		.PKT_DEST_ID_L             (77),
+		.PKT_DEST_ID_H             (77),
+		.PKT_DEST_ID_L             (76),
 		.PKT_SYMBOL_W              (8),
-		.ST_CHANNEL_W              (6),
-		.ST_DATA_W                 (104),
+		.ST_CHANNEL_W              (3),
+		.ST_DATA_W                 (102),
 		.AVS_BURSTCOUNT_W          (1),
 		.SUPPRESS_0_BYTEEN_CMD     (1),
 		.PREVENT_FIFO_OVERFLOW     (1),
@@ -1516,7 +1159,7 @@ module Computer_System_mm_interconnect_0 (
 		.ECC_ENABLE                (0)
 	) vga_subsystem_char_buffer_slave_agent (
 		.clk                     (System_PLL_sys_clk_clk),                                              //             clk.clk
-		.reset                   (SDRAM_reset_reset_bridge_in_reset_reset),                             //       clk_reset.reset
+		.reset                   (mcmc_system_0_reset_reset_bridge_in_reset_reset),                     //       clk_reset.reset
 		.m0_address              (vga_subsystem_char_buffer_slave_agent_m0_address),                    //              m0.address
 		.m0_burstcount           (vga_subsystem_char_buffer_slave_agent_m0_burstcount),                 //                .burstcount
 		.m0_byteenable           (vga_subsystem_char_buffer_slave_agent_m0_byteenable),                 //                .byteenable
@@ -1549,10 +1192,10 @@ module Computer_System_mm_interconnect_0 (
 		.rf_source_startofpacket (vga_subsystem_char_buffer_slave_agent_rf_source_startofpacket),       //                .startofpacket
 		.rf_source_endofpacket   (vga_subsystem_char_buffer_slave_agent_rf_source_endofpacket),         //                .endofpacket
 		.rf_source_data          (vga_subsystem_char_buffer_slave_agent_rf_source_data),                //                .data
-		.rdata_fifo_sink_ready   (avalon_st_adapter_out_0_ready),                                       // rdata_fifo_sink.ready
-		.rdata_fifo_sink_valid   (avalon_st_adapter_out_0_valid),                                       //                .valid
-		.rdata_fifo_sink_data    (avalon_st_adapter_out_0_data),                                        //                .data
-		.rdata_fifo_sink_error   (avalon_st_adapter_out_0_error),                                       //                .error
+		.rdata_fifo_sink_ready   (avalon_st_adapter_001_out_0_ready),                                   // rdata_fifo_sink.ready
+		.rdata_fifo_sink_valid   (avalon_st_adapter_001_out_0_valid),                                   //                .valid
+		.rdata_fifo_sink_data    (avalon_st_adapter_001_out_0_data),                                    //                .data
+		.rdata_fifo_sink_error   (avalon_st_adapter_001_out_0_error),                                   //                .error
 		.rdata_fifo_src_ready    (vga_subsystem_char_buffer_slave_agent_rdata_fifo_src_ready),          //  rdata_fifo_src.ready
 		.rdata_fifo_src_valid    (vga_subsystem_char_buffer_slave_agent_rdata_fifo_src_valid),          //                .valid
 		.rdata_fifo_src_data     (vga_subsystem_char_buffer_slave_agent_rdata_fifo_src_data),           //                .data
@@ -1562,7 +1205,7 @@ module Computer_System_mm_interconnect_0 (
 
 	altera_avalon_sc_fifo #(
 		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (105),
+		.BITS_PER_SYMBOL     (103),
 		.FIFO_DEPTH          (2),
 		.CHANNEL_WIDTH       (0),
 		.ERROR_WIDTH         (0),
@@ -1575,7 +1218,7 @@ module Computer_System_mm_interconnect_0 (
 		.USE_ALMOST_EMPTY_IF (0)
 	) vga_subsystem_char_buffer_slave_agent_rsp_fifo (
 		.clk               (System_PLL_sys_clk_clk),                                           //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),                          // clk_reset.reset
+		.reset             (mcmc_system_0_reset_reset_bridge_in_reset_reset),                  // clk_reset.reset
 		.in_data           (vga_subsystem_char_buffer_slave_agent_rf_source_data),             //        in.data
 		.in_valid          (vga_subsystem_char_buffer_slave_agent_rf_source_valid),            //          .valid
 		.in_ready          (vga_subsystem_char_buffer_slave_agent_rf_source_ready),            //          .ready
@@ -1616,7 +1259,7 @@ module Computer_System_mm_interconnect_0 (
 		.USE_ALMOST_EMPTY_IF (0)
 	) vga_subsystem_char_buffer_slave_agent_rdata_fifo (
 		.clk               (System_PLL_sys_clk_clk),                                     //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),                    // clk_reset.reset
+		.reset             (mcmc_system_0_reset_reset_bridge_in_reset_reset),            // clk_reset.reset
 		.in_data           (vga_subsystem_char_buffer_slave_agent_rdata_fifo_src_data),  //        in.data
 		.in_valid          (vga_subsystem_char_buffer_slave_agent_rdata_fifo_src_valid), //          .valid
 		.in_ready          (vga_subsystem_char_buffer_slave_agent_rdata_fifo_src_ready), //          .ready
@@ -1643,16 +1286,16 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_agent #(
-		.PKT_ORI_BURST_SIZE_H      (112),
-		.PKT_ORI_BURST_SIZE_L      (110),
-		.PKT_RESPONSE_STATUS_H     (109),
-		.PKT_RESPONSE_STATUS_L     (108),
+		.PKT_ORI_BURST_SIZE_H      (110),
+		.PKT_ORI_BURST_SIZE_L      (108),
+		.PKT_RESPONSE_STATUS_H     (107),
+		.PKT_RESPONSE_STATUS_L     (106),
 		.PKT_BURST_SIZE_H          (76),
 		.PKT_BURST_SIZE_L          (74),
 		.PKT_TRANS_LOCK            (54),
 		.PKT_BEGIN_BURST           (81),
-		.PKT_PROTECTION_H          (103),
-		.PKT_PROTECTION_L          (101),
+		.PKT_PROTECTION_H          (101),
+		.PKT_PROTECTION_L          (99),
 		.PKT_BURSTWRAP_H           (73),
 		.PKT_BURSTWRAP_L           (65),
 		.PKT_BYTE_CNT_H            (64),
@@ -1667,13 +1310,13 @@ module Computer_System_mm_interconnect_0 (
 		.PKT_DATA_L                (0),
 		.PKT_BYTEEN_H              (17),
 		.PKT_BYTEEN_L              (16),
-		.PKT_SRC_ID_H              (85),
+		.PKT_SRC_ID_H              (84),
 		.PKT_SRC_ID_L              (83),
-		.PKT_DEST_ID_H             (88),
-		.PKT_DEST_ID_L             (86),
+		.PKT_DEST_ID_H             (86),
+		.PKT_DEST_ID_L             (85),
 		.PKT_SYMBOL_W              (8),
-		.ST_CHANNEL_W              (6),
-		.ST_DATA_W                 (113),
+		.ST_CHANNEL_W              (3),
+		.ST_DATA_W                 (111),
 		.AVS_BURSTCOUNT_W          (2),
 		.SUPPRESS_0_BYTEEN_CMD     (1),
 		.PREVENT_FIFO_OVERFLOW     (1),
@@ -1681,54 +1324,54 @@ module Computer_System_mm_interconnect_0 (
 		.USE_WRITERESPONSE         (0),
 		.ECC_ENABLE                (0)
 	) sdram_s1_agent (
-		.clk                     (System_PLL_sys_clk_clk),                       //             clk.clk
-		.reset                   (SDRAM_reset_reset_bridge_in_reset_reset),      //       clk_reset.reset
-		.m0_address              (sdram_s1_agent_m0_address),                    //              m0.address
-		.m0_burstcount           (sdram_s1_agent_m0_burstcount),                 //                .burstcount
-		.m0_byteenable           (sdram_s1_agent_m0_byteenable),                 //                .byteenable
-		.m0_debugaccess          (sdram_s1_agent_m0_debugaccess),                //                .debugaccess
-		.m0_lock                 (sdram_s1_agent_m0_lock),                       //                .lock
-		.m0_readdata             (sdram_s1_agent_m0_readdata),                   //                .readdata
-		.m0_readdatavalid        (sdram_s1_agent_m0_readdatavalid),              //                .readdatavalid
-		.m0_read                 (sdram_s1_agent_m0_read),                       //                .read
-		.m0_waitrequest          (sdram_s1_agent_m0_waitrequest),                //                .waitrequest
-		.m0_writedata            (sdram_s1_agent_m0_writedata),                  //                .writedata
-		.m0_write                (sdram_s1_agent_m0_write),                      //                .write
-		.rp_endofpacket          (sdram_s1_agent_rp_endofpacket),                //              rp.endofpacket
-		.rp_ready                (sdram_s1_agent_rp_ready),                      //                .ready
-		.rp_valid                (sdram_s1_agent_rp_valid),                      //                .valid
-		.rp_data                 (sdram_s1_agent_rp_data),                       //                .data
-		.rp_startofpacket        (sdram_s1_agent_rp_startofpacket),              //                .startofpacket
-		.cp_ready                (sdram_s1_burst_adapter_source0_ready),         //              cp.ready
-		.cp_valid                (sdram_s1_burst_adapter_source0_valid),         //                .valid
-		.cp_data                 (sdram_s1_burst_adapter_source0_data),          //                .data
-		.cp_startofpacket        (sdram_s1_burst_adapter_source0_startofpacket), //                .startofpacket
-		.cp_endofpacket          (sdram_s1_burst_adapter_source0_endofpacket),   //                .endofpacket
-		.cp_channel              (sdram_s1_burst_adapter_source0_channel),       //                .channel
-		.rf_sink_ready           (sdram_s1_agent_rsp_fifo_out_ready),            //         rf_sink.ready
-		.rf_sink_valid           (sdram_s1_agent_rsp_fifo_out_valid),            //                .valid
-		.rf_sink_startofpacket   (sdram_s1_agent_rsp_fifo_out_startofpacket),    //                .startofpacket
-		.rf_sink_endofpacket     (sdram_s1_agent_rsp_fifo_out_endofpacket),      //                .endofpacket
-		.rf_sink_data            (sdram_s1_agent_rsp_fifo_out_data),             //                .data
-		.rf_source_ready         (sdram_s1_agent_rf_source_ready),               //       rf_source.ready
-		.rf_source_valid         (sdram_s1_agent_rf_source_valid),               //                .valid
-		.rf_source_startofpacket (sdram_s1_agent_rf_source_startofpacket),       //                .startofpacket
-		.rf_source_endofpacket   (sdram_s1_agent_rf_source_endofpacket),         //                .endofpacket
-		.rf_source_data          (sdram_s1_agent_rf_source_data),                //                .data
-		.rdata_fifo_sink_ready   (avalon_st_adapter_001_out_0_ready),            // rdata_fifo_sink.ready
-		.rdata_fifo_sink_valid   (avalon_st_adapter_001_out_0_valid),            //                .valid
-		.rdata_fifo_sink_data    (avalon_st_adapter_001_out_0_data),             //                .data
-		.rdata_fifo_sink_error   (avalon_st_adapter_001_out_0_error),            //                .error
-		.rdata_fifo_src_ready    (sdram_s1_agent_rdata_fifo_src_ready),          //  rdata_fifo_src.ready
-		.rdata_fifo_src_valid    (sdram_s1_agent_rdata_fifo_src_valid),          //                .valid
-		.rdata_fifo_src_data     (sdram_s1_agent_rdata_fifo_src_data),           //                .data
-		.m0_response             (2'b00),                                        //     (terminated)
-		.m0_writeresponsevalid   (1'b0)                                          //     (terminated)
+		.clk                     (System_PLL_sys_clk_clk),                          //             clk.clk
+		.reset                   (mcmc_system_0_reset_reset_bridge_in_reset_reset), //       clk_reset.reset
+		.m0_address              (sdram_s1_agent_m0_address),                       //              m0.address
+		.m0_burstcount           (sdram_s1_agent_m0_burstcount),                    //                .burstcount
+		.m0_byteenable           (sdram_s1_agent_m0_byteenable),                    //                .byteenable
+		.m0_debugaccess          (sdram_s1_agent_m0_debugaccess),                   //                .debugaccess
+		.m0_lock                 (sdram_s1_agent_m0_lock),                          //                .lock
+		.m0_readdata             (sdram_s1_agent_m0_readdata),                      //                .readdata
+		.m0_readdatavalid        (sdram_s1_agent_m0_readdatavalid),                 //                .readdatavalid
+		.m0_read                 (sdram_s1_agent_m0_read),                          //                .read
+		.m0_waitrequest          (sdram_s1_agent_m0_waitrequest),                   //                .waitrequest
+		.m0_writedata            (sdram_s1_agent_m0_writedata),                     //                .writedata
+		.m0_write                (sdram_s1_agent_m0_write),                         //                .write
+		.rp_endofpacket          (sdram_s1_agent_rp_endofpacket),                   //              rp.endofpacket
+		.rp_ready                (sdram_s1_agent_rp_ready),                         //                .ready
+		.rp_valid                (sdram_s1_agent_rp_valid),                         //                .valid
+		.rp_data                 (sdram_s1_agent_rp_data),                          //                .data
+		.rp_startofpacket        (sdram_s1_agent_rp_startofpacket),                 //                .startofpacket
+		.cp_ready                (sdram_s1_burst_adapter_source0_ready),            //              cp.ready
+		.cp_valid                (sdram_s1_burst_adapter_source0_valid),            //                .valid
+		.cp_data                 (sdram_s1_burst_adapter_source0_data),             //                .data
+		.cp_startofpacket        (sdram_s1_burst_adapter_source0_startofpacket),    //                .startofpacket
+		.cp_endofpacket          (sdram_s1_burst_adapter_source0_endofpacket),      //                .endofpacket
+		.cp_channel              (sdram_s1_burst_adapter_source0_channel),          //                .channel
+		.rf_sink_ready           (sdram_s1_agent_rsp_fifo_out_ready),               //         rf_sink.ready
+		.rf_sink_valid           (sdram_s1_agent_rsp_fifo_out_valid),               //                .valid
+		.rf_sink_startofpacket   (sdram_s1_agent_rsp_fifo_out_startofpacket),       //                .startofpacket
+		.rf_sink_endofpacket     (sdram_s1_agent_rsp_fifo_out_endofpacket),         //                .endofpacket
+		.rf_sink_data            (sdram_s1_agent_rsp_fifo_out_data),                //                .data
+		.rf_source_ready         (sdram_s1_agent_rf_source_ready),                  //       rf_source.ready
+		.rf_source_valid         (sdram_s1_agent_rf_source_valid),                  //                .valid
+		.rf_source_startofpacket (sdram_s1_agent_rf_source_startofpacket),          //                .startofpacket
+		.rf_source_endofpacket   (sdram_s1_agent_rf_source_endofpacket),            //                .endofpacket
+		.rf_source_data          (sdram_s1_agent_rf_source_data),                   //                .data
+		.rdata_fifo_sink_ready   (avalon_st_adapter_002_out_0_ready),               // rdata_fifo_sink.ready
+		.rdata_fifo_sink_valid   (avalon_st_adapter_002_out_0_valid),               //                .valid
+		.rdata_fifo_sink_data    (avalon_st_adapter_002_out_0_data),                //                .data
+		.rdata_fifo_sink_error   (avalon_st_adapter_002_out_0_error),               //                .error
+		.rdata_fifo_src_ready    (sdram_s1_agent_rdata_fifo_src_ready),             //  rdata_fifo_src.ready
+		.rdata_fifo_src_valid    (sdram_s1_agent_rdata_fifo_src_valid),             //                .valid
+		.rdata_fifo_src_data     (sdram_s1_agent_rdata_fifo_src_data),              //                .data
+		.m0_response             (2'b00),                                           //     (terminated)
+		.m0_writeresponsevalid   (1'b0)                                             //     (terminated)
 	);
 
 	altera_avalon_sc_fifo #(
 		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (114),
+		.BITS_PER_SYMBOL     (112),
 		.FIFO_DEPTH          (8),
 		.CHANNEL_WIDTH       (0),
 		.ERROR_WIDTH         (0),
@@ -1740,31 +1383,31 @@ module Computer_System_mm_interconnect_0 (
 		.USE_ALMOST_FULL_IF  (0),
 		.USE_ALMOST_EMPTY_IF (0)
 	) sdram_s1_agent_rsp_fifo (
-		.clk               (System_PLL_sys_clk_clk),                    //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),   // clk_reset.reset
-		.in_data           (sdram_s1_agent_rf_source_data),             //        in.data
-		.in_valid          (sdram_s1_agent_rf_source_valid),            //          .valid
-		.in_ready          (sdram_s1_agent_rf_source_ready),            //          .ready
-		.in_startofpacket  (sdram_s1_agent_rf_source_startofpacket),    //          .startofpacket
-		.in_endofpacket    (sdram_s1_agent_rf_source_endofpacket),      //          .endofpacket
-		.out_data          (sdram_s1_agent_rsp_fifo_out_data),          //       out.data
-		.out_valid         (sdram_s1_agent_rsp_fifo_out_valid),         //          .valid
-		.out_ready         (sdram_s1_agent_rsp_fifo_out_ready),         //          .ready
-		.out_startofpacket (sdram_s1_agent_rsp_fifo_out_startofpacket), //          .startofpacket
-		.out_endofpacket   (sdram_s1_agent_rsp_fifo_out_endofpacket),   //          .endofpacket
-		.csr_address       (2'b00),                                     // (terminated)
-		.csr_read          (1'b0),                                      // (terminated)
-		.csr_write         (1'b0),                                      // (terminated)
-		.csr_readdata      (),                                          // (terminated)
-		.csr_writedata     (32'b00000000000000000000000000000000),      // (terminated)
-		.almost_full_data  (),                                          // (terminated)
-		.almost_empty_data (),                                          // (terminated)
-		.in_empty          (1'b0),                                      // (terminated)
-		.out_empty         (),                                          // (terminated)
-		.in_error          (1'b0),                                      // (terminated)
-		.out_error         (),                                          // (terminated)
-		.in_channel        (1'b0),                                      // (terminated)
-		.out_channel       ()                                           // (terminated)
+		.clk               (System_PLL_sys_clk_clk),                          //       clk.clk
+		.reset             (mcmc_system_0_reset_reset_bridge_in_reset_reset), // clk_reset.reset
+		.in_data           (sdram_s1_agent_rf_source_data),                   //        in.data
+		.in_valid          (sdram_s1_agent_rf_source_valid),                  //          .valid
+		.in_ready          (sdram_s1_agent_rf_source_ready),                  //          .ready
+		.in_startofpacket  (sdram_s1_agent_rf_source_startofpacket),          //          .startofpacket
+		.in_endofpacket    (sdram_s1_agent_rf_source_endofpacket),            //          .endofpacket
+		.out_data          (sdram_s1_agent_rsp_fifo_out_data),                //       out.data
+		.out_valid         (sdram_s1_agent_rsp_fifo_out_valid),               //          .valid
+		.out_ready         (sdram_s1_agent_rsp_fifo_out_ready),               //          .ready
+		.out_startofpacket (sdram_s1_agent_rsp_fifo_out_startofpacket),       //          .startofpacket
+		.out_endofpacket   (sdram_s1_agent_rsp_fifo_out_endofpacket),         //          .endofpacket
+		.csr_address       (2'b00),                                           // (terminated)
+		.csr_read          (1'b0),                                            // (terminated)
+		.csr_write         (1'b0),                                            // (terminated)
+		.csr_readdata      (),                                                // (terminated)
+		.csr_writedata     (32'b00000000000000000000000000000000),            // (terminated)
+		.almost_full_data  (),                                                // (terminated)
+		.almost_empty_data (),                                                // (terminated)
+		.in_empty          (1'b0),                                            // (terminated)
+		.out_empty         (),                                                // (terminated)
+		.in_error          (1'b0),                                            // (terminated)
+		.out_error         (),                                                // (terminated)
+		.in_channel        (1'b0),                                            // (terminated)
+		.out_channel       ()                                                 // (terminated)
 	);
 
 	altera_avalon_sc_fifo #(
@@ -1781,695 +1424,31 @@ module Computer_System_mm_interconnect_0 (
 		.USE_ALMOST_FULL_IF  (0),
 		.USE_ALMOST_EMPTY_IF (0)
 	) sdram_s1_agent_rdata_fifo (
-		.clk               (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.in_data           (sdram_s1_agent_rdata_fifo_src_data),      //        in.data
-		.in_valid          (sdram_s1_agent_rdata_fifo_src_valid),     //          .valid
-		.in_ready          (sdram_s1_agent_rdata_fifo_src_ready),     //          .ready
-		.out_data          (sdram_s1_agent_rdata_fifo_out_data),      //       out.data
-		.out_valid         (sdram_s1_agent_rdata_fifo_out_valid),     //          .valid
-		.out_ready         (sdram_s1_agent_rdata_fifo_out_ready),     //          .ready
-		.csr_address       (2'b00),                                   // (terminated)
-		.csr_read          (1'b0),                                    // (terminated)
-		.csr_write         (1'b0),                                    // (terminated)
-		.csr_readdata      (),                                        // (terminated)
-		.csr_writedata     (32'b00000000000000000000000000000000),    // (terminated)
-		.almost_full_data  (),                                        // (terminated)
-		.almost_empty_data (),                                        // (terminated)
-		.in_startofpacket  (1'b0),                                    // (terminated)
-		.in_endofpacket    (1'b0),                                    // (terminated)
-		.out_startofpacket (),                                        // (terminated)
-		.out_endofpacket   (),                                        // (terminated)
-		.in_empty          (1'b0),                                    // (terminated)
-		.out_empty         (),                                        // (terminated)
-		.in_error          (1'b0),                                    // (terminated)
-		.out_error         (),                                        // (terminated)
-		.in_channel        (1'b0),                                    // (terminated)
-		.out_channel       ()                                         // (terminated)
-	);
-
-	altera_merlin_slave_agent #(
-		.PKT_ORI_BURST_SIZE_H      (166),
-		.PKT_ORI_BURST_SIZE_L      (164),
-		.PKT_RESPONSE_STATUS_H     (163),
-		.PKT_RESPONSE_STATUS_L     (162),
-		.PKT_BURST_SIZE_H          (130),
-		.PKT_BURST_SIZE_L          (128),
-		.PKT_TRANS_LOCK            (108),
-		.PKT_BEGIN_BURST           (135),
-		.PKT_PROTECTION_H          (157),
-		.PKT_PROTECTION_L          (155),
-		.PKT_BURSTWRAP_H           (127),
-		.PKT_BURSTWRAP_L           (119),
-		.PKT_BYTE_CNT_H            (118),
-		.PKT_BYTE_CNT_L            (110),
-		.PKT_ADDR_H                (103),
-		.PKT_ADDR_L                (72),
-		.PKT_TRANS_COMPRESSED_READ (104),
-		.PKT_TRANS_POSTED          (105),
-		.PKT_TRANS_WRITE           (106),
-		.PKT_TRANS_READ            (107),
-		.PKT_DATA_H                (63),
-		.PKT_DATA_L                (0),
-		.PKT_BYTEEN_H              (71),
-		.PKT_BYTEEN_L              (64),
-		.PKT_SRC_ID_H              (139),
-		.PKT_SRC_ID_L              (137),
-		.PKT_DEST_ID_H             (142),
-		.PKT_DEST_ID_L             (140),
-		.PKT_SYMBOL_W              (8),
-		.ST_CHANNEL_W              (6),
-		.ST_DATA_W                 (167),
-		.AVS_BURSTCOUNT_W          (4),
-		.SUPPRESS_0_BYTEEN_CMD     (1),
-		.PREVENT_FIFO_OVERFLOW     (1),
-		.USE_READRESPONSE          (0),
-		.USE_WRITERESPONSE         (0),
-		.ECC_ENABLE                (0)
-	) onchip_sram_0_s2_agent (
-		.clk                     (System_PLL_sys_clk_clk),                               //             clk.clk
-		.reset                   (SDRAM_reset_reset_bridge_in_reset_reset),              //       clk_reset.reset
-		.m0_address              (onchip_sram_0_s2_agent_m0_address),                    //              m0.address
-		.m0_burstcount           (onchip_sram_0_s2_agent_m0_burstcount),                 //                .burstcount
-		.m0_byteenable           (onchip_sram_0_s2_agent_m0_byteenable),                 //                .byteenable
-		.m0_debugaccess          (onchip_sram_0_s2_agent_m0_debugaccess),                //                .debugaccess
-		.m0_lock                 (onchip_sram_0_s2_agent_m0_lock),                       //                .lock
-		.m0_readdata             (onchip_sram_0_s2_agent_m0_readdata),                   //                .readdata
-		.m0_readdatavalid        (onchip_sram_0_s2_agent_m0_readdatavalid),              //                .readdatavalid
-		.m0_read                 (onchip_sram_0_s2_agent_m0_read),                       //                .read
-		.m0_waitrequest          (onchip_sram_0_s2_agent_m0_waitrequest),                //                .waitrequest
-		.m0_writedata            (onchip_sram_0_s2_agent_m0_writedata),                  //                .writedata
-		.m0_write                (onchip_sram_0_s2_agent_m0_write),                      //                .write
-		.rp_endofpacket          (onchip_sram_0_s2_agent_rp_endofpacket),                //              rp.endofpacket
-		.rp_ready                (onchip_sram_0_s2_agent_rp_ready),                      //                .ready
-		.rp_valid                (onchip_sram_0_s2_agent_rp_valid),                      //                .valid
-		.rp_data                 (onchip_sram_0_s2_agent_rp_data),                       //                .data
-		.rp_startofpacket        (onchip_sram_0_s2_agent_rp_startofpacket),              //                .startofpacket
-		.cp_ready                (onchip_sram_0_s2_burst_adapter_source0_ready),         //              cp.ready
-		.cp_valid                (onchip_sram_0_s2_burst_adapter_source0_valid),         //                .valid
-		.cp_data                 (onchip_sram_0_s2_burst_adapter_source0_data),          //                .data
-		.cp_startofpacket        (onchip_sram_0_s2_burst_adapter_source0_startofpacket), //                .startofpacket
-		.cp_endofpacket          (onchip_sram_0_s2_burst_adapter_source0_endofpacket),   //                .endofpacket
-		.cp_channel              (onchip_sram_0_s2_burst_adapter_source0_channel),       //                .channel
-		.rf_sink_ready           (onchip_sram_0_s2_agent_rsp_fifo_out_ready),            //         rf_sink.ready
-		.rf_sink_valid           (onchip_sram_0_s2_agent_rsp_fifo_out_valid),            //                .valid
-		.rf_sink_startofpacket   (onchip_sram_0_s2_agent_rsp_fifo_out_startofpacket),    //                .startofpacket
-		.rf_sink_endofpacket     (onchip_sram_0_s2_agent_rsp_fifo_out_endofpacket),      //                .endofpacket
-		.rf_sink_data            (onchip_sram_0_s2_agent_rsp_fifo_out_data),             //                .data
-		.rf_source_ready         (onchip_sram_0_s2_agent_rf_source_ready),               //       rf_source.ready
-		.rf_source_valid         (onchip_sram_0_s2_agent_rf_source_valid),               //                .valid
-		.rf_source_startofpacket (onchip_sram_0_s2_agent_rf_source_startofpacket),       //                .startofpacket
-		.rf_source_endofpacket   (onchip_sram_0_s2_agent_rf_source_endofpacket),         //                .endofpacket
-		.rf_source_data          (onchip_sram_0_s2_agent_rf_source_data),                //                .data
-		.rdata_fifo_sink_ready   (avalon_st_adapter_002_out_0_ready),                    // rdata_fifo_sink.ready
-		.rdata_fifo_sink_valid   (avalon_st_adapter_002_out_0_valid),                    //                .valid
-		.rdata_fifo_sink_data    (avalon_st_adapter_002_out_0_data),                     //                .data
-		.rdata_fifo_sink_error   (avalon_st_adapter_002_out_0_error),                    //                .error
-		.rdata_fifo_src_ready    (onchip_sram_0_s2_agent_rdata_fifo_src_ready),          //  rdata_fifo_src.ready
-		.rdata_fifo_src_valid    (onchip_sram_0_s2_agent_rdata_fifo_src_valid),          //                .valid
-		.rdata_fifo_src_data     (onchip_sram_0_s2_agent_rdata_fifo_src_data),           //                .data
-		.m0_response             (2'b00),                                                //     (terminated)
-		.m0_writeresponsevalid   (1'b0)                                                  //     (terminated)
-	);
-
-	altera_avalon_sc_fifo #(
-		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (168),
-		.FIFO_DEPTH          (2),
-		.CHANNEL_WIDTH       (0),
-		.ERROR_WIDTH         (0),
-		.USE_PACKETS         (1),
-		.USE_FILL_LEVEL      (0),
-		.EMPTY_LATENCY       (1),
-		.USE_MEMORY_BLOCKS   (0),
-		.USE_STORE_FORWARD   (0),
-		.USE_ALMOST_FULL_IF  (0),
-		.USE_ALMOST_EMPTY_IF (0)
-	) onchip_sram_0_s2_agent_rsp_fifo (
-		.clk               (System_PLL_sys_clk_clk),                            //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),           // clk_reset.reset
-		.in_data           (onchip_sram_0_s2_agent_rf_source_data),             //        in.data
-		.in_valid          (onchip_sram_0_s2_agent_rf_source_valid),            //          .valid
-		.in_ready          (onchip_sram_0_s2_agent_rf_source_ready),            //          .ready
-		.in_startofpacket  (onchip_sram_0_s2_agent_rf_source_startofpacket),    //          .startofpacket
-		.in_endofpacket    (onchip_sram_0_s2_agent_rf_source_endofpacket),      //          .endofpacket
-		.out_data          (onchip_sram_0_s2_agent_rsp_fifo_out_data),          //       out.data
-		.out_valid         (onchip_sram_0_s2_agent_rsp_fifo_out_valid),         //          .valid
-		.out_ready         (onchip_sram_0_s2_agent_rsp_fifo_out_ready),         //          .ready
-		.out_startofpacket (onchip_sram_0_s2_agent_rsp_fifo_out_startofpacket), //          .startofpacket
-		.out_endofpacket   (onchip_sram_0_s2_agent_rsp_fifo_out_endofpacket),   //          .endofpacket
-		.csr_address       (2'b00),                                             // (terminated)
-		.csr_read          (1'b0),                                              // (terminated)
-		.csr_write         (1'b0),                                              // (terminated)
-		.csr_readdata      (),                                                  // (terminated)
-		.csr_writedata     (32'b00000000000000000000000000000000),              // (terminated)
-		.almost_full_data  (),                                                  // (terminated)
-		.almost_empty_data (),                                                  // (terminated)
-		.in_empty          (1'b0),                                              // (terminated)
-		.out_empty         (),                                                  // (terminated)
-		.in_error          (1'b0),                                              // (terminated)
-		.out_error         (),                                                  // (terminated)
-		.in_channel        (1'b0),                                              // (terminated)
-		.out_channel       ()                                                   // (terminated)
-	);
-
-	altera_avalon_sc_fifo #(
-		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (66),
-		.FIFO_DEPTH          (2),
-		.CHANNEL_WIDTH       (0),
-		.ERROR_WIDTH         (0),
-		.USE_PACKETS         (0),
-		.USE_FILL_LEVEL      (0),
-		.EMPTY_LATENCY       (0),
-		.USE_MEMORY_BLOCKS   (0),
-		.USE_STORE_FORWARD   (0),
-		.USE_ALMOST_FULL_IF  (0),
-		.USE_ALMOST_EMPTY_IF (0)
-	) onchip_sram_0_s2_agent_rdata_fifo (
-		.clk               (System_PLL_sys_clk_clk),                      //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),     // clk_reset.reset
-		.in_data           (onchip_sram_0_s2_agent_rdata_fifo_src_data),  //        in.data
-		.in_valid          (onchip_sram_0_s2_agent_rdata_fifo_src_valid), //          .valid
-		.in_ready          (onchip_sram_0_s2_agent_rdata_fifo_src_ready), //          .ready
-		.out_data          (onchip_sram_0_s2_agent_rdata_fifo_out_data),  //       out.data
-		.out_valid         (onchip_sram_0_s2_agent_rdata_fifo_out_valid), //          .valid
-		.out_ready         (onchip_sram_0_s2_agent_rdata_fifo_out_ready), //          .ready
-		.csr_address       (2'b00),                                       // (terminated)
-		.csr_read          (1'b0),                                        // (terminated)
-		.csr_write         (1'b0),                                        // (terminated)
-		.csr_readdata      (),                                            // (terminated)
-		.csr_writedata     (32'b00000000000000000000000000000000),        // (terminated)
-		.almost_full_data  (),                                            // (terminated)
-		.almost_empty_data (),                                            // (terminated)
-		.in_startofpacket  (1'b0),                                        // (terminated)
-		.in_endofpacket    (1'b0),                                        // (terminated)
-		.out_startofpacket (),                                            // (terminated)
-		.out_endofpacket   (),                                            // (terminated)
-		.in_empty          (1'b0),                                        // (terminated)
-		.out_empty         (),                                            // (terminated)
-		.in_error          (1'b0),                                        // (terminated)
-		.out_error         (),                                            // (terminated)
-		.in_channel        (1'b0),                                        // (terminated)
-		.out_channel       ()                                             // (terminated)
-	);
-
-	altera_merlin_slave_agent #(
-		.PKT_ORI_BURST_SIZE_H      (166),
-		.PKT_ORI_BURST_SIZE_L      (164),
-		.PKT_RESPONSE_STATUS_H     (163),
-		.PKT_RESPONSE_STATUS_L     (162),
-		.PKT_BURST_SIZE_H          (130),
-		.PKT_BURST_SIZE_L          (128),
-		.PKT_TRANS_LOCK            (108),
-		.PKT_BEGIN_BURST           (135),
-		.PKT_PROTECTION_H          (157),
-		.PKT_PROTECTION_L          (155),
-		.PKT_BURSTWRAP_H           (127),
-		.PKT_BURSTWRAP_L           (119),
-		.PKT_BYTE_CNT_H            (118),
-		.PKT_BYTE_CNT_L            (110),
-		.PKT_ADDR_H                (103),
-		.PKT_ADDR_L                (72),
-		.PKT_TRANS_COMPRESSED_READ (104),
-		.PKT_TRANS_POSTED          (105),
-		.PKT_TRANS_WRITE           (106),
-		.PKT_TRANS_READ            (107),
-		.PKT_DATA_H                (63),
-		.PKT_DATA_L                (0),
-		.PKT_BYTEEN_H              (71),
-		.PKT_BYTEEN_L              (64),
-		.PKT_SRC_ID_H              (139),
-		.PKT_SRC_ID_L              (137),
-		.PKT_DEST_ID_H             (142),
-		.PKT_DEST_ID_L             (140),
-		.PKT_SYMBOL_W              (8),
-		.ST_CHANNEL_W              (6),
-		.ST_DATA_W                 (167),
-		.AVS_BURSTCOUNT_W          (4),
-		.SUPPRESS_0_BYTEEN_CMD     (1),
-		.PREVENT_FIFO_OVERFLOW     (1),
-		.USE_READRESPONSE          (0),
-		.USE_WRITERESPONSE         (0),
-		.ECC_ENABLE                (0)
-	) onchip_sram_1_s2_agent (
-		.clk                     (System_PLL_sys_clk_clk),                               //             clk.clk
-		.reset                   (SDRAM_reset_reset_bridge_in_reset_reset),              //       clk_reset.reset
-		.m0_address              (onchip_sram_1_s2_agent_m0_address),                    //              m0.address
-		.m0_burstcount           (onchip_sram_1_s2_agent_m0_burstcount),                 //                .burstcount
-		.m0_byteenable           (onchip_sram_1_s2_agent_m0_byteenable),                 //                .byteenable
-		.m0_debugaccess          (onchip_sram_1_s2_agent_m0_debugaccess),                //                .debugaccess
-		.m0_lock                 (onchip_sram_1_s2_agent_m0_lock),                       //                .lock
-		.m0_readdata             (onchip_sram_1_s2_agent_m0_readdata),                   //                .readdata
-		.m0_readdatavalid        (onchip_sram_1_s2_agent_m0_readdatavalid),              //                .readdatavalid
-		.m0_read                 (onchip_sram_1_s2_agent_m0_read),                       //                .read
-		.m0_waitrequest          (onchip_sram_1_s2_agent_m0_waitrequest),                //                .waitrequest
-		.m0_writedata            (onchip_sram_1_s2_agent_m0_writedata),                  //                .writedata
-		.m0_write                (onchip_sram_1_s2_agent_m0_write),                      //                .write
-		.rp_endofpacket          (onchip_sram_1_s2_agent_rp_endofpacket),                //              rp.endofpacket
-		.rp_ready                (onchip_sram_1_s2_agent_rp_ready),                      //                .ready
-		.rp_valid                (onchip_sram_1_s2_agent_rp_valid),                      //                .valid
-		.rp_data                 (onchip_sram_1_s2_agent_rp_data),                       //                .data
-		.rp_startofpacket        (onchip_sram_1_s2_agent_rp_startofpacket),              //                .startofpacket
-		.cp_ready                (onchip_sram_1_s2_burst_adapter_source0_ready),         //              cp.ready
-		.cp_valid                (onchip_sram_1_s2_burst_adapter_source0_valid),         //                .valid
-		.cp_data                 (onchip_sram_1_s2_burst_adapter_source0_data),          //                .data
-		.cp_startofpacket        (onchip_sram_1_s2_burst_adapter_source0_startofpacket), //                .startofpacket
-		.cp_endofpacket          (onchip_sram_1_s2_burst_adapter_source0_endofpacket),   //                .endofpacket
-		.cp_channel              (onchip_sram_1_s2_burst_adapter_source0_channel),       //                .channel
-		.rf_sink_ready           (onchip_sram_1_s2_agent_rsp_fifo_out_ready),            //         rf_sink.ready
-		.rf_sink_valid           (onchip_sram_1_s2_agent_rsp_fifo_out_valid),            //                .valid
-		.rf_sink_startofpacket   (onchip_sram_1_s2_agent_rsp_fifo_out_startofpacket),    //                .startofpacket
-		.rf_sink_endofpacket     (onchip_sram_1_s2_agent_rsp_fifo_out_endofpacket),      //                .endofpacket
-		.rf_sink_data            (onchip_sram_1_s2_agent_rsp_fifo_out_data),             //                .data
-		.rf_source_ready         (onchip_sram_1_s2_agent_rf_source_ready),               //       rf_source.ready
-		.rf_source_valid         (onchip_sram_1_s2_agent_rf_source_valid),               //                .valid
-		.rf_source_startofpacket (onchip_sram_1_s2_agent_rf_source_startofpacket),       //                .startofpacket
-		.rf_source_endofpacket   (onchip_sram_1_s2_agent_rf_source_endofpacket),         //                .endofpacket
-		.rf_source_data          (onchip_sram_1_s2_agent_rf_source_data),                //                .data
-		.rdata_fifo_sink_ready   (avalon_st_adapter_003_out_0_ready),                    // rdata_fifo_sink.ready
-		.rdata_fifo_sink_valid   (avalon_st_adapter_003_out_0_valid),                    //                .valid
-		.rdata_fifo_sink_data    (avalon_st_adapter_003_out_0_data),                     //                .data
-		.rdata_fifo_sink_error   (avalon_st_adapter_003_out_0_error),                    //                .error
-		.rdata_fifo_src_ready    (onchip_sram_1_s2_agent_rdata_fifo_src_ready),          //  rdata_fifo_src.ready
-		.rdata_fifo_src_valid    (onchip_sram_1_s2_agent_rdata_fifo_src_valid),          //                .valid
-		.rdata_fifo_src_data     (onchip_sram_1_s2_agent_rdata_fifo_src_data),           //                .data
-		.m0_response             (2'b00),                                                //     (terminated)
-		.m0_writeresponsevalid   (1'b0)                                                  //     (terminated)
-	);
-
-	altera_avalon_sc_fifo #(
-		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (168),
-		.FIFO_DEPTH          (2),
-		.CHANNEL_WIDTH       (0),
-		.ERROR_WIDTH         (0),
-		.USE_PACKETS         (1),
-		.USE_FILL_LEVEL      (0),
-		.EMPTY_LATENCY       (1),
-		.USE_MEMORY_BLOCKS   (0),
-		.USE_STORE_FORWARD   (0),
-		.USE_ALMOST_FULL_IF  (0),
-		.USE_ALMOST_EMPTY_IF (0)
-	) onchip_sram_1_s2_agent_rsp_fifo (
-		.clk               (System_PLL_sys_clk_clk),                            //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),           // clk_reset.reset
-		.in_data           (onchip_sram_1_s2_agent_rf_source_data),             //        in.data
-		.in_valid          (onchip_sram_1_s2_agent_rf_source_valid),            //          .valid
-		.in_ready          (onchip_sram_1_s2_agent_rf_source_ready),            //          .ready
-		.in_startofpacket  (onchip_sram_1_s2_agent_rf_source_startofpacket),    //          .startofpacket
-		.in_endofpacket    (onchip_sram_1_s2_agent_rf_source_endofpacket),      //          .endofpacket
-		.out_data          (onchip_sram_1_s2_agent_rsp_fifo_out_data),          //       out.data
-		.out_valid         (onchip_sram_1_s2_agent_rsp_fifo_out_valid),         //          .valid
-		.out_ready         (onchip_sram_1_s2_agent_rsp_fifo_out_ready),         //          .ready
-		.out_startofpacket (onchip_sram_1_s2_agent_rsp_fifo_out_startofpacket), //          .startofpacket
-		.out_endofpacket   (onchip_sram_1_s2_agent_rsp_fifo_out_endofpacket),   //          .endofpacket
-		.csr_address       (2'b00),                                             // (terminated)
-		.csr_read          (1'b0),                                              // (terminated)
-		.csr_write         (1'b0),                                              // (terminated)
-		.csr_readdata      (),                                                  // (terminated)
-		.csr_writedata     (32'b00000000000000000000000000000000),              // (terminated)
-		.almost_full_data  (),                                                  // (terminated)
-		.almost_empty_data (),                                                  // (terminated)
-		.in_empty          (1'b0),                                              // (terminated)
-		.out_empty         (),                                                  // (terminated)
-		.in_error          (1'b0),                                              // (terminated)
-		.out_error         (),                                                  // (terminated)
-		.in_channel        (1'b0),                                              // (terminated)
-		.out_channel       ()                                                   // (terminated)
-	);
-
-	altera_avalon_sc_fifo #(
-		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (66),
-		.FIFO_DEPTH          (2),
-		.CHANNEL_WIDTH       (0),
-		.ERROR_WIDTH         (0),
-		.USE_PACKETS         (0),
-		.USE_FILL_LEVEL      (0),
-		.EMPTY_LATENCY       (0),
-		.USE_MEMORY_BLOCKS   (0),
-		.USE_STORE_FORWARD   (0),
-		.USE_ALMOST_FULL_IF  (0),
-		.USE_ALMOST_EMPTY_IF (0)
-	) onchip_sram_1_s2_agent_rdata_fifo (
-		.clk               (System_PLL_sys_clk_clk),                      //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),     // clk_reset.reset
-		.in_data           (onchip_sram_1_s2_agent_rdata_fifo_src_data),  //        in.data
-		.in_valid          (onchip_sram_1_s2_agent_rdata_fifo_src_valid), //          .valid
-		.in_ready          (onchip_sram_1_s2_agent_rdata_fifo_src_ready), //          .ready
-		.out_data          (onchip_sram_1_s2_agent_rdata_fifo_out_data),  //       out.data
-		.out_valid         (onchip_sram_1_s2_agent_rdata_fifo_out_valid), //          .valid
-		.out_ready         (onchip_sram_1_s2_agent_rdata_fifo_out_ready), //          .ready
-		.csr_address       (2'b00),                                       // (terminated)
-		.csr_read          (1'b0),                                        // (terminated)
-		.csr_write         (1'b0),                                        // (terminated)
-		.csr_readdata      (),                                            // (terminated)
-		.csr_writedata     (32'b00000000000000000000000000000000),        // (terminated)
-		.almost_full_data  (),                                            // (terminated)
-		.almost_empty_data (),                                            // (terminated)
-		.in_startofpacket  (1'b0),                                        // (terminated)
-		.in_endofpacket    (1'b0),                                        // (terminated)
-		.out_startofpacket (),                                            // (terminated)
-		.out_endofpacket   (),                                            // (terminated)
-		.in_empty          (1'b0),                                        // (terminated)
-		.out_empty         (),                                            // (terminated)
-		.in_error          (1'b0),                                        // (terminated)
-		.out_error         (),                                            // (terminated)
-		.in_channel        (1'b0),                                        // (terminated)
-		.out_channel       ()                                             // (terminated)
-	);
-
-	altera_merlin_slave_agent #(
-		.PKT_ORI_BURST_SIZE_H      (166),
-		.PKT_ORI_BURST_SIZE_L      (164),
-		.PKT_RESPONSE_STATUS_H     (163),
-		.PKT_RESPONSE_STATUS_L     (162),
-		.PKT_BURST_SIZE_H          (130),
-		.PKT_BURST_SIZE_L          (128),
-		.PKT_TRANS_LOCK            (108),
-		.PKT_BEGIN_BURST           (135),
-		.PKT_PROTECTION_H          (157),
-		.PKT_PROTECTION_L          (155),
-		.PKT_BURSTWRAP_H           (127),
-		.PKT_BURSTWRAP_L           (119),
-		.PKT_BYTE_CNT_H            (118),
-		.PKT_BYTE_CNT_L            (110),
-		.PKT_ADDR_H                (103),
-		.PKT_ADDR_L                (72),
-		.PKT_TRANS_COMPRESSED_READ (104),
-		.PKT_TRANS_POSTED          (105),
-		.PKT_TRANS_WRITE           (106),
-		.PKT_TRANS_READ            (107),
-		.PKT_DATA_H                (63),
-		.PKT_DATA_L                (0),
-		.PKT_BYTEEN_H              (71),
-		.PKT_BYTEEN_L              (64),
-		.PKT_SRC_ID_H              (139),
-		.PKT_SRC_ID_L              (137),
-		.PKT_DEST_ID_H             (142),
-		.PKT_DEST_ID_L             (140),
-		.PKT_SYMBOL_W              (8),
-		.ST_CHANNEL_W              (6),
-		.ST_DATA_W                 (167),
-		.AVS_BURSTCOUNT_W          (4),
-		.SUPPRESS_0_BYTEEN_CMD     (1),
-		.PREVENT_FIFO_OVERFLOW     (1),
-		.USE_READRESPONSE          (0),
-		.USE_WRITERESPONSE         (0),
-		.ECC_ENABLE                (0)
-	) onchip_sram_2_s2_agent (
-		.clk                     (System_PLL_sys_clk_clk),                               //             clk.clk
-		.reset                   (SDRAM_reset_reset_bridge_in_reset_reset),              //       clk_reset.reset
-		.m0_address              (onchip_sram_2_s2_agent_m0_address),                    //              m0.address
-		.m0_burstcount           (onchip_sram_2_s2_agent_m0_burstcount),                 //                .burstcount
-		.m0_byteenable           (onchip_sram_2_s2_agent_m0_byteenable),                 //                .byteenable
-		.m0_debugaccess          (onchip_sram_2_s2_agent_m0_debugaccess),                //                .debugaccess
-		.m0_lock                 (onchip_sram_2_s2_agent_m0_lock),                       //                .lock
-		.m0_readdata             (onchip_sram_2_s2_agent_m0_readdata),                   //                .readdata
-		.m0_readdatavalid        (onchip_sram_2_s2_agent_m0_readdatavalid),              //                .readdatavalid
-		.m0_read                 (onchip_sram_2_s2_agent_m0_read),                       //                .read
-		.m0_waitrequest          (onchip_sram_2_s2_agent_m0_waitrequest),                //                .waitrequest
-		.m0_writedata            (onchip_sram_2_s2_agent_m0_writedata),                  //                .writedata
-		.m0_write                (onchip_sram_2_s2_agent_m0_write),                      //                .write
-		.rp_endofpacket          (onchip_sram_2_s2_agent_rp_endofpacket),                //              rp.endofpacket
-		.rp_ready                (onchip_sram_2_s2_agent_rp_ready),                      //                .ready
-		.rp_valid                (onchip_sram_2_s2_agent_rp_valid),                      //                .valid
-		.rp_data                 (onchip_sram_2_s2_agent_rp_data),                       //                .data
-		.rp_startofpacket        (onchip_sram_2_s2_agent_rp_startofpacket),              //                .startofpacket
-		.cp_ready                (onchip_sram_2_s2_burst_adapter_source0_ready),         //              cp.ready
-		.cp_valid                (onchip_sram_2_s2_burst_adapter_source0_valid),         //                .valid
-		.cp_data                 (onchip_sram_2_s2_burst_adapter_source0_data),          //                .data
-		.cp_startofpacket        (onchip_sram_2_s2_burst_adapter_source0_startofpacket), //                .startofpacket
-		.cp_endofpacket          (onchip_sram_2_s2_burst_adapter_source0_endofpacket),   //                .endofpacket
-		.cp_channel              (onchip_sram_2_s2_burst_adapter_source0_channel),       //                .channel
-		.rf_sink_ready           (onchip_sram_2_s2_agent_rsp_fifo_out_ready),            //         rf_sink.ready
-		.rf_sink_valid           (onchip_sram_2_s2_agent_rsp_fifo_out_valid),            //                .valid
-		.rf_sink_startofpacket   (onchip_sram_2_s2_agent_rsp_fifo_out_startofpacket),    //                .startofpacket
-		.rf_sink_endofpacket     (onchip_sram_2_s2_agent_rsp_fifo_out_endofpacket),      //                .endofpacket
-		.rf_sink_data            (onchip_sram_2_s2_agent_rsp_fifo_out_data),             //                .data
-		.rf_source_ready         (onchip_sram_2_s2_agent_rf_source_ready),               //       rf_source.ready
-		.rf_source_valid         (onchip_sram_2_s2_agent_rf_source_valid),               //                .valid
-		.rf_source_startofpacket (onchip_sram_2_s2_agent_rf_source_startofpacket),       //                .startofpacket
-		.rf_source_endofpacket   (onchip_sram_2_s2_agent_rf_source_endofpacket),         //                .endofpacket
-		.rf_source_data          (onchip_sram_2_s2_agent_rf_source_data),                //                .data
-		.rdata_fifo_sink_ready   (avalon_st_adapter_004_out_0_ready),                    // rdata_fifo_sink.ready
-		.rdata_fifo_sink_valid   (avalon_st_adapter_004_out_0_valid),                    //                .valid
-		.rdata_fifo_sink_data    (avalon_st_adapter_004_out_0_data),                     //                .data
-		.rdata_fifo_sink_error   (avalon_st_adapter_004_out_0_error),                    //                .error
-		.rdata_fifo_src_ready    (onchip_sram_2_s2_agent_rdata_fifo_src_ready),          //  rdata_fifo_src.ready
-		.rdata_fifo_src_valid    (onchip_sram_2_s2_agent_rdata_fifo_src_valid),          //                .valid
-		.rdata_fifo_src_data     (onchip_sram_2_s2_agent_rdata_fifo_src_data),           //                .data
-		.m0_response             (2'b00),                                                //     (terminated)
-		.m0_writeresponsevalid   (1'b0)                                                  //     (terminated)
-	);
-
-	altera_avalon_sc_fifo #(
-		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (168),
-		.FIFO_DEPTH          (2),
-		.CHANNEL_WIDTH       (0),
-		.ERROR_WIDTH         (0),
-		.USE_PACKETS         (1),
-		.USE_FILL_LEVEL      (0),
-		.EMPTY_LATENCY       (1),
-		.USE_MEMORY_BLOCKS   (0),
-		.USE_STORE_FORWARD   (0),
-		.USE_ALMOST_FULL_IF  (0),
-		.USE_ALMOST_EMPTY_IF (0)
-	) onchip_sram_2_s2_agent_rsp_fifo (
-		.clk               (System_PLL_sys_clk_clk),                            //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),           // clk_reset.reset
-		.in_data           (onchip_sram_2_s2_agent_rf_source_data),             //        in.data
-		.in_valid          (onchip_sram_2_s2_agent_rf_source_valid),            //          .valid
-		.in_ready          (onchip_sram_2_s2_agent_rf_source_ready),            //          .ready
-		.in_startofpacket  (onchip_sram_2_s2_agent_rf_source_startofpacket),    //          .startofpacket
-		.in_endofpacket    (onchip_sram_2_s2_agent_rf_source_endofpacket),      //          .endofpacket
-		.out_data          (onchip_sram_2_s2_agent_rsp_fifo_out_data),          //       out.data
-		.out_valid         (onchip_sram_2_s2_agent_rsp_fifo_out_valid),         //          .valid
-		.out_ready         (onchip_sram_2_s2_agent_rsp_fifo_out_ready),         //          .ready
-		.out_startofpacket (onchip_sram_2_s2_agent_rsp_fifo_out_startofpacket), //          .startofpacket
-		.out_endofpacket   (onchip_sram_2_s2_agent_rsp_fifo_out_endofpacket),   //          .endofpacket
-		.csr_address       (2'b00),                                             // (terminated)
-		.csr_read          (1'b0),                                              // (terminated)
-		.csr_write         (1'b0),                                              // (terminated)
-		.csr_readdata      (),                                                  // (terminated)
-		.csr_writedata     (32'b00000000000000000000000000000000),              // (terminated)
-		.almost_full_data  (),                                                  // (terminated)
-		.almost_empty_data (),                                                  // (terminated)
-		.in_empty          (1'b0),                                              // (terminated)
-		.out_empty         (),                                                  // (terminated)
-		.in_error          (1'b0),                                              // (terminated)
-		.out_error         (),                                                  // (terminated)
-		.in_channel        (1'b0),                                              // (terminated)
-		.out_channel       ()                                                   // (terminated)
-	);
-
-	altera_avalon_sc_fifo #(
-		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (66),
-		.FIFO_DEPTH          (2),
-		.CHANNEL_WIDTH       (0),
-		.ERROR_WIDTH         (0),
-		.USE_PACKETS         (0),
-		.USE_FILL_LEVEL      (0),
-		.EMPTY_LATENCY       (0),
-		.USE_MEMORY_BLOCKS   (0),
-		.USE_STORE_FORWARD   (0),
-		.USE_ALMOST_FULL_IF  (0),
-		.USE_ALMOST_EMPTY_IF (0)
-	) onchip_sram_2_s2_agent_rdata_fifo (
-		.clk               (System_PLL_sys_clk_clk),                      //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),     // clk_reset.reset
-		.in_data           (onchip_sram_2_s2_agent_rdata_fifo_src_data),  //        in.data
-		.in_valid          (onchip_sram_2_s2_agent_rdata_fifo_src_valid), //          .valid
-		.in_ready          (onchip_sram_2_s2_agent_rdata_fifo_src_ready), //          .ready
-		.out_data          (onchip_sram_2_s2_agent_rdata_fifo_out_data),  //       out.data
-		.out_valid         (onchip_sram_2_s2_agent_rdata_fifo_out_valid), //          .valid
-		.out_ready         (onchip_sram_2_s2_agent_rdata_fifo_out_ready), //          .ready
-		.csr_address       (2'b00),                                       // (terminated)
-		.csr_read          (1'b0),                                        // (terminated)
-		.csr_write         (1'b0),                                        // (terminated)
-		.csr_readdata      (),                                            // (terminated)
-		.csr_writedata     (32'b00000000000000000000000000000000),        // (terminated)
-		.almost_full_data  (),                                            // (terminated)
-		.almost_empty_data (),                                            // (terminated)
-		.in_startofpacket  (1'b0),                                        // (terminated)
-		.in_endofpacket    (1'b0),                                        // (terminated)
-		.out_startofpacket (),                                            // (terminated)
-		.out_endofpacket   (),                                            // (terminated)
-		.in_empty          (1'b0),                                        // (terminated)
-		.out_empty         (),                                            // (terminated)
-		.in_error          (1'b0),                                        // (terminated)
-		.out_error         (),                                            // (terminated)
-		.in_channel        (1'b0),                                        // (terminated)
-		.out_channel       ()                                             // (terminated)
-	);
-
-	altera_merlin_slave_agent #(
-		.PKT_ORI_BURST_SIZE_H      (166),
-		.PKT_ORI_BURST_SIZE_L      (164),
-		.PKT_RESPONSE_STATUS_H     (163),
-		.PKT_RESPONSE_STATUS_L     (162),
-		.PKT_BURST_SIZE_H          (130),
-		.PKT_BURST_SIZE_L          (128),
-		.PKT_TRANS_LOCK            (108),
-		.PKT_BEGIN_BURST           (135),
-		.PKT_PROTECTION_H          (157),
-		.PKT_PROTECTION_L          (155),
-		.PKT_BURSTWRAP_H           (127),
-		.PKT_BURSTWRAP_L           (119),
-		.PKT_BYTE_CNT_H            (118),
-		.PKT_BYTE_CNT_L            (110),
-		.PKT_ADDR_H                (103),
-		.PKT_ADDR_L                (72),
-		.PKT_TRANS_COMPRESSED_READ (104),
-		.PKT_TRANS_POSTED          (105),
-		.PKT_TRANS_WRITE           (106),
-		.PKT_TRANS_READ            (107),
-		.PKT_DATA_H                (63),
-		.PKT_DATA_L                (0),
-		.PKT_BYTEEN_H              (71),
-		.PKT_BYTEEN_L              (64),
-		.PKT_SRC_ID_H              (139),
-		.PKT_SRC_ID_L              (137),
-		.PKT_DEST_ID_H             (142),
-		.PKT_DEST_ID_L             (140),
-		.PKT_SYMBOL_W              (8),
-		.ST_CHANNEL_W              (6),
-		.ST_DATA_W                 (167),
-		.AVS_BURSTCOUNT_W          (4),
-		.SUPPRESS_0_BYTEEN_CMD     (1),
-		.PREVENT_FIFO_OVERFLOW     (1),
-		.USE_READRESPONSE          (0),
-		.USE_WRITERESPONSE         (0),
-		.ECC_ENABLE                (0)
-	) onchip_sram_3_s2_agent (
-		.clk                     (System_PLL_sys_clk_clk),                               //             clk.clk
-		.reset                   (SDRAM_reset_reset_bridge_in_reset_reset),              //       clk_reset.reset
-		.m0_address              (onchip_sram_3_s2_agent_m0_address),                    //              m0.address
-		.m0_burstcount           (onchip_sram_3_s2_agent_m0_burstcount),                 //                .burstcount
-		.m0_byteenable           (onchip_sram_3_s2_agent_m0_byteenable),                 //                .byteenable
-		.m0_debugaccess          (onchip_sram_3_s2_agent_m0_debugaccess),                //                .debugaccess
-		.m0_lock                 (onchip_sram_3_s2_agent_m0_lock),                       //                .lock
-		.m0_readdata             (onchip_sram_3_s2_agent_m0_readdata),                   //                .readdata
-		.m0_readdatavalid        (onchip_sram_3_s2_agent_m0_readdatavalid),              //                .readdatavalid
-		.m0_read                 (onchip_sram_3_s2_agent_m0_read),                       //                .read
-		.m0_waitrequest          (onchip_sram_3_s2_agent_m0_waitrequest),                //                .waitrequest
-		.m0_writedata            (onchip_sram_3_s2_agent_m0_writedata),                  //                .writedata
-		.m0_write                (onchip_sram_3_s2_agent_m0_write),                      //                .write
-		.rp_endofpacket          (onchip_sram_3_s2_agent_rp_endofpacket),                //              rp.endofpacket
-		.rp_ready                (onchip_sram_3_s2_agent_rp_ready),                      //                .ready
-		.rp_valid                (onchip_sram_3_s2_agent_rp_valid),                      //                .valid
-		.rp_data                 (onchip_sram_3_s2_agent_rp_data),                       //                .data
-		.rp_startofpacket        (onchip_sram_3_s2_agent_rp_startofpacket),              //                .startofpacket
-		.cp_ready                (onchip_sram_3_s2_burst_adapter_source0_ready),         //              cp.ready
-		.cp_valid                (onchip_sram_3_s2_burst_adapter_source0_valid),         //                .valid
-		.cp_data                 (onchip_sram_3_s2_burst_adapter_source0_data),          //                .data
-		.cp_startofpacket        (onchip_sram_3_s2_burst_adapter_source0_startofpacket), //                .startofpacket
-		.cp_endofpacket          (onchip_sram_3_s2_burst_adapter_source0_endofpacket),   //                .endofpacket
-		.cp_channel              (onchip_sram_3_s2_burst_adapter_source0_channel),       //                .channel
-		.rf_sink_ready           (onchip_sram_3_s2_agent_rsp_fifo_out_ready),            //         rf_sink.ready
-		.rf_sink_valid           (onchip_sram_3_s2_agent_rsp_fifo_out_valid),            //                .valid
-		.rf_sink_startofpacket   (onchip_sram_3_s2_agent_rsp_fifo_out_startofpacket),    //                .startofpacket
-		.rf_sink_endofpacket     (onchip_sram_3_s2_agent_rsp_fifo_out_endofpacket),      //                .endofpacket
-		.rf_sink_data            (onchip_sram_3_s2_agent_rsp_fifo_out_data),             //                .data
-		.rf_source_ready         (onchip_sram_3_s2_agent_rf_source_ready),               //       rf_source.ready
-		.rf_source_valid         (onchip_sram_3_s2_agent_rf_source_valid),               //                .valid
-		.rf_source_startofpacket (onchip_sram_3_s2_agent_rf_source_startofpacket),       //                .startofpacket
-		.rf_source_endofpacket   (onchip_sram_3_s2_agent_rf_source_endofpacket),         //                .endofpacket
-		.rf_source_data          (onchip_sram_3_s2_agent_rf_source_data),                //                .data
-		.rdata_fifo_sink_ready   (avalon_st_adapter_005_out_0_ready),                    // rdata_fifo_sink.ready
-		.rdata_fifo_sink_valid   (avalon_st_adapter_005_out_0_valid),                    //                .valid
-		.rdata_fifo_sink_data    (avalon_st_adapter_005_out_0_data),                     //                .data
-		.rdata_fifo_sink_error   (avalon_st_adapter_005_out_0_error),                    //                .error
-		.rdata_fifo_src_ready    (onchip_sram_3_s2_agent_rdata_fifo_src_ready),          //  rdata_fifo_src.ready
-		.rdata_fifo_src_valid    (onchip_sram_3_s2_agent_rdata_fifo_src_valid),          //                .valid
-		.rdata_fifo_src_data     (onchip_sram_3_s2_agent_rdata_fifo_src_data),           //                .data
-		.m0_response             (2'b00),                                                //     (terminated)
-		.m0_writeresponsevalid   (1'b0)                                                  //     (terminated)
-	);
-
-	altera_avalon_sc_fifo #(
-		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (168),
-		.FIFO_DEPTH          (2),
-		.CHANNEL_WIDTH       (0),
-		.ERROR_WIDTH         (0),
-		.USE_PACKETS         (1),
-		.USE_FILL_LEVEL      (0),
-		.EMPTY_LATENCY       (1),
-		.USE_MEMORY_BLOCKS   (0),
-		.USE_STORE_FORWARD   (0),
-		.USE_ALMOST_FULL_IF  (0),
-		.USE_ALMOST_EMPTY_IF (0)
-	) onchip_sram_3_s2_agent_rsp_fifo (
-		.clk               (System_PLL_sys_clk_clk),                            //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),           // clk_reset.reset
-		.in_data           (onchip_sram_3_s2_agent_rf_source_data),             //        in.data
-		.in_valid          (onchip_sram_3_s2_agent_rf_source_valid),            //          .valid
-		.in_ready          (onchip_sram_3_s2_agent_rf_source_ready),            //          .ready
-		.in_startofpacket  (onchip_sram_3_s2_agent_rf_source_startofpacket),    //          .startofpacket
-		.in_endofpacket    (onchip_sram_3_s2_agent_rf_source_endofpacket),      //          .endofpacket
-		.out_data          (onchip_sram_3_s2_agent_rsp_fifo_out_data),          //       out.data
-		.out_valid         (onchip_sram_3_s2_agent_rsp_fifo_out_valid),         //          .valid
-		.out_ready         (onchip_sram_3_s2_agent_rsp_fifo_out_ready),         //          .ready
-		.out_startofpacket (onchip_sram_3_s2_agent_rsp_fifo_out_startofpacket), //          .startofpacket
-		.out_endofpacket   (onchip_sram_3_s2_agent_rsp_fifo_out_endofpacket),   //          .endofpacket
-		.csr_address       (2'b00),                                             // (terminated)
-		.csr_read          (1'b0),                                              // (terminated)
-		.csr_write         (1'b0),                                              // (terminated)
-		.csr_readdata      (),                                                  // (terminated)
-		.csr_writedata     (32'b00000000000000000000000000000000),              // (terminated)
-		.almost_full_data  (),                                                  // (terminated)
-		.almost_empty_data (),                                                  // (terminated)
-		.in_empty          (1'b0),                                              // (terminated)
-		.out_empty         (),                                                  // (terminated)
-		.in_error          (1'b0),                                              // (terminated)
-		.out_error         (),                                                  // (terminated)
-		.in_channel        (1'b0),                                              // (terminated)
-		.out_channel       ()                                                   // (terminated)
-	);
-
-	altera_avalon_sc_fifo #(
-		.SYMBOLS_PER_BEAT    (1),
-		.BITS_PER_SYMBOL     (66),
-		.FIFO_DEPTH          (2),
-		.CHANNEL_WIDTH       (0),
-		.ERROR_WIDTH         (0),
-		.USE_PACKETS         (0),
-		.USE_FILL_LEVEL      (0),
-		.EMPTY_LATENCY       (0),
-		.USE_MEMORY_BLOCKS   (0),
-		.USE_STORE_FORWARD   (0),
-		.USE_ALMOST_FULL_IF  (0),
-		.USE_ALMOST_EMPTY_IF (0)
-	) onchip_sram_3_s2_agent_rdata_fifo (
-		.clk               (System_PLL_sys_clk_clk),                      //       clk.clk
-		.reset             (SDRAM_reset_reset_bridge_in_reset_reset),     // clk_reset.reset
-		.in_data           (onchip_sram_3_s2_agent_rdata_fifo_src_data),  //        in.data
-		.in_valid          (onchip_sram_3_s2_agent_rdata_fifo_src_valid), //          .valid
-		.in_ready          (onchip_sram_3_s2_agent_rdata_fifo_src_ready), //          .ready
-		.out_data          (onchip_sram_3_s2_agent_rdata_fifo_out_data),  //       out.data
-		.out_valid         (onchip_sram_3_s2_agent_rdata_fifo_out_valid), //          .valid
-		.out_ready         (onchip_sram_3_s2_agent_rdata_fifo_out_ready), //          .ready
-		.csr_address       (2'b00),                                       // (terminated)
-		.csr_read          (1'b0),                                        // (terminated)
-		.csr_write         (1'b0),                                        // (terminated)
-		.csr_readdata      (),                                            // (terminated)
-		.csr_writedata     (32'b00000000000000000000000000000000),        // (terminated)
-		.almost_full_data  (),                                            // (terminated)
-		.almost_empty_data (),                                            // (terminated)
-		.in_startofpacket  (1'b0),                                        // (terminated)
-		.in_endofpacket    (1'b0),                                        // (terminated)
-		.out_startofpacket (),                                            // (terminated)
-		.out_endofpacket   (),                                            // (terminated)
-		.in_empty          (1'b0),                                        // (terminated)
-		.out_empty         (),                                            // (terminated)
-		.in_error          (1'b0),                                        // (terminated)
-		.out_error         (),                                            // (terminated)
-		.in_channel        (1'b0),                                        // (terminated)
-		.out_channel       ()                                             // (terminated)
+		.clk               (System_PLL_sys_clk_clk),                          //       clk.clk
+		.reset             (mcmc_system_0_reset_reset_bridge_in_reset_reset), // clk_reset.reset
+		.in_data           (sdram_s1_agent_rdata_fifo_src_data),              //        in.data
+		.in_valid          (sdram_s1_agent_rdata_fifo_src_valid),             //          .valid
+		.in_ready          (sdram_s1_agent_rdata_fifo_src_ready),             //          .ready
+		.out_data          (sdram_s1_agent_rdata_fifo_out_data),              //       out.data
+		.out_valid         (sdram_s1_agent_rdata_fifo_out_valid),             //          .valid
+		.out_ready         (sdram_s1_agent_rdata_fifo_out_ready),             //          .ready
+		.csr_address       (2'b00),                                           // (terminated)
+		.csr_read          (1'b0),                                            // (terminated)
+		.csr_write         (1'b0),                                            // (terminated)
+		.csr_readdata      (),                                                // (terminated)
+		.csr_writedata     (32'b00000000000000000000000000000000),            // (terminated)
+		.almost_full_data  (),                                                // (terminated)
+		.almost_empty_data (),                                                // (terminated)
+		.in_startofpacket  (1'b0),                                            // (terminated)
+		.in_endofpacket    (1'b0),                                            // (terminated)
+		.out_startofpacket (),                                                // (terminated)
+		.out_endofpacket   (),                                                // (terminated)
+		.in_empty          (1'b0),                                            // (terminated)
+		.out_empty         (),                                                // (terminated)
+		.in_error          (1'b0),                                            // (terminated)
+		.out_error         (),                                                // (terminated)
+		.in_channel        (1'b0),                                            // (terminated)
+		.out_channel       ()                                                 // (terminated)
 	);
 
 	Computer_System_mm_interconnect_0_router router (
@@ -2511,7 +1490,7 @@ module Computer_System_mm_interconnect_0 (
 		.sink_startofpacket (vga_subsystem_pixel_dma_master_agent_cp_startofpacket), //          .startofpacket
 		.sink_endofpacket   (vga_subsystem_pixel_dma_master_agent_cp_endofpacket),   //          .endofpacket
 		.clk                (System_PLL_sys_clk_clk),                                //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset),               // clk_reset.reset
+		.reset              (mcmc_system_0_reset_reset_bridge_in_reset_reset),       // clk_reset.reset
 		.src_ready          (router_002_src_ready),                                  //       src.ready
 		.src_valid          (router_002_src_valid),                                  //          .valid
 		.src_data           (router_002_src_data),                                   //          .data
@@ -2521,105 +1500,57 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	Computer_System_mm_interconnect_0_router_003 router_003 (
+		.sink_ready         (mcmc_system_0_avalon_slave_0_agent_rp_ready),         //      sink.ready
+		.sink_valid         (mcmc_system_0_avalon_slave_0_agent_rp_valid),         //          .valid
+		.sink_data          (mcmc_system_0_avalon_slave_0_agent_rp_data),          //          .data
+		.sink_startofpacket (mcmc_system_0_avalon_slave_0_agent_rp_startofpacket), //          .startofpacket
+		.sink_endofpacket   (mcmc_system_0_avalon_slave_0_agent_rp_endofpacket),   //          .endofpacket
+		.clk                (System_PLL_sys_clk_clk),                              //       clk.clk
+		.reset              (mcmc_system_0_reset_reset_bridge_in_reset_reset),     // clk_reset.reset
+		.src_ready          (router_003_src_ready),                                //       src.ready
+		.src_valid          (router_003_src_valid),                                //          .valid
+		.src_data           (router_003_src_data),                                 //          .data
+		.src_channel        (router_003_src_channel),                              //          .channel
+		.src_startofpacket  (router_003_src_startofpacket),                        //          .startofpacket
+		.src_endofpacket    (router_003_src_endofpacket)                           //          .endofpacket
+	);
+
+	Computer_System_mm_interconnect_0_router_004 router_004 (
 		.sink_ready         (vga_subsystem_char_buffer_slave_agent_rp_ready),         //      sink.ready
 		.sink_valid         (vga_subsystem_char_buffer_slave_agent_rp_valid),         //          .valid
 		.sink_data          (vga_subsystem_char_buffer_slave_agent_rp_data),          //          .data
 		.sink_startofpacket (vga_subsystem_char_buffer_slave_agent_rp_startofpacket), //          .startofpacket
 		.sink_endofpacket   (vga_subsystem_char_buffer_slave_agent_rp_endofpacket),   //          .endofpacket
 		.clk                (System_PLL_sys_clk_clk),                                 //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset),                // clk_reset.reset
-		.src_ready          (router_003_src_ready),                                   //       src.ready
-		.src_valid          (router_003_src_valid),                                   //          .valid
-		.src_data           (router_003_src_data),                                    //          .data
-		.src_channel        (router_003_src_channel),                                 //          .channel
-		.src_startofpacket  (router_003_src_startofpacket),                           //          .startofpacket
-		.src_endofpacket    (router_003_src_endofpacket)                              //          .endofpacket
-	);
-
-	Computer_System_mm_interconnect_0_router_004 router_004 (
-		.sink_ready         (sdram_s1_agent_rp_ready),                 //      sink.ready
-		.sink_valid         (sdram_s1_agent_rp_valid),                 //          .valid
-		.sink_data          (sdram_s1_agent_rp_data),                  //          .data
-		.sink_startofpacket (sdram_s1_agent_rp_startofpacket),         //          .startofpacket
-		.sink_endofpacket   (sdram_s1_agent_rp_endofpacket),           //          .endofpacket
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.src_ready          (router_004_src_ready),                    //       src.ready
-		.src_valid          (router_004_src_valid),                    //          .valid
-		.src_data           (router_004_src_data),                     //          .data
-		.src_channel        (router_004_src_channel),                  //          .channel
-		.src_startofpacket  (router_004_src_startofpacket),            //          .startofpacket
-		.src_endofpacket    (router_004_src_endofpacket)               //          .endofpacket
+		.reset              (mcmc_system_0_reset_reset_bridge_in_reset_reset),        // clk_reset.reset
+		.src_ready          (router_004_src_ready),                                   //       src.ready
+		.src_valid          (router_004_src_valid),                                   //          .valid
+		.src_data           (router_004_src_data),                                    //          .data
+		.src_channel        (router_004_src_channel),                                 //          .channel
+		.src_startofpacket  (router_004_src_startofpacket),                           //          .startofpacket
+		.src_endofpacket    (router_004_src_endofpacket)                              //          .endofpacket
 	);
 
 	Computer_System_mm_interconnect_0_router_005 router_005 (
-		.sink_ready         (onchip_sram_0_s2_agent_rp_ready),         //      sink.ready
-		.sink_valid         (onchip_sram_0_s2_agent_rp_valid),         //          .valid
-		.sink_data          (onchip_sram_0_s2_agent_rp_data),          //          .data
-		.sink_startofpacket (onchip_sram_0_s2_agent_rp_startofpacket), //          .startofpacket
-		.sink_endofpacket   (onchip_sram_0_s2_agent_rp_endofpacket),   //          .endofpacket
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.src_ready          (router_005_src_ready),                    //       src.ready
-		.src_valid          (router_005_src_valid),                    //          .valid
-		.src_data           (router_005_src_data),                     //          .data
-		.src_channel        (router_005_src_channel),                  //          .channel
-		.src_startofpacket  (router_005_src_startofpacket),            //          .startofpacket
-		.src_endofpacket    (router_005_src_endofpacket)               //          .endofpacket
-	);
-
-	Computer_System_mm_interconnect_0_router_005 router_006 (
-		.sink_ready         (onchip_sram_1_s2_agent_rp_ready),         //      sink.ready
-		.sink_valid         (onchip_sram_1_s2_agent_rp_valid),         //          .valid
-		.sink_data          (onchip_sram_1_s2_agent_rp_data),          //          .data
-		.sink_startofpacket (onchip_sram_1_s2_agent_rp_startofpacket), //          .startofpacket
-		.sink_endofpacket   (onchip_sram_1_s2_agent_rp_endofpacket),   //          .endofpacket
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.src_ready          (router_006_src_ready),                    //       src.ready
-		.src_valid          (router_006_src_valid),                    //          .valid
-		.src_data           (router_006_src_data),                     //          .data
-		.src_channel        (router_006_src_channel),                  //          .channel
-		.src_startofpacket  (router_006_src_startofpacket),            //          .startofpacket
-		.src_endofpacket    (router_006_src_endofpacket)               //          .endofpacket
-	);
-
-	Computer_System_mm_interconnect_0_router_005 router_007 (
-		.sink_ready         (onchip_sram_2_s2_agent_rp_ready),         //      sink.ready
-		.sink_valid         (onchip_sram_2_s2_agent_rp_valid),         //          .valid
-		.sink_data          (onchip_sram_2_s2_agent_rp_data),          //          .data
-		.sink_startofpacket (onchip_sram_2_s2_agent_rp_startofpacket), //          .startofpacket
-		.sink_endofpacket   (onchip_sram_2_s2_agent_rp_endofpacket),   //          .endofpacket
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.src_ready          (router_007_src_ready),                    //       src.ready
-		.src_valid          (router_007_src_valid),                    //          .valid
-		.src_data           (router_007_src_data),                     //          .data
-		.src_channel        (router_007_src_channel),                  //          .channel
-		.src_startofpacket  (router_007_src_startofpacket),            //          .startofpacket
-		.src_endofpacket    (router_007_src_endofpacket)               //          .endofpacket
-	);
-
-	Computer_System_mm_interconnect_0_router_005 router_008 (
-		.sink_ready         (onchip_sram_3_s2_agent_rp_ready),         //      sink.ready
-		.sink_valid         (onchip_sram_3_s2_agent_rp_valid),         //          .valid
-		.sink_data          (onchip_sram_3_s2_agent_rp_data),          //          .data
-		.sink_startofpacket (onchip_sram_3_s2_agent_rp_startofpacket), //          .startofpacket
-		.sink_endofpacket   (onchip_sram_3_s2_agent_rp_endofpacket),   //          .endofpacket
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.src_ready          (router_008_src_ready),                    //       src.ready
-		.src_valid          (router_008_src_valid),                    //          .valid
-		.src_data           (router_008_src_data),                     //          .data
-		.src_channel        (router_008_src_channel),                  //          .channel
-		.src_startofpacket  (router_008_src_startofpacket),            //          .startofpacket
-		.src_endofpacket    (router_008_src_endofpacket)               //          .endofpacket
+		.sink_ready         (sdram_s1_agent_rp_ready),                         //      sink.ready
+		.sink_valid         (sdram_s1_agent_rp_valid),                         //          .valid
+		.sink_data          (sdram_s1_agent_rp_data),                          //          .data
+		.sink_startofpacket (sdram_s1_agent_rp_startofpacket),                 //          .startofpacket
+		.sink_endofpacket   (sdram_s1_agent_rp_endofpacket),                   //          .endofpacket
+		.clk                (System_PLL_sys_clk_clk),                          //       clk.clk
+		.reset              (mcmc_system_0_reset_reset_bridge_in_reset_reset), // clk_reset.reset
+		.src_ready          (router_005_src_ready),                            //       src.ready
+		.src_valid          (router_005_src_valid),                            //          .valid
+		.src_data           (router_005_src_data),                             //          .data
+		.src_channel        (router_005_src_channel),                          //          .channel
+		.src_startofpacket  (router_005_src_startofpacket),                    //          .startofpacket
+		.src_endofpacket    (router_005_src_endofpacket)                       //          .endofpacket
 	);
 
 	altera_merlin_traffic_limiter #(
-		.PKT_DEST_ID_H             (214),
-		.PKT_DEST_ID_L             (212),
-		.PKT_SRC_ID_H              (211),
+		.PKT_DEST_ID_H             (212),
+		.PKT_DEST_ID_L             (211),
+		.PKT_SRC_ID_H              (210),
 		.PKT_SRC_ID_L              (209),
 		.PKT_BYTE_CNT_H            (190),
 		.PKT_BYTE_CNT_L            (182),
@@ -2629,9 +1560,9 @@ module Computer_System_mm_interconnect_0 (
 		.PKT_TRANS_WRITE           (178),
 		.MAX_OUTSTANDING_RESPONSES (9),
 		.PIPELINED                 (0),
-		.ST_DATA_W                 (239),
-		.ST_CHANNEL_W              (6),
-		.VALID_WIDTH               (6),
+		.ST_DATA_W                 (237),
+		.ST_CHANNEL_W              (3),
+		.VALID_WIDTH               (3),
 		.ENFORCE_ORDER             (1),
 		.PREVENT_HAZARDS           (0),
 		.SUPPORTS_POSTED_WRITES    (1),
@@ -2667,9 +1598,9 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_traffic_limiter #(
-		.PKT_DEST_ID_H             (214),
-		.PKT_DEST_ID_L             (212),
-		.PKT_SRC_ID_H              (211),
+		.PKT_DEST_ID_H             (212),
+		.PKT_DEST_ID_L             (211),
+		.PKT_SRC_ID_H              (210),
 		.PKT_SRC_ID_L              (209),
 		.PKT_BYTE_CNT_H            (190),
 		.PKT_BYTE_CNT_L            (182),
@@ -2679,9 +1610,9 @@ module Computer_System_mm_interconnect_0 (
 		.PKT_TRANS_WRITE           (178),
 		.MAX_OUTSTANDING_RESPONSES (9),
 		.PIPELINED                 (0),
-		.ST_DATA_W                 (239),
-		.ST_CHANNEL_W              (6),
-		.VALID_WIDTH               (6),
+		.ST_DATA_W                 (237),
+		.ST_CHANNEL_W              (3),
+		.VALID_WIDTH               (3),
 		.ENFORCE_ORDER             (1),
 		.PREVENT_HAZARDS           (0),
 		.SUPPORTS_POSTED_WRITES    (1),
@@ -2717,6 +1648,56 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_burst_adapter #(
+		.PKT_ADDR_H                (103),
+		.PKT_ADDR_L                (72),
+		.PKT_BEGIN_BURST           (135),
+		.PKT_BYTE_CNT_H            (118),
+		.PKT_BYTE_CNT_L            (110),
+		.PKT_BYTEEN_H              (71),
+		.PKT_BYTEEN_L              (64),
+		.PKT_BURST_SIZE_H          (130),
+		.PKT_BURST_SIZE_L          (128),
+		.PKT_BURST_TYPE_H          (132),
+		.PKT_BURST_TYPE_L          (131),
+		.PKT_BURSTWRAP_H           (127),
+		.PKT_BURSTWRAP_L           (119),
+		.PKT_TRANS_COMPRESSED_READ (104),
+		.PKT_TRANS_WRITE           (106),
+		.PKT_TRANS_READ            (107),
+		.OUT_NARROW_SIZE           (0),
+		.IN_NARROW_SIZE            (1),
+		.OUT_FIXED                 (0),
+		.OUT_COMPLETE_WRAP         (0),
+		.ST_DATA_W                 (165),
+		.ST_CHANNEL_W              (3),
+		.OUT_BYTE_CNT_H            (113),
+		.OUT_BURSTWRAP_H           (127),
+		.COMPRESSED_READ_SUPPORT   (1),
+		.BYTEENABLE_SYNTHESIS      (1),
+		.PIPE_INPUTS               (0),
+		.NO_WRAP_SUPPORT           (0),
+		.INCOMPLETE_WRAP_SUPPORT   (0),
+		.BURSTWRAP_CONST_MASK      (0),
+		.BURSTWRAP_CONST_VALUE     (0),
+		.ADAPTER_VERSION           ("13.1")
+	) mcmc_system_0_avalon_slave_0_burst_adapter (
+		.clk                   (System_PLL_sys_clk_clk),                                           //       cr0.clk
+		.reset                 (mcmc_system_0_reset_reset_bridge_in_reset_reset),                  // cr0_reset.reset
+		.sink0_valid           (cmd_mux_src_valid),                                                //     sink0.valid
+		.sink0_data            (cmd_mux_src_data),                                                 //          .data
+		.sink0_channel         (cmd_mux_src_channel),                                              //          .channel
+		.sink0_startofpacket   (cmd_mux_src_startofpacket),                                        //          .startofpacket
+		.sink0_endofpacket     (cmd_mux_src_endofpacket),                                          //          .endofpacket
+		.sink0_ready           (cmd_mux_src_ready),                                                //          .ready
+		.source0_valid         (mcmc_system_0_avalon_slave_0_burst_adapter_source0_valid),         //   source0.valid
+		.source0_data          (mcmc_system_0_avalon_slave_0_burst_adapter_source0_data),          //          .data
+		.source0_channel       (mcmc_system_0_avalon_slave_0_burst_adapter_source0_channel),       //          .channel
+		.source0_startofpacket (mcmc_system_0_avalon_slave_0_burst_adapter_source0_startofpacket), //          .startofpacket
+		.source0_endofpacket   (mcmc_system_0_avalon_slave_0_burst_adapter_source0_endofpacket),   //          .endofpacket
+		.source0_ready         (mcmc_system_0_avalon_slave_0_burst_adapter_source0_ready)          //          .ready
+	);
+
+	altera_merlin_burst_adapter #(
 		.PKT_ADDR_H                (40),
 		.PKT_ADDR_L                (9),
 		.PKT_BEGIN_BURST           (72),
@@ -2737,8 +1718,8 @@ module Computer_System_mm_interconnect_0 (
 		.IN_NARROW_SIZE            (1),
 		.OUT_FIXED                 (0),
 		.OUT_COMPLETE_WRAP         (0),
-		.ST_DATA_W                 (104),
-		.ST_CHANNEL_W              (6),
+		.ST_DATA_W                 (102),
+		.ST_CHANNEL_W              (3),
 		.OUT_BYTE_CNT_H            (47),
 		.OUT_BURSTWRAP_H           (64),
 		.COMPRESSED_READ_SUPPORT   (1),
@@ -2751,13 +1732,13 @@ module Computer_System_mm_interconnect_0 (
 		.ADAPTER_VERSION           ("13.1")
 	) vga_subsystem_char_buffer_slave_burst_adapter (
 		.clk                   (System_PLL_sys_clk_clk),                                              //       cr0.clk
-		.reset                 (SDRAM_reset_reset_bridge_in_reset_reset),                             // cr0_reset.reset
-		.sink0_valid           (cmd_mux_src_valid),                                                   //     sink0.valid
-		.sink0_data            (cmd_mux_src_data),                                                    //          .data
-		.sink0_channel         (cmd_mux_src_channel),                                                 //          .channel
-		.sink0_startofpacket   (cmd_mux_src_startofpacket),                                           //          .startofpacket
-		.sink0_endofpacket     (cmd_mux_src_endofpacket),                                             //          .endofpacket
-		.sink0_ready           (cmd_mux_src_ready),                                                   //          .ready
+		.reset                 (mcmc_system_0_reset_reset_bridge_in_reset_reset),                     // cr0_reset.reset
+		.sink0_valid           (cmd_mux_001_src_valid),                                               //     sink0.valid
+		.sink0_data            (cmd_mux_001_src_data),                                                //          .data
+		.sink0_channel         (cmd_mux_001_src_channel),                                             //          .channel
+		.sink0_startofpacket   (cmd_mux_001_src_startofpacket),                                       //          .startofpacket
+		.sink0_endofpacket     (cmd_mux_001_src_endofpacket),                                         //          .endofpacket
+		.sink0_ready           (cmd_mux_001_src_ready),                                               //          .ready
 		.source0_valid         (vga_subsystem_char_buffer_slave_burst_adapter_source0_valid),         //   source0.valid
 		.source0_data          (vga_subsystem_char_buffer_slave_burst_adapter_source0_data),          //          .data
 		.source0_channel       (vga_subsystem_char_buffer_slave_burst_adapter_source0_channel),       //          .channel
@@ -2787,8 +1768,8 @@ module Computer_System_mm_interconnect_0 (
 		.IN_NARROW_SIZE            (1),
 		.OUT_FIXED                 (0),
 		.OUT_COMPLETE_WRAP         (0),
-		.ST_DATA_W                 (113),
-		.ST_CHANNEL_W              (6),
+		.ST_DATA_W                 (111),
+		.ST_CHANNEL_W              (3),
 		.OUT_BYTE_CNT_H            (57),
 		.OUT_BURSTWRAP_H           (73),
 		.COMPRESSED_READ_SUPPORT   (1),
@@ -2800,220 +1781,20 @@ module Computer_System_mm_interconnect_0 (
 		.BURSTWRAP_CONST_VALUE     (0),
 		.ADAPTER_VERSION           ("13.1")
 	) sdram_s1_burst_adapter (
-		.clk                   (System_PLL_sys_clk_clk),                       //       cr0.clk
-		.reset                 (SDRAM_reset_reset_bridge_in_reset_reset),      // cr0_reset.reset
-		.sink0_valid           (cmd_mux_001_src_valid),                        //     sink0.valid
-		.sink0_data            (cmd_mux_001_src_data),                         //          .data
-		.sink0_channel         (cmd_mux_001_src_channel),                      //          .channel
-		.sink0_startofpacket   (cmd_mux_001_src_startofpacket),                //          .startofpacket
-		.sink0_endofpacket     (cmd_mux_001_src_endofpacket),                  //          .endofpacket
-		.sink0_ready           (cmd_mux_001_src_ready),                        //          .ready
-		.source0_valid         (sdram_s1_burst_adapter_source0_valid),         //   source0.valid
-		.source0_data          (sdram_s1_burst_adapter_source0_data),          //          .data
-		.source0_channel       (sdram_s1_burst_adapter_source0_channel),       //          .channel
-		.source0_startofpacket (sdram_s1_burst_adapter_source0_startofpacket), //          .startofpacket
-		.source0_endofpacket   (sdram_s1_burst_adapter_source0_endofpacket),   //          .endofpacket
-		.source0_ready         (sdram_s1_burst_adapter_source0_ready)          //          .ready
-	);
-
-	altera_merlin_burst_adapter #(
-		.PKT_ADDR_H                (103),
-		.PKT_ADDR_L                (72),
-		.PKT_BEGIN_BURST           (135),
-		.PKT_BYTE_CNT_H            (118),
-		.PKT_BYTE_CNT_L            (110),
-		.PKT_BYTEEN_H              (71),
-		.PKT_BYTEEN_L              (64),
-		.PKT_BURST_SIZE_H          (130),
-		.PKT_BURST_SIZE_L          (128),
-		.PKT_BURST_TYPE_H          (132),
-		.PKT_BURST_TYPE_L          (131),
-		.PKT_BURSTWRAP_H           (127),
-		.PKT_BURSTWRAP_L           (119),
-		.PKT_TRANS_COMPRESSED_READ (104),
-		.PKT_TRANS_WRITE           (106),
-		.PKT_TRANS_READ            (107),
-		.OUT_NARROW_SIZE           (0),
-		.IN_NARROW_SIZE            (1),
-		.OUT_FIXED                 (0),
-		.OUT_COMPLETE_WRAP         (0),
-		.ST_DATA_W                 (167),
-		.ST_CHANNEL_W              (6),
-		.OUT_BYTE_CNT_H            (113),
-		.OUT_BURSTWRAP_H           (127),
-		.COMPRESSED_READ_SUPPORT   (1),
-		.BYTEENABLE_SYNTHESIS      (1),
-		.PIPE_INPUTS               (0),
-		.NO_WRAP_SUPPORT           (0),
-		.INCOMPLETE_WRAP_SUPPORT   (0),
-		.BURSTWRAP_CONST_MASK      (0),
-		.BURSTWRAP_CONST_VALUE     (0),
-		.ADAPTER_VERSION           ("13.1")
-	) onchip_sram_0_s2_burst_adapter (
-		.clk                   (System_PLL_sys_clk_clk),                               //       cr0.clk
-		.reset                 (SDRAM_reset_reset_bridge_in_reset_reset),              // cr0_reset.reset
-		.sink0_valid           (cmd_mux_002_src_valid),                                //     sink0.valid
-		.sink0_data            (cmd_mux_002_src_data),                                 //          .data
-		.sink0_channel         (cmd_mux_002_src_channel),                              //          .channel
-		.sink0_startofpacket   (cmd_mux_002_src_startofpacket),                        //          .startofpacket
-		.sink0_endofpacket     (cmd_mux_002_src_endofpacket),                          //          .endofpacket
-		.sink0_ready           (cmd_mux_002_src_ready),                                //          .ready
-		.source0_valid         (onchip_sram_0_s2_burst_adapter_source0_valid),         //   source0.valid
-		.source0_data          (onchip_sram_0_s2_burst_adapter_source0_data),          //          .data
-		.source0_channel       (onchip_sram_0_s2_burst_adapter_source0_channel),       //          .channel
-		.source0_startofpacket (onchip_sram_0_s2_burst_adapter_source0_startofpacket), //          .startofpacket
-		.source0_endofpacket   (onchip_sram_0_s2_burst_adapter_source0_endofpacket),   //          .endofpacket
-		.source0_ready         (onchip_sram_0_s2_burst_adapter_source0_ready)          //          .ready
-	);
-
-	altera_merlin_burst_adapter #(
-		.PKT_ADDR_H                (103),
-		.PKT_ADDR_L                (72),
-		.PKT_BEGIN_BURST           (135),
-		.PKT_BYTE_CNT_H            (118),
-		.PKT_BYTE_CNT_L            (110),
-		.PKT_BYTEEN_H              (71),
-		.PKT_BYTEEN_L              (64),
-		.PKT_BURST_SIZE_H          (130),
-		.PKT_BURST_SIZE_L          (128),
-		.PKT_BURST_TYPE_H          (132),
-		.PKT_BURST_TYPE_L          (131),
-		.PKT_BURSTWRAP_H           (127),
-		.PKT_BURSTWRAP_L           (119),
-		.PKT_TRANS_COMPRESSED_READ (104),
-		.PKT_TRANS_WRITE           (106),
-		.PKT_TRANS_READ            (107),
-		.OUT_NARROW_SIZE           (0),
-		.IN_NARROW_SIZE            (1),
-		.OUT_FIXED                 (0),
-		.OUT_COMPLETE_WRAP         (0),
-		.ST_DATA_W                 (167),
-		.ST_CHANNEL_W              (6),
-		.OUT_BYTE_CNT_H            (113),
-		.OUT_BURSTWRAP_H           (127),
-		.COMPRESSED_READ_SUPPORT   (1),
-		.BYTEENABLE_SYNTHESIS      (1),
-		.PIPE_INPUTS               (0),
-		.NO_WRAP_SUPPORT           (0),
-		.INCOMPLETE_WRAP_SUPPORT   (0),
-		.BURSTWRAP_CONST_MASK      (0),
-		.BURSTWRAP_CONST_VALUE     (0),
-		.ADAPTER_VERSION           ("13.1")
-	) onchip_sram_1_s2_burst_adapter (
-		.clk                   (System_PLL_sys_clk_clk),                               //       cr0.clk
-		.reset                 (SDRAM_reset_reset_bridge_in_reset_reset),              // cr0_reset.reset
-		.sink0_valid           (cmd_mux_003_src_valid),                                //     sink0.valid
-		.sink0_data            (cmd_mux_003_src_data),                                 //          .data
-		.sink0_channel         (cmd_mux_003_src_channel),                              //          .channel
-		.sink0_startofpacket   (cmd_mux_003_src_startofpacket),                        //          .startofpacket
-		.sink0_endofpacket     (cmd_mux_003_src_endofpacket),                          //          .endofpacket
-		.sink0_ready           (cmd_mux_003_src_ready),                                //          .ready
-		.source0_valid         (onchip_sram_1_s2_burst_adapter_source0_valid),         //   source0.valid
-		.source0_data          (onchip_sram_1_s2_burst_adapter_source0_data),          //          .data
-		.source0_channel       (onchip_sram_1_s2_burst_adapter_source0_channel),       //          .channel
-		.source0_startofpacket (onchip_sram_1_s2_burst_adapter_source0_startofpacket), //          .startofpacket
-		.source0_endofpacket   (onchip_sram_1_s2_burst_adapter_source0_endofpacket),   //          .endofpacket
-		.source0_ready         (onchip_sram_1_s2_burst_adapter_source0_ready)          //          .ready
-	);
-
-	altera_merlin_burst_adapter #(
-		.PKT_ADDR_H                (103),
-		.PKT_ADDR_L                (72),
-		.PKT_BEGIN_BURST           (135),
-		.PKT_BYTE_CNT_H            (118),
-		.PKT_BYTE_CNT_L            (110),
-		.PKT_BYTEEN_H              (71),
-		.PKT_BYTEEN_L              (64),
-		.PKT_BURST_SIZE_H          (130),
-		.PKT_BURST_SIZE_L          (128),
-		.PKT_BURST_TYPE_H          (132),
-		.PKT_BURST_TYPE_L          (131),
-		.PKT_BURSTWRAP_H           (127),
-		.PKT_BURSTWRAP_L           (119),
-		.PKT_TRANS_COMPRESSED_READ (104),
-		.PKT_TRANS_WRITE           (106),
-		.PKT_TRANS_READ            (107),
-		.OUT_NARROW_SIZE           (0),
-		.IN_NARROW_SIZE            (1),
-		.OUT_FIXED                 (0),
-		.OUT_COMPLETE_WRAP         (0),
-		.ST_DATA_W                 (167),
-		.ST_CHANNEL_W              (6),
-		.OUT_BYTE_CNT_H            (113),
-		.OUT_BURSTWRAP_H           (127),
-		.COMPRESSED_READ_SUPPORT   (1),
-		.BYTEENABLE_SYNTHESIS      (1),
-		.PIPE_INPUTS               (0),
-		.NO_WRAP_SUPPORT           (0),
-		.INCOMPLETE_WRAP_SUPPORT   (0),
-		.BURSTWRAP_CONST_MASK      (0),
-		.BURSTWRAP_CONST_VALUE     (0),
-		.ADAPTER_VERSION           ("13.1")
-	) onchip_sram_2_s2_burst_adapter (
-		.clk                   (System_PLL_sys_clk_clk),                               //       cr0.clk
-		.reset                 (SDRAM_reset_reset_bridge_in_reset_reset),              // cr0_reset.reset
-		.sink0_valid           (cmd_mux_004_src_valid),                                //     sink0.valid
-		.sink0_data            (cmd_mux_004_src_data),                                 //          .data
-		.sink0_channel         (cmd_mux_004_src_channel),                              //          .channel
-		.sink0_startofpacket   (cmd_mux_004_src_startofpacket),                        //          .startofpacket
-		.sink0_endofpacket     (cmd_mux_004_src_endofpacket),                          //          .endofpacket
-		.sink0_ready           (cmd_mux_004_src_ready),                                //          .ready
-		.source0_valid         (onchip_sram_2_s2_burst_adapter_source0_valid),         //   source0.valid
-		.source0_data          (onchip_sram_2_s2_burst_adapter_source0_data),          //          .data
-		.source0_channel       (onchip_sram_2_s2_burst_adapter_source0_channel),       //          .channel
-		.source0_startofpacket (onchip_sram_2_s2_burst_adapter_source0_startofpacket), //          .startofpacket
-		.source0_endofpacket   (onchip_sram_2_s2_burst_adapter_source0_endofpacket),   //          .endofpacket
-		.source0_ready         (onchip_sram_2_s2_burst_adapter_source0_ready)          //          .ready
-	);
-
-	altera_merlin_burst_adapter #(
-		.PKT_ADDR_H                (103),
-		.PKT_ADDR_L                (72),
-		.PKT_BEGIN_BURST           (135),
-		.PKT_BYTE_CNT_H            (118),
-		.PKT_BYTE_CNT_L            (110),
-		.PKT_BYTEEN_H              (71),
-		.PKT_BYTEEN_L              (64),
-		.PKT_BURST_SIZE_H          (130),
-		.PKT_BURST_SIZE_L          (128),
-		.PKT_BURST_TYPE_H          (132),
-		.PKT_BURST_TYPE_L          (131),
-		.PKT_BURSTWRAP_H           (127),
-		.PKT_BURSTWRAP_L           (119),
-		.PKT_TRANS_COMPRESSED_READ (104),
-		.PKT_TRANS_WRITE           (106),
-		.PKT_TRANS_READ            (107),
-		.OUT_NARROW_SIZE           (0),
-		.IN_NARROW_SIZE            (1),
-		.OUT_FIXED                 (0),
-		.OUT_COMPLETE_WRAP         (0),
-		.ST_DATA_W                 (167),
-		.ST_CHANNEL_W              (6),
-		.OUT_BYTE_CNT_H            (113),
-		.OUT_BURSTWRAP_H           (127),
-		.COMPRESSED_READ_SUPPORT   (1),
-		.BYTEENABLE_SYNTHESIS      (1),
-		.PIPE_INPUTS               (0),
-		.NO_WRAP_SUPPORT           (0),
-		.INCOMPLETE_WRAP_SUPPORT   (0),
-		.BURSTWRAP_CONST_MASK      (0),
-		.BURSTWRAP_CONST_VALUE     (0),
-		.ADAPTER_VERSION           ("13.1")
-	) onchip_sram_3_s2_burst_adapter (
-		.clk                   (System_PLL_sys_clk_clk),                               //       cr0.clk
-		.reset                 (SDRAM_reset_reset_bridge_in_reset_reset),              // cr0_reset.reset
-		.sink0_valid           (cmd_mux_005_src_valid),                                //     sink0.valid
-		.sink0_data            (cmd_mux_005_src_data),                                 //          .data
-		.sink0_channel         (cmd_mux_005_src_channel),                              //          .channel
-		.sink0_startofpacket   (cmd_mux_005_src_startofpacket),                        //          .startofpacket
-		.sink0_endofpacket     (cmd_mux_005_src_endofpacket),                          //          .endofpacket
-		.sink0_ready           (cmd_mux_005_src_ready),                                //          .ready
-		.source0_valid         (onchip_sram_3_s2_burst_adapter_source0_valid),         //   source0.valid
-		.source0_data          (onchip_sram_3_s2_burst_adapter_source0_data),          //          .data
-		.source0_channel       (onchip_sram_3_s2_burst_adapter_source0_channel),       //          .channel
-		.source0_startofpacket (onchip_sram_3_s2_burst_adapter_source0_startofpacket), //          .startofpacket
-		.source0_endofpacket   (onchip_sram_3_s2_burst_adapter_source0_endofpacket),   //          .endofpacket
-		.source0_ready         (onchip_sram_3_s2_burst_adapter_source0_ready)          //          .ready
+		.clk                   (System_PLL_sys_clk_clk),                          //       cr0.clk
+		.reset                 (mcmc_system_0_reset_reset_bridge_in_reset_reset), // cr0_reset.reset
+		.sink0_valid           (cmd_mux_002_src_valid),                           //     sink0.valid
+		.sink0_data            (cmd_mux_002_src_data),                            //          .data
+		.sink0_channel         (cmd_mux_002_src_channel),                         //          .channel
+		.sink0_startofpacket   (cmd_mux_002_src_startofpacket),                   //          .startofpacket
+		.sink0_endofpacket     (cmd_mux_002_src_endofpacket),                     //          .endofpacket
+		.sink0_ready           (cmd_mux_002_src_ready),                           //          .ready
+		.source0_valid         (sdram_s1_burst_adapter_source0_valid),            //   source0.valid
+		.source0_data          (sdram_s1_burst_adapter_source0_data),             //          .data
+		.source0_channel       (sdram_s1_burst_adapter_source0_channel),          //          .channel
+		.source0_startofpacket (sdram_s1_burst_adapter_source0_startofpacket),    //          .startofpacket
+		.source0_endofpacket   (sdram_s1_burst_adapter_source0_endofpacket),      //          .endofpacket
+		.source0_ready         (sdram_s1_burst_adapter_source0_ready)             //          .ready
 	);
 
 	Computer_System_mm_interconnect_0_cmd_demux cmd_demux (
@@ -3042,25 +1823,7 @@ module Computer_System_mm_interconnect_0 (
 		.src2_data          (cmd_demux_src2_data),                                                   //           .data
 		.src2_channel       (cmd_demux_src2_channel),                                                //           .channel
 		.src2_startofpacket (cmd_demux_src2_startofpacket),                                          //           .startofpacket
-		.src2_endofpacket   (cmd_demux_src2_endofpacket),                                            //           .endofpacket
-		.src3_ready         (cmd_demux_src3_ready),                                                  //       src3.ready
-		.src3_valid         (cmd_demux_src3_valid),                                                  //           .valid
-		.src3_data          (cmd_demux_src3_data),                                                   //           .data
-		.src3_channel       (cmd_demux_src3_channel),                                                //           .channel
-		.src3_startofpacket (cmd_demux_src3_startofpacket),                                          //           .startofpacket
-		.src3_endofpacket   (cmd_demux_src3_endofpacket),                                            //           .endofpacket
-		.src4_ready         (cmd_demux_src4_ready),                                                  //       src4.ready
-		.src4_valid         (cmd_demux_src4_valid),                                                  //           .valid
-		.src4_data          (cmd_demux_src4_data),                                                   //           .data
-		.src4_channel       (cmd_demux_src4_channel),                                                //           .channel
-		.src4_startofpacket (cmd_demux_src4_startofpacket),                                          //           .startofpacket
-		.src4_endofpacket   (cmd_demux_src4_endofpacket),                                            //           .endofpacket
-		.src5_ready         (cmd_demux_src5_ready),                                                  //       src5.ready
-		.src5_valid         (cmd_demux_src5_valid),                                                  //           .valid
-		.src5_data          (cmd_demux_src5_data),                                                   //           .data
-		.src5_channel       (cmd_demux_src5_channel),                                                //           .channel
-		.src5_startofpacket (cmd_demux_src5_startofpacket),                                          //           .startofpacket
-		.src5_endofpacket   (cmd_demux_src5_endofpacket)                                             //           .endofpacket
+		.src2_endofpacket   (cmd_demux_src2_endofpacket)                                             //           .endofpacket
 	);
 
 	Computer_System_mm_interconnect_0_cmd_demux cmd_demux_001 (
@@ -3089,53 +1852,58 @@ module Computer_System_mm_interconnect_0 (
 		.src2_data          (cmd_demux_001_src2_data),                                               //           .data
 		.src2_channel       (cmd_demux_001_src2_channel),                                            //           .channel
 		.src2_startofpacket (cmd_demux_001_src2_startofpacket),                                      //           .startofpacket
-		.src2_endofpacket   (cmd_demux_001_src2_endofpacket),                                        //           .endofpacket
-		.src3_ready         (cmd_demux_001_src3_ready),                                              //       src3.ready
-		.src3_valid         (cmd_demux_001_src3_valid),                                              //           .valid
-		.src3_data          (cmd_demux_001_src3_data),                                               //           .data
-		.src3_channel       (cmd_demux_001_src3_channel),                                            //           .channel
-		.src3_startofpacket (cmd_demux_001_src3_startofpacket),                                      //           .startofpacket
-		.src3_endofpacket   (cmd_demux_001_src3_endofpacket),                                        //           .endofpacket
-		.src4_ready         (cmd_demux_001_src4_ready),                                              //       src4.ready
-		.src4_valid         (cmd_demux_001_src4_valid),                                              //           .valid
-		.src4_data          (cmd_demux_001_src4_data),                                               //           .data
-		.src4_channel       (cmd_demux_001_src4_channel),                                            //           .channel
-		.src4_startofpacket (cmd_demux_001_src4_startofpacket),                                      //           .startofpacket
-		.src4_endofpacket   (cmd_demux_001_src4_endofpacket),                                        //           .endofpacket
-		.src5_ready         (cmd_demux_001_src5_ready),                                              //       src5.ready
-		.src5_valid         (cmd_demux_001_src5_valid),                                              //           .valid
-		.src5_data          (cmd_demux_001_src5_data),                                               //           .data
-		.src5_channel       (cmd_demux_001_src5_channel),                                            //           .channel
-		.src5_startofpacket (cmd_demux_001_src5_startofpacket),                                      //           .startofpacket
-		.src5_endofpacket   (cmd_demux_001_src5_endofpacket)                                         //           .endofpacket
+		.src2_endofpacket   (cmd_demux_001_src2_endofpacket)                                         //           .endofpacket
 	);
 
 	Computer_System_mm_interconnect_0_cmd_demux_002 cmd_demux_002 (
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.sink_ready         (router_002_src_ready),                    //      sink.ready
-		.sink_channel       (router_002_src_channel),                  //          .channel
-		.sink_data          (router_002_src_data),                     //          .data
-		.sink_startofpacket (router_002_src_startofpacket),            //          .startofpacket
-		.sink_endofpacket   (router_002_src_endofpacket),              //          .endofpacket
-		.sink_valid         (router_002_src_valid),                    //          .valid
-		.src0_ready         (cmd_demux_002_src0_ready),                //      src0.ready
-		.src0_valid         (cmd_demux_002_src0_valid),                //          .valid
-		.src0_data          (cmd_demux_002_src0_data),                 //          .data
-		.src0_channel       (cmd_demux_002_src0_channel),              //          .channel
-		.src0_startofpacket (cmd_demux_002_src0_startofpacket),        //          .startofpacket
-		.src0_endofpacket   (cmd_demux_002_src0_endofpacket)           //          .endofpacket
+		.clk                (System_PLL_sys_clk_clk),                          //       clk.clk
+		.reset              (mcmc_system_0_reset_reset_bridge_in_reset_reset), // clk_reset.reset
+		.sink_ready         (router_002_src_ready),                            //      sink.ready
+		.sink_channel       (router_002_src_channel),                          //          .channel
+		.sink_data          (router_002_src_data),                             //          .data
+		.sink_startofpacket (router_002_src_startofpacket),                    //          .startofpacket
+		.sink_endofpacket   (router_002_src_endofpacket),                      //          .endofpacket
+		.sink_valid         (router_002_src_valid),                            //          .valid
+		.src0_ready         (cmd_demux_002_src0_ready),                        //      src0.ready
+		.src0_valid         (cmd_demux_002_src0_valid),                        //          .valid
+		.src0_data          (cmd_demux_002_src0_data),                         //          .data
+		.src0_channel       (cmd_demux_002_src0_channel),                      //          .channel
+		.src0_startofpacket (cmd_demux_002_src0_startofpacket),                //          .startofpacket
+		.src0_endofpacket   (cmd_demux_002_src0_endofpacket)                   //          .endofpacket
 	);
 
 	Computer_System_mm_interconnect_0_cmd_mux cmd_mux (
+		.clk                 (System_PLL_sys_clk_clk),                                                                           //       clk.clk
+		.reset               (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                                  // clk_reset.reset
+		.src_ready           (cmd_mux_src_ready),                                                                                //       src.ready
+		.src_valid           (cmd_mux_src_valid),                                                                                //          .valid
+		.src_data            (cmd_mux_src_data),                                                                                 //          .data
+		.src_channel         (cmd_mux_src_channel),                                                                              //          .channel
+		.src_startofpacket   (cmd_mux_src_startofpacket),                                                                        //          .startofpacket
+		.src_endofpacket     (cmd_mux_src_endofpacket),                                                                          //          .endofpacket
+		.sink0_ready         (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_ready),         //     sink0.ready
+		.sink0_valid         (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_valid),         //          .valid
+		.sink0_channel       (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_channel),       //          .channel
+		.sink0_data          (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_data),          //          .data
+		.sink0_startofpacket (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_startofpacket), //          .startofpacket
+		.sink0_endofpacket   (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_endofpacket),   //          .endofpacket
+		.sink1_ready         (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_ready),         //     sink1.ready
+		.sink1_valid         (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_valid),         //          .valid
+		.sink1_channel       (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_channel),       //          .channel
+		.sink1_data          (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_data),          //          .data
+		.sink1_startofpacket (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_startofpacket), //          .startofpacket
+		.sink1_endofpacket   (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_endofpacket)    //          .endofpacket
+	);
+
+	Computer_System_mm_interconnect_0_cmd_mux_001 cmd_mux_001 (
 		.clk                 (System_PLL_sys_clk_clk),                                                                              //       clk.clk
-		.reset               (SDRAM_reset_reset_bridge_in_reset_reset),                                                             // clk_reset.reset
-		.src_ready           (cmd_mux_src_ready),                                                                                   //       src.ready
-		.src_valid           (cmd_mux_src_valid),                                                                                   //          .valid
-		.src_data            (cmd_mux_src_data),                                                                                    //          .data
-		.src_channel         (cmd_mux_src_channel),                                                                                 //          .channel
-		.src_startofpacket   (cmd_mux_src_startofpacket),                                                                           //          .startofpacket
-		.src_endofpacket     (cmd_mux_src_endofpacket),                                                                             //          .endofpacket
+		.reset               (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                                     // clk_reset.reset
+		.src_ready           (cmd_mux_001_src_ready),                                                                               //       src.ready
+		.src_valid           (cmd_mux_001_src_valid),                                                                               //          .valid
+		.src_data            (cmd_mux_001_src_data),                                                                                //          .data
+		.src_channel         (cmd_mux_001_src_channel),                                                                             //          .channel
+		.src_startofpacket   (cmd_mux_001_src_startofpacket),                                                                       //          .startofpacket
+		.src_endofpacket     (cmd_mux_001_src_endofpacket),                                                                         //          .endofpacket
 		.sink0_ready         (arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_ready),         //     sink0.ready
 		.sink0_valid         (arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_valid),         //          .valid
 		.sink0_channel       (arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_channel),       //          .channel
@@ -3150,15 +1918,15 @@ module Computer_System_mm_interconnect_0 (
 		.sink1_endofpacket   (arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_endofpacket)    //          .endofpacket
 	);
 
-	Computer_System_mm_interconnect_0_cmd_mux_001 cmd_mux_001 (
+	Computer_System_mm_interconnect_0_cmd_mux_002 cmd_mux_002 (
 		.clk                 (System_PLL_sys_clk_clk),                                                         //       clk.clk
-		.reset               (SDRAM_reset_reset_bridge_in_reset_reset),                                        // clk_reset.reset
-		.src_ready           (cmd_mux_001_src_ready),                                                          //       src.ready
-		.src_valid           (cmd_mux_001_src_valid),                                                          //          .valid
-		.src_data            (cmd_mux_001_src_data),                                                           //          .data
-		.src_channel         (cmd_mux_001_src_channel),                                                        //          .channel
-		.src_startofpacket   (cmd_mux_001_src_startofpacket),                                                  //          .startofpacket
-		.src_endofpacket     (cmd_mux_001_src_endofpacket),                                                    //          .endofpacket
+		.reset               (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                // clk_reset.reset
+		.src_ready           (cmd_mux_002_src_ready),                                                          //       src.ready
+		.src_valid           (cmd_mux_002_src_valid),                                                          //          .valid
+		.src_data            (cmd_mux_002_src_data),                                                           //          .data
+		.src_channel         (cmd_mux_002_src_channel),                                                        //          .channel
+		.src_startofpacket   (cmd_mux_002_src_startofpacket),                                                  //          .startofpacket
+		.src_endofpacket     (cmd_mux_002_src_endofpacket),                                                    //          .endofpacket
 		.sink0_ready         (arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_ready),           //     sink0.ready
 		.sink0_valid         (arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_valid),           //          .valid
 		.sink0_channel       (arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_channel),         //          .channel
@@ -3179,240 +1947,79 @@ module Computer_System_mm_interconnect_0 (
 		.sink2_endofpacket   (vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter_src_endofpacket)    //          .endofpacket
 	);
 
-	Computer_System_mm_interconnect_0_cmd_mux_002 cmd_mux_002 (
-		.clk                 (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset               (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.src_ready           (cmd_mux_002_src_ready),                                                                //       src.ready
-		.src_valid           (cmd_mux_002_src_valid),                                                                //          .valid
-		.src_data            (cmd_mux_002_src_data),                                                                 //          .data
-		.src_channel         (cmd_mux_002_src_channel),                                                              //          .channel
-		.src_startofpacket   (cmd_mux_002_src_startofpacket),                                                        //          .startofpacket
-		.src_endofpacket     (cmd_mux_002_src_endofpacket),                                                          //          .endofpacket
-		.sink0_ready         (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_ready),         //     sink0.ready
-		.sink0_valid         (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_valid),         //          .valid
-		.sink0_channel       (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_channel),       //          .channel
-		.sink0_data          (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_data),          //          .data
-		.sink0_startofpacket (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.sink0_endofpacket   (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_endofpacket),   //          .endofpacket
-		.sink1_ready         (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_ready),         //     sink1.ready
-		.sink1_valid         (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_valid),         //          .valid
-		.sink1_channel       (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_channel),       //          .channel
-		.sink1_data          (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_data),          //          .data
-		.sink1_startofpacket (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.sink1_endofpacket   (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_endofpacket)    //          .endofpacket
-	);
-
-	Computer_System_mm_interconnect_0_cmd_mux_002 cmd_mux_003 (
-		.clk                 (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset               (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.src_ready           (cmd_mux_003_src_ready),                                                                //       src.ready
-		.src_valid           (cmd_mux_003_src_valid),                                                                //          .valid
-		.src_data            (cmd_mux_003_src_data),                                                                 //          .data
-		.src_channel         (cmd_mux_003_src_channel),                                                              //          .channel
-		.src_startofpacket   (cmd_mux_003_src_startofpacket),                                                        //          .startofpacket
-		.src_endofpacket     (cmd_mux_003_src_endofpacket),                                                          //          .endofpacket
-		.sink0_ready         (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_ready),         //     sink0.ready
-		.sink0_valid         (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_valid),         //          .valid
-		.sink0_channel       (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_channel),       //          .channel
-		.sink0_data          (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_data),          //          .data
-		.sink0_startofpacket (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.sink0_endofpacket   (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_endofpacket),   //          .endofpacket
-		.sink1_ready         (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_ready),         //     sink1.ready
-		.sink1_valid         (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_valid),         //          .valid
-		.sink1_channel       (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_channel),       //          .channel
-		.sink1_data          (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_data),          //          .data
-		.sink1_startofpacket (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.sink1_endofpacket   (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_endofpacket)    //          .endofpacket
-	);
-
-	Computer_System_mm_interconnect_0_cmd_mux_002 cmd_mux_004 (
-		.clk                 (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset               (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.src_ready           (cmd_mux_004_src_ready),                                                                //       src.ready
-		.src_valid           (cmd_mux_004_src_valid),                                                                //          .valid
-		.src_data            (cmd_mux_004_src_data),                                                                 //          .data
-		.src_channel         (cmd_mux_004_src_channel),                                                              //          .channel
-		.src_startofpacket   (cmd_mux_004_src_startofpacket),                                                        //          .startofpacket
-		.src_endofpacket     (cmd_mux_004_src_endofpacket),                                                          //          .endofpacket
-		.sink0_ready         (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_ready),         //     sink0.ready
-		.sink0_valid         (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_valid),         //          .valid
-		.sink0_channel       (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_channel),       //          .channel
-		.sink0_data          (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_data),          //          .data
-		.sink0_startofpacket (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.sink0_endofpacket   (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_endofpacket),   //          .endofpacket
-		.sink1_ready         (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_ready),         //     sink1.ready
-		.sink1_valid         (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_valid),         //          .valid
-		.sink1_channel       (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_channel),       //          .channel
-		.sink1_data          (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_data),          //          .data
-		.sink1_startofpacket (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.sink1_endofpacket   (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_endofpacket)    //          .endofpacket
-	);
-
-	Computer_System_mm_interconnect_0_cmd_mux_002 cmd_mux_005 (
-		.clk                 (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset               (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.src_ready           (cmd_mux_005_src_ready),                                                                //       src.ready
-		.src_valid           (cmd_mux_005_src_valid),                                                                //          .valid
-		.src_data            (cmd_mux_005_src_data),                                                                 //          .data
-		.src_channel         (cmd_mux_005_src_channel),                                                              //          .channel
-		.src_startofpacket   (cmd_mux_005_src_startofpacket),                                                        //          .startofpacket
-		.src_endofpacket     (cmd_mux_005_src_endofpacket),                                                          //          .endofpacket
-		.sink0_ready         (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_ready),         //     sink0.ready
-		.sink0_valid         (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_valid),         //          .valid
-		.sink0_channel       (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_channel),       //          .channel
-		.sink0_data          (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_data),          //          .data
-		.sink0_startofpacket (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.sink0_endofpacket   (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_endofpacket),   //          .endofpacket
-		.sink1_ready         (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_ready),         //     sink1.ready
-		.sink1_valid         (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_valid),         //          .valid
-		.sink1_channel       (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_channel),       //          .channel
-		.sink1_data          (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_data),          //          .data
-		.sink1_startofpacket (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.sink1_endofpacket   (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_endofpacket)    //          .endofpacket
-	);
-
 	Computer_System_mm_interconnect_0_rsp_demux rsp_demux (
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.sink_ready         (router_003_src_ready),                    //      sink.ready
-		.sink_channel       (router_003_src_channel),                  //          .channel
-		.sink_data          (router_003_src_data),                     //          .data
-		.sink_startofpacket (router_003_src_startofpacket),            //          .startofpacket
-		.sink_endofpacket   (router_003_src_endofpacket),              //          .endofpacket
-		.sink_valid         (router_003_src_valid),                    //          .valid
-		.src0_ready         (rsp_demux_src0_ready),                    //      src0.ready
-		.src0_valid         (rsp_demux_src0_valid),                    //          .valid
-		.src0_data          (rsp_demux_src0_data),                     //          .data
-		.src0_channel       (rsp_demux_src0_channel),                  //          .channel
-		.src0_startofpacket (rsp_demux_src0_startofpacket),            //          .startofpacket
-		.src0_endofpacket   (rsp_demux_src0_endofpacket),              //          .endofpacket
-		.src1_ready         (rsp_demux_src1_ready),                    //      src1.ready
-		.src1_valid         (rsp_demux_src1_valid),                    //          .valid
-		.src1_data          (rsp_demux_src1_data),                     //          .data
-		.src1_channel       (rsp_demux_src1_channel),                  //          .channel
-		.src1_startofpacket (rsp_demux_src1_startofpacket),            //          .startofpacket
-		.src1_endofpacket   (rsp_demux_src1_endofpacket)               //          .endofpacket
+		.clk                (System_PLL_sys_clk_clk),                          //       clk.clk
+		.reset              (mcmc_system_0_reset_reset_bridge_in_reset_reset), // clk_reset.reset
+		.sink_ready         (router_003_src_ready),                            //      sink.ready
+		.sink_channel       (router_003_src_channel),                          //          .channel
+		.sink_data          (router_003_src_data),                             //          .data
+		.sink_startofpacket (router_003_src_startofpacket),                    //          .startofpacket
+		.sink_endofpacket   (router_003_src_endofpacket),                      //          .endofpacket
+		.sink_valid         (router_003_src_valid),                            //          .valid
+		.src0_ready         (rsp_demux_src0_ready),                            //      src0.ready
+		.src0_valid         (rsp_demux_src0_valid),                            //          .valid
+		.src0_data          (rsp_demux_src0_data),                             //          .data
+		.src0_channel       (rsp_demux_src0_channel),                          //          .channel
+		.src0_startofpacket (rsp_demux_src0_startofpacket),                    //          .startofpacket
+		.src0_endofpacket   (rsp_demux_src0_endofpacket),                      //          .endofpacket
+		.src1_ready         (rsp_demux_src1_ready),                            //      src1.ready
+		.src1_valid         (rsp_demux_src1_valid),                            //          .valid
+		.src1_data          (rsp_demux_src1_data),                             //          .data
+		.src1_channel       (rsp_demux_src1_channel),                          //          .channel
+		.src1_startofpacket (rsp_demux_src1_startofpacket),                    //          .startofpacket
+		.src1_endofpacket   (rsp_demux_src1_endofpacket)                       //          .endofpacket
 	);
 
 	Computer_System_mm_interconnect_0_rsp_demux_001 rsp_demux_001 (
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.sink_ready         (router_004_src_ready),                    //      sink.ready
-		.sink_channel       (router_004_src_channel),                  //          .channel
-		.sink_data          (router_004_src_data),                     //          .data
-		.sink_startofpacket (router_004_src_startofpacket),            //          .startofpacket
-		.sink_endofpacket   (router_004_src_endofpacket),              //          .endofpacket
-		.sink_valid         (router_004_src_valid),                    //          .valid
-		.src0_ready         (rsp_demux_001_src0_ready),                //      src0.ready
-		.src0_valid         (rsp_demux_001_src0_valid),                //          .valid
-		.src0_data          (rsp_demux_001_src0_data),                 //          .data
-		.src0_channel       (rsp_demux_001_src0_channel),              //          .channel
-		.src0_startofpacket (rsp_demux_001_src0_startofpacket),        //          .startofpacket
-		.src0_endofpacket   (rsp_demux_001_src0_endofpacket),          //          .endofpacket
-		.src1_ready         (rsp_demux_001_src1_ready),                //      src1.ready
-		.src1_valid         (rsp_demux_001_src1_valid),                //          .valid
-		.src1_data          (rsp_demux_001_src1_data),                 //          .data
-		.src1_channel       (rsp_demux_001_src1_channel),              //          .channel
-		.src1_startofpacket (rsp_demux_001_src1_startofpacket),        //          .startofpacket
-		.src1_endofpacket   (rsp_demux_001_src1_endofpacket),          //          .endofpacket
-		.src2_ready         (rsp_demux_001_src2_ready),                //      src2.ready
-		.src2_valid         (rsp_demux_001_src2_valid),                //          .valid
-		.src2_data          (rsp_demux_001_src2_data),                 //          .data
-		.src2_channel       (rsp_demux_001_src2_channel),              //          .channel
-		.src2_startofpacket (rsp_demux_001_src2_startofpacket),        //          .startofpacket
-		.src2_endofpacket   (rsp_demux_001_src2_endofpacket)           //          .endofpacket
+		.clk                (System_PLL_sys_clk_clk),                          //       clk.clk
+		.reset              (mcmc_system_0_reset_reset_bridge_in_reset_reset), // clk_reset.reset
+		.sink_ready         (router_004_src_ready),                            //      sink.ready
+		.sink_channel       (router_004_src_channel),                          //          .channel
+		.sink_data          (router_004_src_data),                             //          .data
+		.sink_startofpacket (router_004_src_startofpacket),                    //          .startofpacket
+		.sink_endofpacket   (router_004_src_endofpacket),                      //          .endofpacket
+		.sink_valid         (router_004_src_valid),                            //          .valid
+		.src0_ready         (rsp_demux_001_src0_ready),                        //      src0.ready
+		.src0_valid         (rsp_demux_001_src0_valid),                        //          .valid
+		.src0_data          (rsp_demux_001_src0_data),                         //          .data
+		.src0_channel       (rsp_demux_001_src0_channel),                      //          .channel
+		.src0_startofpacket (rsp_demux_001_src0_startofpacket),                //          .startofpacket
+		.src0_endofpacket   (rsp_demux_001_src0_endofpacket),                  //          .endofpacket
+		.src1_ready         (rsp_demux_001_src1_ready),                        //      src1.ready
+		.src1_valid         (rsp_demux_001_src1_valid),                        //          .valid
+		.src1_data          (rsp_demux_001_src1_data),                         //          .data
+		.src1_channel       (rsp_demux_001_src1_channel),                      //          .channel
+		.src1_startofpacket (rsp_demux_001_src1_startofpacket),                //          .startofpacket
+		.src1_endofpacket   (rsp_demux_001_src1_endofpacket)                   //          .endofpacket
 	);
 
 	Computer_System_mm_interconnect_0_rsp_demux_002 rsp_demux_002 (
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.sink_ready         (router_005_src_ready),                    //      sink.ready
-		.sink_channel       (router_005_src_channel),                  //          .channel
-		.sink_data          (router_005_src_data),                     //          .data
-		.sink_startofpacket (router_005_src_startofpacket),            //          .startofpacket
-		.sink_endofpacket   (router_005_src_endofpacket),              //          .endofpacket
-		.sink_valid         (router_005_src_valid),                    //          .valid
-		.src0_ready         (rsp_demux_002_src0_ready),                //      src0.ready
-		.src0_valid         (rsp_demux_002_src0_valid),                //          .valid
-		.src0_data          (rsp_demux_002_src0_data),                 //          .data
-		.src0_channel       (rsp_demux_002_src0_channel),              //          .channel
-		.src0_startofpacket (rsp_demux_002_src0_startofpacket),        //          .startofpacket
-		.src0_endofpacket   (rsp_demux_002_src0_endofpacket),          //          .endofpacket
-		.src1_ready         (rsp_demux_002_src1_ready),                //      src1.ready
-		.src1_valid         (rsp_demux_002_src1_valid),                //          .valid
-		.src1_data          (rsp_demux_002_src1_data),                 //          .data
-		.src1_channel       (rsp_demux_002_src1_channel),              //          .channel
-		.src1_startofpacket (rsp_demux_002_src1_startofpacket),        //          .startofpacket
-		.src1_endofpacket   (rsp_demux_002_src1_endofpacket)           //          .endofpacket
-	);
-
-	Computer_System_mm_interconnect_0_rsp_demux_002 rsp_demux_003 (
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.sink_ready         (router_006_src_ready),                    //      sink.ready
-		.sink_channel       (router_006_src_channel),                  //          .channel
-		.sink_data          (router_006_src_data),                     //          .data
-		.sink_startofpacket (router_006_src_startofpacket),            //          .startofpacket
-		.sink_endofpacket   (router_006_src_endofpacket),              //          .endofpacket
-		.sink_valid         (router_006_src_valid),                    //          .valid
-		.src0_ready         (rsp_demux_003_src0_ready),                //      src0.ready
-		.src0_valid         (rsp_demux_003_src0_valid),                //          .valid
-		.src0_data          (rsp_demux_003_src0_data),                 //          .data
-		.src0_channel       (rsp_demux_003_src0_channel),              //          .channel
-		.src0_startofpacket (rsp_demux_003_src0_startofpacket),        //          .startofpacket
-		.src0_endofpacket   (rsp_demux_003_src0_endofpacket),          //          .endofpacket
-		.src1_ready         (rsp_demux_003_src1_ready),                //      src1.ready
-		.src1_valid         (rsp_demux_003_src1_valid),                //          .valid
-		.src1_data          (rsp_demux_003_src1_data),                 //          .data
-		.src1_channel       (rsp_demux_003_src1_channel),              //          .channel
-		.src1_startofpacket (rsp_demux_003_src1_startofpacket),        //          .startofpacket
-		.src1_endofpacket   (rsp_demux_003_src1_endofpacket)           //          .endofpacket
-	);
-
-	Computer_System_mm_interconnect_0_rsp_demux_002 rsp_demux_004 (
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.sink_ready         (router_007_src_ready),                    //      sink.ready
-		.sink_channel       (router_007_src_channel),                  //          .channel
-		.sink_data          (router_007_src_data),                     //          .data
-		.sink_startofpacket (router_007_src_startofpacket),            //          .startofpacket
-		.sink_endofpacket   (router_007_src_endofpacket),              //          .endofpacket
-		.sink_valid         (router_007_src_valid),                    //          .valid
-		.src0_ready         (rsp_demux_004_src0_ready),                //      src0.ready
-		.src0_valid         (rsp_demux_004_src0_valid),                //          .valid
-		.src0_data          (rsp_demux_004_src0_data),                 //          .data
-		.src0_channel       (rsp_demux_004_src0_channel),              //          .channel
-		.src0_startofpacket (rsp_demux_004_src0_startofpacket),        //          .startofpacket
-		.src0_endofpacket   (rsp_demux_004_src0_endofpacket),          //          .endofpacket
-		.src1_ready         (rsp_demux_004_src1_ready),                //      src1.ready
-		.src1_valid         (rsp_demux_004_src1_valid),                //          .valid
-		.src1_data          (rsp_demux_004_src1_data),                 //          .data
-		.src1_channel       (rsp_demux_004_src1_channel),              //          .channel
-		.src1_startofpacket (rsp_demux_004_src1_startofpacket),        //          .startofpacket
-		.src1_endofpacket   (rsp_demux_004_src1_endofpacket)           //          .endofpacket
-	);
-
-	Computer_System_mm_interconnect_0_rsp_demux_002 rsp_demux_005 (
-		.clk                (System_PLL_sys_clk_clk),                  //       clk.clk
-		.reset              (SDRAM_reset_reset_bridge_in_reset_reset), // clk_reset.reset
-		.sink_ready         (router_008_src_ready),                    //      sink.ready
-		.sink_channel       (router_008_src_channel),                  //          .channel
-		.sink_data          (router_008_src_data),                     //          .data
-		.sink_startofpacket (router_008_src_startofpacket),            //          .startofpacket
-		.sink_endofpacket   (router_008_src_endofpacket),              //          .endofpacket
-		.sink_valid         (router_008_src_valid),                    //          .valid
-		.src0_ready         (rsp_demux_005_src0_ready),                //      src0.ready
-		.src0_valid         (rsp_demux_005_src0_valid),                //          .valid
-		.src0_data          (rsp_demux_005_src0_data),                 //          .data
-		.src0_channel       (rsp_demux_005_src0_channel),              //          .channel
-		.src0_startofpacket (rsp_demux_005_src0_startofpacket),        //          .startofpacket
-		.src0_endofpacket   (rsp_demux_005_src0_endofpacket),          //          .endofpacket
-		.src1_ready         (rsp_demux_005_src1_ready),                //      src1.ready
-		.src1_valid         (rsp_demux_005_src1_valid),                //          .valid
-		.src1_data          (rsp_demux_005_src1_data),                 //          .data
-		.src1_channel       (rsp_demux_005_src1_channel),              //          .channel
-		.src1_startofpacket (rsp_demux_005_src1_startofpacket),        //          .startofpacket
-		.src1_endofpacket   (rsp_demux_005_src1_endofpacket)           //          .endofpacket
+		.clk                (System_PLL_sys_clk_clk),                          //       clk.clk
+		.reset              (mcmc_system_0_reset_reset_bridge_in_reset_reset), // clk_reset.reset
+		.sink_ready         (router_005_src_ready),                            //      sink.ready
+		.sink_channel       (router_005_src_channel),                          //          .channel
+		.sink_data          (router_005_src_data),                             //          .data
+		.sink_startofpacket (router_005_src_startofpacket),                    //          .startofpacket
+		.sink_endofpacket   (router_005_src_endofpacket),                      //          .endofpacket
+		.sink_valid         (router_005_src_valid),                            //          .valid
+		.src0_ready         (rsp_demux_002_src0_ready),                        //      src0.ready
+		.src0_valid         (rsp_demux_002_src0_valid),                        //          .valid
+		.src0_data          (rsp_demux_002_src0_data),                         //          .data
+		.src0_channel       (rsp_demux_002_src0_channel),                      //          .channel
+		.src0_startofpacket (rsp_demux_002_src0_startofpacket),                //          .startofpacket
+		.src0_endofpacket   (rsp_demux_002_src0_endofpacket),                  //          .endofpacket
+		.src1_ready         (rsp_demux_002_src1_ready),                        //      src1.ready
+		.src1_valid         (rsp_demux_002_src1_valid),                        //          .valid
+		.src1_data          (rsp_demux_002_src1_data),                         //          .data
+		.src1_channel       (rsp_demux_002_src1_channel),                      //          .channel
+		.src1_startofpacket (rsp_demux_002_src1_startofpacket),                //          .startofpacket
+		.src1_endofpacket   (rsp_demux_002_src1_endofpacket),                  //          .endofpacket
+		.src2_ready         (rsp_demux_002_src2_ready),                        //      src2.ready
+		.src2_valid         (rsp_demux_002_src2_valid),                        //          .valid
+		.src2_data          (rsp_demux_002_src2_data),                         //          .data
+		.src2_channel       (rsp_demux_002_src2_channel),                      //          .channel
+		.src2_startofpacket (rsp_demux_002_src2_startofpacket),                //          .startofpacket
+		.src2_endofpacket   (rsp_demux_002_src2_endofpacket)                   //          .endofpacket
 	);
 
 	Computer_System_mm_interconnect_0_rsp_mux rsp_mux (
@@ -3424,42 +2031,24 @@ module Computer_System_mm_interconnect_0 (
 		.src_channel         (rsp_mux_src_channel),                                                                                 //          .channel
 		.src_startofpacket   (rsp_mux_src_startofpacket),                                                                           //          .startofpacket
 		.src_endofpacket     (rsp_mux_src_endofpacket),                                                                             //          .endofpacket
-		.sink0_ready         (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),         //     sink0.ready
-		.sink0_valid         (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),         //          .valid
-		.sink0_channel       (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),       //          .channel
-		.sink0_data          (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),          //          .data
-		.sink0_startofpacket (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket), //          .startofpacket
-		.sink0_endofpacket   (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),   //          .endofpacket
-		.sink1_ready         (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),                                //     sink1.ready
-		.sink1_valid         (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),                                //          .valid
-		.sink1_channel       (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),                              //          .channel
-		.sink1_data          (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),                                 //          .data
-		.sink1_startofpacket (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket),                        //          .startofpacket
-		.sink1_endofpacket   (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),                          //          .endofpacket
-		.sink2_ready         (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),                        //     sink2.ready
-		.sink2_valid         (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),                        //          .valid
-		.sink2_channel       (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),                      //          .channel
-		.sink2_data          (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),                         //          .data
-		.sink2_startofpacket (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket),                //          .startofpacket
-		.sink2_endofpacket   (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),                  //          .endofpacket
-		.sink3_ready         (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),                        //     sink3.ready
-		.sink3_valid         (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),                        //          .valid
-		.sink3_channel       (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),                      //          .channel
-		.sink3_data          (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),                         //          .data
-		.sink3_startofpacket (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket),                //          .startofpacket
-		.sink3_endofpacket   (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),                  //          .endofpacket
-		.sink4_ready         (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),                        //     sink4.ready
-		.sink4_valid         (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),                        //          .valid
-		.sink4_channel       (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),                      //          .channel
-		.sink4_data          (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),                         //          .data
-		.sink4_startofpacket (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket),                //          .startofpacket
-		.sink4_endofpacket   (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),                  //          .endofpacket
-		.sink5_ready         (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),                        //     sink5.ready
-		.sink5_valid         (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),                        //          .valid
-		.sink5_channel       (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),                      //          .channel
-		.sink5_data          (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),                         //          .data
-		.sink5_startofpacket (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket),                //          .startofpacket
-		.sink5_endofpacket   (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket)                   //          .endofpacket
+		.sink0_ready         (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),            //     sink0.ready
+		.sink0_valid         (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),            //          .valid
+		.sink0_channel       (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),          //          .channel
+		.sink0_data          (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),             //          .data
+		.sink0_startofpacket (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket),    //          .startofpacket
+		.sink0_endofpacket   (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),      //          .endofpacket
+		.sink1_ready         (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),         //     sink1.ready
+		.sink1_valid         (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),         //          .valid
+		.sink1_channel       (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),       //          .channel
+		.sink1_data          (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),          //          .data
+		.sink1_startofpacket (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket), //          .startofpacket
+		.sink1_endofpacket   (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),   //          .endofpacket
+		.sink2_ready         (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),                                //     sink2.ready
+		.sink2_valid         (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),                                //          .valid
+		.sink2_channel       (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),                              //          .channel
+		.sink2_data          (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),                                 //          .data
+		.sink2_startofpacket (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket),                        //          .startofpacket
+		.sink2_endofpacket   (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket)                           //          .endofpacket
 	);
 
 	Computer_System_mm_interconnect_0_rsp_mux rsp_mux_001 (
@@ -3471,47 +2060,29 @@ module Computer_System_mm_interconnect_0 (
 		.src_channel         (rsp_mux_001_src_channel),                                                                             //          .channel
 		.src_startofpacket   (rsp_mux_001_src_startofpacket),                                                                       //          .startofpacket
 		.src_endofpacket     (rsp_mux_001_src_endofpacket),                                                                         //          .endofpacket
-		.sink0_ready         (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),         //     sink0.ready
-		.sink0_valid         (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),         //          .valid
-		.sink0_channel       (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),       //          .channel
-		.sink0_data          (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),          //          .data
-		.sink0_startofpacket (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket), //          .startofpacket
-		.sink0_endofpacket   (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),   //          .endofpacket
-		.sink1_ready         (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),                                //     sink1.ready
-		.sink1_valid         (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),                                //          .valid
-		.sink1_channel       (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),                              //          .channel
-		.sink1_data          (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),                                 //          .data
-		.sink1_startofpacket (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket),                        //          .startofpacket
-		.sink1_endofpacket   (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),                          //          .endofpacket
-		.sink2_ready         (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),                        //     sink2.ready
-		.sink2_valid         (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),                        //          .valid
-		.sink2_channel       (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),                      //          .channel
-		.sink2_data          (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),                         //          .data
-		.sink2_startofpacket (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket),                //          .startofpacket
-		.sink2_endofpacket   (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),                  //          .endofpacket
-		.sink3_ready         (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),                        //     sink3.ready
-		.sink3_valid         (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),                        //          .valid
-		.sink3_channel       (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),                      //          .channel
-		.sink3_data          (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),                         //          .data
-		.sink3_startofpacket (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket),                //          .startofpacket
-		.sink3_endofpacket   (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),                  //          .endofpacket
-		.sink4_ready         (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),                        //     sink4.ready
-		.sink4_valid         (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),                        //          .valid
-		.sink4_channel       (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),                      //          .channel
-		.sink4_data          (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),                         //          .data
-		.sink4_startofpacket (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket),                //          .startofpacket
-		.sink4_endofpacket   (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),                  //          .endofpacket
-		.sink5_ready         (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),                        //     sink5.ready
-		.sink5_valid         (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),                        //          .valid
-		.sink5_channel       (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),                      //          .channel
-		.sink5_data          (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),                         //          .data
-		.sink5_startofpacket (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket),                //          .startofpacket
-		.sink5_endofpacket   (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket)                   //          .endofpacket
+		.sink0_ready         (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),            //     sink0.ready
+		.sink0_valid         (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),            //          .valid
+		.sink0_channel       (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),          //          .channel
+		.sink0_data          (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),             //          .data
+		.sink0_startofpacket (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket),    //          .startofpacket
+		.sink0_endofpacket   (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),      //          .endofpacket
+		.sink1_ready         (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),         //     sink1.ready
+		.sink1_valid         (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),         //          .valid
+		.sink1_channel       (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),       //          .channel
+		.sink1_data          (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),          //          .data
+		.sink1_startofpacket (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket), //          .startofpacket
+		.sink1_endofpacket   (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),   //          .endofpacket
+		.sink2_ready         (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),                                //     sink2.ready
+		.sink2_valid         (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),                                //          .valid
+		.sink2_channel       (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),                              //          .channel
+		.sink2_data          (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),                                 //          .data
+		.sink2_startofpacket (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket),                        //          .startofpacket
+		.sink2_endofpacket   (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket)                           //          .endofpacket
 	);
 
 	Computer_System_mm_interconnect_0_rsp_mux_002 rsp_mux_002 (
 		.clk                 (System_PLL_sys_clk_clk),                                                         //       clk.clk
-		.reset               (SDRAM_reset_reset_bridge_in_reset_reset),                                        // clk_reset.reset
+		.reset               (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                // clk_reset.reset
 		.src_ready           (rsp_mux_002_src_ready),                                                          //       src.ready
 		.src_valid           (rsp_mux_002_src_valid),                                                          //          .valid
 		.src_data            (rsp_mux_002_src_data),                                                           //          .data
@@ -3541,14 +2112,80 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (191),
 		.IN_PKT_BURST_SIZE_H           (202),
 		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
+		.IN_PKT_RESPONSE_STATUS_H      (233),
+		.IN_PKT_RESPONSE_STATUS_L      (232),
 		.IN_PKT_TRANS_EXCLUSIVE        (181),
 		.IN_PKT_BURST_TYPE_H           (204),
 		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
+		.IN_PKT_ORI_BURST_SIZE_L       (234),
+		.IN_PKT_ORI_BURST_SIZE_H       (236),
+		.IN_ST_DATA_W                  (237),
+		.OUT_PKT_ADDR_H                (103),
+		.OUT_PKT_ADDR_L                (72),
+		.OUT_PKT_DATA_H                (63),
+		.OUT_PKT_DATA_L                (0),
+		.OUT_PKT_BYTEEN_H              (71),
+		.OUT_PKT_BYTEEN_L              (64),
+		.OUT_PKT_BYTE_CNT_H            (118),
+		.OUT_PKT_BYTE_CNT_L            (110),
+		.OUT_PKT_TRANS_COMPRESSED_READ (104),
+		.OUT_PKT_BURST_SIZE_H          (130),
+		.OUT_PKT_BURST_SIZE_L          (128),
+		.OUT_PKT_RESPONSE_STATUS_H     (161),
+		.OUT_PKT_RESPONSE_STATUS_L     (160),
+		.OUT_PKT_TRANS_EXCLUSIVE       (109),
+		.OUT_PKT_BURST_TYPE_H          (132),
+		.OUT_PKT_BURST_TYPE_L          (131),
+		.OUT_PKT_ORI_BURST_SIZE_L      (162),
+		.OUT_PKT_ORI_BURST_SIZE_H      (164),
+		.OUT_ST_DATA_W                 (165),
+		.ST_CHANNEL_W                  (3),
+		.OPTIMIZE_FOR_RSP              (0),
+		.RESPONSE_PATH                 (0),
+		.CONSTANT_BURST_SIZE           (0),
+		.PACKING                       (0),
+		.ENABLE_ADDRESS_ALIGNMENT      (1)
+	) arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter (
+		.clk                  (System_PLL_sys_clk_clk),                                                                           //       clk.clk
+		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                            // clk_reset.reset
+		.in_valid             (cmd_demux_src0_valid),                                                                             //      sink.valid
+		.in_channel           (cmd_demux_src0_channel),                                                                           //          .channel
+		.in_startofpacket     (cmd_demux_src0_startofpacket),                                                                     //          .startofpacket
+		.in_endofpacket       (cmd_demux_src0_endofpacket),                                                                       //          .endofpacket
+		.in_ready             (cmd_demux_src0_ready),                                                                             //          .ready
+		.in_data              (cmd_demux_src0_data),                                                                              //          .data
+		.out_endofpacket      (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
+		.out_data             (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_data),          //          .data
+		.out_channel          (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_channel),       //          .channel
+		.out_valid            (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_valid),         //          .valid
+		.out_ready            (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_ready),         //          .ready
+		.out_startofpacket    (arm_a9_hps_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_startofpacket), //          .startofpacket
+		.in_command_size_data (3'b000)                                                                                            // (terminated)
+	);
+
+	altera_merlin_width_adapter #(
+		.IN_PKT_ADDR_H                 (175),
+		.IN_PKT_ADDR_L                 (144),
+		.IN_PKT_DATA_H                 (127),
+		.IN_PKT_DATA_L                 (0),
+		.IN_PKT_BYTEEN_H               (143),
+		.IN_PKT_BYTEEN_L               (128),
+		.IN_PKT_BYTE_CNT_H             (190),
+		.IN_PKT_BYTE_CNT_L             (182),
+		.IN_PKT_TRANS_COMPRESSED_READ  (176),
+		.IN_PKT_TRANS_WRITE            (178),
+		.IN_PKT_BURSTWRAP_H            (199),
+		.IN_PKT_BURSTWRAP_L            (191),
+		.IN_PKT_BURST_SIZE_H           (202),
+		.IN_PKT_BURST_SIZE_L           (200),
+		.IN_PKT_RESPONSE_STATUS_H      (233),
+		.IN_PKT_RESPONSE_STATUS_L      (232),
+		.IN_PKT_TRANS_EXCLUSIVE        (181),
+		.IN_PKT_BURST_TYPE_H           (204),
+		.IN_PKT_BURST_TYPE_L           (203),
+		.IN_PKT_ORI_BURST_SIZE_L       (234),
+		.IN_PKT_ORI_BURST_SIZE_H       (236),
+		.IN_ST_DATA_W                  (237),
 		.OUT_PKT_ADDR_H                (40),
 		.OUT_PKT_ADDR_L                (9),
 		.OUT_PKT_DATA_H                (7),
@@ -3560,15 +2197,15 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (41),
 		.OUT_PKT_BURST_SIZE_H          (67),
 		.OUT_PKT_BURST_SIZE_L          (65),
-		.OUT_PKT_RESPONSE_STATUS_H     (100),
-		.OUT_PKT_RESPONSE_STATUS_L     (99),
+		.OUT_PKT_RESPONSE_STATUS_H     (98),
+		.OUT_PKT_RESPONSE_STATUS_L     (97),
 		.OUT_PKT_TRANS_EXCLUSIVE       (46),
 		.OUT_PKT_BURST_TYPE_H          (69),
 		.OUT_PKT_BURST_TYPE_L          (68),
-		.OUT_PKT_ORI_BURST_SIZE_L      (101),
-		.OUT_PKT_ORI_BURST_SIZE_H      (103),
-		.OUT_ST_DATA_W                 (104),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (99),
+		.OUT_PKT_ORI_BURST_SIZE_H      (101),
+		.OUT_ST_DATA_W                 (102),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (0),
 		.CONSTANT_BURST_SIZE           (0),
@@ -3577,12 +2214,12 @@ module Computer_System_mm_interconnect_0 (
 	) arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter (
 		.clk                  (System_PLL_sys_clk_clk),                                                                              //       clk.clk
 		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                               // clk_reset.reset
-		.in_valid             (cmd_demux_src0_valid),                                                                                //      sink.valid
-		.in_channel           (cmd_demux_src0_channel),                                                                              //          .channel
-		.in_startofpacket     (cmd_demux_src0_startofpacket),                                                                        //          .startofpacket
-		.in_endofpacket       (cmd_demux_src0_endofpacket),                                                                          //          .endofpacket
-		.in_ready             (cmd_demux_src0_ready),                                                                                //          .ready
-		.in_data              (cmd_demux_src0_data),                                                                                 //          .data
+		.in_valid             (cmd_demux_src1_valid),                                                                                //      sink.valid
+		.in_channel           (cmd_demux_src1_channel),                                                                              //          .channel
+		.in_startofpacket     (cmd_demux_src1_startofpacket),                                                                        //          .startofpacket
+		.in_endofpacket       (cmd_demux_src1_endofpacket),                                                                          //          .endofpacket
+		.in_ready             (cmd_demux_src1_ready),                                                                                //          .ready
+		.in_data              (cmd_demux_src1_data),                                                                                 //          .data
 		.out_endofpacket      (arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
 		.out_data             (arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_data),          //          .data
 		.out_channel          (arm_a9_hps_h2f_axi_master_wr_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_channel),       //          .channel
@@ -3607,14 +2244,14 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (191),
 		.IN_PKT_BURST_SIZE_H           (202),
 		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
+		.IN_PKT_RESPONSE_STATUS_H      (233),
+		.IN_PKT_RESPONSE_STATUS_L      (232),
 		.IN_PKT_TRANS_EXCLUSIVE        (181),
 		.IN_PKT_BURST_TYPE_H           (204),
 		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
+		.IN_PKT_ORI_BURST_SIZE_L       (234),
+		.IN_PKT_ORI_BURST_SIZE_H       (236),
+		.IN_ST_DATA_W                  (237),
 		.OUT_PKT_ADDR_H                (49),
 		.OUT_PKT_ADDR_L                (18),
 		.OUT_PKT_DATA_H                (15),
@@ -3626,15 +2263,15 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (50),
 		.OUT_PKT_BURST_SIZE_H          (76),
 		.OUT_PKT_BURST_SIZE_L          (74),
-		.OUT_PKT_RESPONSE_STATUS_H     (109),
-		.OUT_PKT_RESPONSE_STATUS_L     (108),
+		.OUT_PKT_RESPONSE_STATUS_H     (107),
+		.OUT_PKT_RESPONSE_STATUS_L     (106),
 		.OUT_PKT_TRANS_EXCLUSIVE       (55),
 		.OUT_PKT_BURST_TYPE_H          (78),
 		.OUT_PKT_BURST_TYPE_L          (77),
-		.OUT_PKT_ORI_BURST_SIZE_L      (110),
-		.OUT_PKT_ORI_BURST_SIZE_H      (112),
-		.OUT_ST_DATA_W                 (113),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (108),
+		.OUT_PKT_ORI_BURST_SIZE_H      (110),
+		.OUT_ST_DATA_W                 (111),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (0),
 		.CONSTANT_BURST_SIZE           (0),
@@ -3643,12 +2280,12 @@ module Computer_System_mm_interconnect_0 (
 	) arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter (
 		.clk                  (System_PLL_sys_clk_clk),                                                       //       clk.clk
 		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),        // clk_reset.reset
-		.in_valid             (cmd_demux_src1_valid),                                                         //      sink.valid
-		.in_channel           (cmd_demux_src1_channel),                                                       //          .channel
-		.in_startofpacket     (cmd_demux_src1_startofpacket),                                                 //          .startofpacket
-		.in_endofpacket       (cmd_demux_src1_endofpacket),                                                   //          .endofpacket
-		.in_ready             (cmd_demux_src1_ready),                                                         //          .ready
-		.in_data              (cmd_demux_src1_data),                                                          //          .data
+		.in_valid             (cmd_demux_src2_valid),                                                         //      sink.valid
+		.in_channel           (cmd_demux_src2_channel),                                                       //          .channel
+		.in_startofpacket     (cmd_demux_src2_startofpacket),                                                 //          .startofpacket
+		.in_endofpacket       (cmd_demux_src2_endofpacket),                                                   //          .endofpacket
+		.in_ready             (cmd_demux_src2_ready),                                                         //          .ready
+		.in_data              (cmd_demux_src2_data),                                                          //          .data
 		.out_endofpacket      (arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
 		.out_data             (arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_data),          //          .data
 		.out_channel          (arm_a9_hps_h2f_axi_master_wr_to_sdram_s1_cmd_width_adapter_src_channel),       //          .channel
@@ -3673,14 +2310,14 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (191),
 		.IN_PKT_BURST_SIZE_H           (202),
 		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
+		.IN_PKT_RESPONSE_STATUS_H      (233),
+		.IN_PKT_RESPONSE_STATUS_L      (232),
 		.IN_PKT_TRANS_EXCLUSIVE        (181),
 		.IN_PKT_BURST_TYPE_H           (204),
 		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
+		.IN_PKT_ORI_BURST_SIZE_L       (234),
+		.IN_PKT_ORI_BURST_SIZE_H       (236),
+		.IN_ST_DATA_W                  (237),
 		.OUT_PKT_ADDR_H                (103),
 		.OUT_PKT_ADDR_L                (72),
 		.OUT_PKT_DATA_H                (63),
@@ -3692,36 +2329,36 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (104),
 		.OUT_PKT_BURST_SIZE_H          (130),
 		.OUT_PKT_BURST_SIZE_L          (128),
-		.OUT_PKT_RESPONSE_STATUS_H     (163),
-		.OUT_PKT_RESPONSE_STATUS_L     (162),
+		.OUT_PKT_RESPONSE_STATUS_H     (161),
+		.OUT_PKT_RESPONSE_STATUS_L     (160),
 		.OUT_PKT_TRANS_EXCLUSIVE       (109),
 		.OUT_PKT_BURST_TYPE_H          (132),
 		.OUT_PKT_BURST_TYPE_L          (131),
-		.OUT_PKT_ORI_BURST_SIZE_L      (164),
-		.OUT_PKT_ORI_BURST_SIZE_H      (166),
-		.OUT_ST_DATA_W                 (167),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (162),
+		.OUT_PKT_ORI_BURST_SIZE_H      (164),
+		.OUT_ST_DATA_W                 (165),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (0),
 		.CONSTANT_BURST_SIZE           (0),
 		.PACKING                       (0),
 		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                // clk_reset.reset
-		.in_valid             (cmd_demux_src2_valid),                                                                 //      sink.valid
-		.in_channel           (cmd_demux_src2_channel),                                                               //          .channel
-		.in_startofpacket     (cmd_demux_src2_startofpacket),                                                         //          .startofpacket
-		.in_endofpacket       (cmd_demux_src2_endofpacket),                                                           //          .endofpacket
-		.in_ready             (cmd_demux_src2_ready),                                                                 //          .ready
-		.in_data              (cmd_demux_src2_data),                                                                  //          .data
-		.out_endofpacket      (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_data),          //          .data
-		.out_channel          (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_channel),       //          .channel
-		.out_valid            (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_valid),         //          .valid
-		.out_ready            (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_0_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
+	) arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter (
+		.clk                  (System_PLL_sys_clk_clk),                                                                           //       clk.clk
+		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                            // clk_reset.reset
+		.in_valid             (cmd_demux_001_src0_valid),                                                                         //      sink.valid
+		.in_channel           (cmd_demux_001_src0_channel),                                                                       //          .channel
+		.in_startofpacket     (cmd_demux_001_src0_startofpacket),                                                                 //          .startofpacket
+		.in_endofpacket       (cmd_demux_001_src0_endofpacket),                                                                   //          .endofpacket
+		.in_ready             (cmd_demux_001_src0_ready),                                                                         //          .ready
+		.in_data              (cmd_demux_001_src0_data),                                                                          //          .data
+		.out_endofpacket      (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
+		.out_data             (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_data),          //          .data
+		.out_channel          (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_channel),       //          .channel
+		.out_valid            (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_valid),         //          .valid
+		.out_ready            (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_ready),         //          .ready
+		.out_startofpacket    (arm_a9_hps_h2f_axi_master_rd_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter_src_startofpacket), //          .startofpacket
+		.in_command_size_data (3'b000)                                                                                            // (terminated)
 	);
 
 	altera_merlin_width_adapter #(
@@ -3739,212 +2376,14 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (191),
 		.IN_PKT_BURST_SIZE_H           (202),
 		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
+		.IN_PKT_RESPONSE_STATUS_H      (233),
+		.IN_PKT_RESPONSE_STATUS_L      (232),
 		.IN_PKT_TRANS_EXCLUSIVE        (181),
 		.IN_PKT_BURST_TYPE_H           (204),
 		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
-		.OUT_PKT_ADDR_H                (103),
-		.OUT_PKT_ADDR_L                (72),
-		.OUT_PKT_DATA_H                (63),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (71),
-		.OUT_PKT_BYTEEN_L              (64),
-		.OUT_PKT_BYTE_CNT_H            (118),
-		.OUT_PKT_BYTE_CNT_L            (110),
-		.OUT_PKT_TRANS_COMPRESSED_READ (104),
-		.OUT_PKT_BURST_SIZE_H          (130),
-		.OUT_PKT_BURST_SIZE_L          (128),
-		.OUT_PKT_RESPONSE_STATUS_H     (163),
-		.OUT_PKT_RESPONSE_STATUS_L     (162),
-		.OUT_PKT_TRANS_EXCLUSIVE       (109),
-		.OUT_PKT_BURST_TYPE_H          (132),
-		.OUT_PKT_BURST_TYPE_L          (131),
-		.OUT_PKT_ORI_BURST_SIZE_L      (164),
-		.OUT_PKT_ORI_BURST_SIZE_H      (166),
-		.OUT_ST_DATA_W                 (167),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (0),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (0),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                // clk_reset.reset
-		.in_valid             (cmd_demux_src3_valid),                                                                 //      sink.valid
-		.in_channel           (cmd_demux_src3_channel),                                                               //          .channel
-		.in_startofpacket     (cmd_demux_src3_startofpacket),                                                         //          .startofpacket
-		.in_endofpacket       (cmd_demux_src3_endofpacket),                                                           //          .endofpacket
-		.in_ready             (cmd_demux_src3_ready),                                                                 //          .ready
-		.in_data              (cmd_demux_src3_data),                                                                  //          .data
-		.out_endofpacket      (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_data),          //          .data
-		.out_channel          (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_channel),       //          .channel
-		.out_valid            (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_valid),         //          .valid
-		.out_ready            (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_1_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (175),
-		.IN_PKT_ADDR_L                 (144),
-		.IN_PKT_DATA_H                 (127),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (143),
-		.IN_PKT_BYTEEN_L               (128),
-		.IN_PKT_BYTE_CNT_H             (190),
-		.IN_PKT_BYTE_CNT_L             (182),
-		.IN_PKT_TRANS_COMPRESSED_READ  (176),
-		.IN_PKT_TRANS_WRITE            (178),
-		.IN_PKT_BURSTWRAP_H            (199),
-		.IN_PKT_BURSTWRAP_L            (191),
-		.IN_PKT_BURST_SIZE_H           (202),
-		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
-		.IN_PKT_TRANS_EXCLUSIVE        (181),
-		.IN_PKT_BURST_TYPE_H           (204),
-		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
-		.OUT_PKT_ADDR_H                (103),
-		.OUT_PKT_ADDR_L                (72),
-		.OUT_PKT_DATA_H                (63),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (71),
-		.OUT_PKT_BYTEEN_L              (64),
-		.OUT_PKT_BYTE_CNT_H            (118),
-		.OUT_PKT_BYTE_CNT_L            (110),
-		.OUT_PKT_TRANS_COMPRESSED_READ (104),
-		.OUT_PKT_BURST_SIZE_H          (130),
-		.OUT_PKT_BURST_SIZE_L          (128),
-		.OUT_PKT_RESPONSE_STATUS_H     (163),
-		.OUT_PKT_RESPONSE_STATUS_L     (162),
-		.OUT_PKT_TRANS_EXCLUSIVE       (109),
-		.OUT_PKT_BURST_TYPE_H          (132),
-		.OUT_PKT_BURST_TYPE_L          (131),
-		.OUT_PKT_ORI_BURST_SIZE_L      (164),
-		.OUT_PKT_ORI_BURST_SIZE_H      (166),
-		.OUT_ST_DATA_W                 (167),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (0),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (0),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                // clk_reset.reset
-		.in_valid             (cmd_demux_src4_valid),                                                                 //      sink.valid
-		.in_channel           (cmd_demux_src4_channel),                                                               //          .channel
-		.in_startofpacket     (cmd_demux_src4_startofpacket),                                                         //          .startofpacket
-		.in_endofpacket       (cmd_demux_src4_endofpacket),                                                           //          .endofpacket
-		.in_ready             (cmd_demux_src4_ready),                                                                 //          .ready
-		.in_data              (cmd_demux_src4_data),                                                                  //          .data
-		.out_endofpacket      (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_data),          //          .data
-		.out_channel          (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_channel),       //          .channel
-		.out_valid            (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_valid),         //          .valid
-		.out_ready            (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_2_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (175),
-		.IN_PKT_ADDR_L                 (144),
-		.IN_PKT_DATA_H                 (127),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (143),
-		.IN_PKT_BYTEEN_L               (128),
-		.IN_PKT_BYTE_CNT_H             (190),
-		.IN_PKT_BYTE_CNT_L             (182),
-		.IN_PKT_TRANS_COMPRESSED_READ  (176),
-		.IN_PKT_TRANS_WRITE            (178),
-		.IN_PKT_BURSTWRAP_H            (199),
-		.IN_PKT_BURSTWRAP_L            (191),
-		.IN_PKT_BURST_SIZE_H           (202),
-		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
-		.IN_PKT_TRANS_EXCLUSIVE        (181),
-		.IN_PKT_BURST_TYPE_H           (204),
-		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
-		.OUT_PKT_ADDR_H                (103),
-		.OUT_PKT_ADDR_L                (72),
-		.OUT_PKT_DATA_H                (63),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (71),
-		.OUT_PKT_BYTEEN_L              (64),
-		.OUT_PKT_BYTE_CNT_H            (118),
-		.OUT_PKT_BYTE_CNT_L            (110),
-		.OUT_PKT_TRANS_COMPRESSED_READ (104),
-		.OUT_PKT_BURST_SIZE_H          (130),
-		.OUT_PKT_BURST_SIZE_L          (128),
-		.OUT_PKT_RESPONSE_STATUS_H     (163),
-		.OUT_PKT_RESPONSE_STATUS_L     (162),
-		.OUT_PKT_TRANS_EXCLUSIVE       (109),
-		.OUT_PKT_BURST_TYPE_H          (132),
-		.OUT_PKT_BURST_TYPE_L          (131),
-		.OUT_PKT_ORI_BURST_SIZE_L      (164),
-		.OUT_PKT_ORI_BURST_SIZE_H      (166),
-		.OUT_ST_DATA_W                 (167),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (0),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (0),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                // clk_reset.reset
-		.in_valid             (cmd_demux_src5_valid),                                                                 //      sink.valid
-		.in_channel           (cmd_demux_src5_channel),                                                               //          .channel
-		.in_startofpacket     (cmd_demux_src5_startofpacket),                                                         //          .startofpacket
-		.in_endofpacket       (cmd_demux_src5_endofpacket),                                                           //          .endofpacket
-		.in_ready             (cmd_demux_src5_ready),                                                                 //          .ready
-		.in_data              (cmd_demux_src5_data),                                                                  //          .data
-		.out_endofpacket      (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_data),          //          .data
-		.out_channel          (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_channel),       //          .channel
-		.out_valid            (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_valid),         //          .valid
-		.out_ready            (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (arm_a9_hps_h2f_axi_master_wr_to_onchip_sram_3_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (175),
-		.IN_PKT_ADDR_L                 (144),
-		.IN_PKT_DATA_H                 (127),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (143),
-		.IN_PKT_BYTEEN_L               (128),
-		.IN_PKT_BYTE_CNT_H             (190),
-		.IN_PKT_BYTE_CNT_L             (182),
-		.IN_PKT_TRANS_COMPRESSED_READ  (176),
-		.IN_PKT_TRANS_WRITE            (178),
-		.IN_PKT_BURSTWRAP_H            (199),
-		.IN_PKT_BURSTWRAP_L            (191),
-		.IN_PKT_BURST_SIZE_H           (202),
-		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
-		.IN_PKT_TRANS_EXCLUSIVE        (181),
-		.IN_PKT_BURST_TYPE_H           (204),
-		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
+		.IN_PKT_ORI_BURST_SIZE_L       (234),
+		.IN_PKT_ORI_BURST_SIZE_H       (236),
+		.IN_ST_DATA_W                  (237),
 		.OUT_PKT_ADDR_H                (40),
 		.OUT_PKT_ADDR_L                (9),
 		.OUT_PKT_DATA_H                (7),
@@ -3956,15 +2395,15 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (41),
 		.OUT_PKT_BURST_SIZE_H          (67),
 		.OUT_PKT_BURST_SIZE_L          (65),
-		.OUT_PKT_RESPONSE_STATUS_H     (100),
-		.OUT_PKT_RESPONSE_STATUS_L     (99),
+		.OUT_PKT_RESPONSE_STATUS_H     (98),
+		.OUT_PKT_RESPONSE_STATUS_L     (97),
 		.OUT_PKT_TRANS_EXCLUSIVE       (46),
 		.OUT_PKT_BURST_TYPE_H          (69),
 		.OUT_PKT_BURST_TYPE_L          (68),
-		.OUT_PKT_ORI_BURST_SIZE_L      (101),
-		.OUT_PKT_ORI_BURST_SIZE_H      (103),
-		.OUT_ST_DATA_W                 (104),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (99),
+		.OUT_PKT_ORI_BURST_SIZE_H      (101),
+		.OUT_ST_DATA_W                 (102),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (0),
 		.CONSTANT_BURST_SIZE           (0),
@@ -3973,12 +2412,12 @@ module Computer_System_mm_interconnect_0 (
 	) arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter (
 		.clk                  (System_PLL_sys_clk_clk),                                                                              //       clk.clk
 		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                               // clk_reset.reset
-		.in_valid             (cmd_demux_001_src0_valid),                                                                            //      sink.valid
-		.in_channel           (cmd_demux_001_src0_channel),                                                                          //          .channel
-		.in_startofpacket     (cmd_demux_001_src0_startofpacket),                                                                    //          .startofpacket
-		.in_endofpacket       (cmd_demux_001_src0_endofpacket),                                                                      //          .endofpacket
-		.in_ready             (cmd_demux_001_src0_ready),                                                                            //          .ready
-		.in_data              (cmd_demux_001_src0_data),                                                                             //          .data
+		.in_valid             (cmd_demux_001_src1_valid),                                                                            //      sink.valid
+		.in_channel           (cmd_demux_001_src1_channel),                                                                          //          .channel
+		.in_startofpacket     (cmd_demux_001_src1_startofpacket),                                                                    //          .startofpacket
+		.in_endofpacket       (cmd_demux_001_src1_endofpacket),                                                                      //          .endofpacket
+		.in_ready             (cmd_demux_001_src1_ready),                                                                            //          .ready
+		.in_data              (cmd_demux_001_src1_data),                                                                             //          .data
 		.out_endofpacket      (arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
 		.out_data             (arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_data),          //          .data
 		.out_channel          (arm_a9_hps_h2f_axi_master_rd_to_vga_subsystem_char_buffer_slave_cmd_width_adapter_src_channel),       //          .channel
@@ -4003,14 +2442,14 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (191),
 		.IN_PKT_BURST_SIZE_H           (202),
 		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
+		.IN_PKT_RESPONSE_STATUS_H      (233),
+		.IN_PKT_RESPONSE_STATUS_L      (232),
 		.IN_PKT_TRANS_EXCLUSIVE        (181),
 		.IN_PKT_BURST_TYPE_H           (204),
 		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
+		.IN_PKT_ORI_BURST_SIZE_L       (234),
+		.IN_PKT_ORI_BURST_SIZE_H       (236),
+		.IN_ST_DATA_W                  (237),
 		.OUT_PKT_ADDR_H                (49),
 		.OUT_PKT_ADDR_L                (18),
 		.OUT_PKT_DATA_H                (15),
@@ -4022,15 +2461,15 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (50),
 		.OUT_PKT_BURST_SIZE_H          (76),
 		.OUT_PKT_BURST_SIZE_L          (74),
-		.OUT_PKT_RESPONSE_STATUS_H     (109),
-		.OUT_PKT_RESPONSE_STATUS_L     (108),
+		.OUT_PKT_RESPONSE_STATUS_H     (107),
+		.OUT_PKT_RESPONSE_STATUS_L     (106),
 		.OUT_PKT_TRANS_EXCLUSIVE       (55),
 		.OUT_PKT_BURST_TYPE_H          (78),
 		.OUT_PKT_BURST_TYPE_L          (77),
-		.OUT_PKT_ORI_BURST_SIZE_L      (110),
-		.OUT_PKT_ORI_BURST_SIZE_H      (112),
-		.OUT_ST_DATA_W                 (113),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (108),
+		.OUT_PKT_ORI_BURST_SIZE_H      (110),
+		.OUT_ST_DATA_W                 (111),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (0),
 		.CONSTANT_BURST_SIZE           (0),
@@ -4039,12 +2478,12 @@ module Computer_System_mm_interconnect_0 (
 	) arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter (
 		.clk                  (System_PLL_sys_clk_clk),                                                       //       clk.clk
 		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),        // clk_reset.reset
-		.in_valid             (cmd_demux_001_src1_valid),                                                     //      sink.valid
-		.in_channel           (cmd_demux_001_src1_channel),                                                   //          .channel
-		.in_startofpacket     (cmd_demux_001_src1_startofpacket),                                             //          .startofpacket
-		.in_endofpacket       (cmd_demux_001_src1_endofpacket),                                               //          .endofpacket
-		.in_ready             (cmd_demux_001_src1_ready),                                                     //          .ready
-		.in_data              (cmd_demux_001_src1_data),                                                      //          .data
+		.in_valid             (cmd_demux_001_src2_valid),                                                     //      sink.valid
+		.in_channel           (cmd_demux_001_src2_channel),                                                   //          .channel
+		.in_startofpacket     (cmd_demux_001_src2_startofpacket),                                             //          .startofpacket
+		.in_endofpacket       (cmd_demux_001_src2_endofpacket),                                               //          .endofpacket
+		.in_ready             (cmd_demux_001_src2_ready),                                                     //          .ready
+		.in_data              (cmd_demux_001_src2_data),                                                      //          .data
 		.out_endofpacket      (arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
 		.out_data             (arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_data),          //          .data
 		.out_channel          (arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_channel),       //          .channel
@@ -4052,270 +2491,6 @@ module Computer_System_mm_interconnect_0 (
 		.out_ready            (arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_ready),         //          .ready
 		.out_startofpacket    (arm_a9_hps_h2f_axi_master_rd_to_sdram_s1_cmd_width_adapter_src_startofpacket), //          .startofpacket
 		.in_command_size_data (3'b000)                                                                        // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (175),
-		.IN_PKT_ADDR_L                 (144),
-		.IN_PKT_DATA_H                 (127),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (143),
-		.IN_PKT_BYTEEN_L               (128),
-		.IN_PKT_BYTE_CNT_H             (190),
-		.IN_PKT_BYTE_CNT_L             (182),
-		.IN_PKT_TRANS_COMPRESSED_READ  (176),
-		.IN_PKT_TRANS_WRITE            (178),
-		.IN_PKT_BURSTWRAP_H            (199),
-		.IN_PKT_BURSTWRAP_L            (191),
-		.IN_PKT_BURST_SIZE_H           (202),
-		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
-		.IN_PKT_TRANS_EXCLUSIVE        (181),
-		.IN_PKT_BURST_TYPE_H           (204),
-		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
-		.OUT_PKT_ADDR_H                (103),
-		.OUT_PKT_ADDR_L                (72),
-		.OUT_PKT_DATA_H                (63),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (71),
-		.OUT_PKT_BYTEEN_L              (64),
-		.OUT_PKT_BYTE_CNT_H            (118),
-		.OUT_PKT_BYTE_CNT_L            (110),
-		.OUT_PKT_TRANS_COMPRESSED_READ (104),
-		.OUT_PKT_BURST_SIZE_H          (130),
-		.OUT_PKT_BURST_SIZE_L          (128),
-		.OUT_PKT_RESPONSE_STATUS_H     (163),
-		.OUT_PKT_RESPONSE_STATUS_L     (162),
-		.OUT_PKT_TRANS_EXCLUSIVE       (109),
-		.OUT_PKT_BURST_TYPE_H          (132),
-		.OUT_PKT_BURST_TYPE_L          (131),
-		.OUT_PKT_ORI_BURST_SIZE_L      (164),
-		.OUT_PKT_ORI_BURST_SIZE_H      (166),
-		.OUT_ST_DATA_W                 (167),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (0),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (0),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                // clk_reset.reset
-		.in_valid             (cmd_demux_001_src2_valid),                                                             //      sink.valid
-		.in_channel           (cmd_demux_001_src2_channel),                                                           //          .channel
-		.in_startofpacket     (cmd_demux_001_src2_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (cmd_demux_001_src2_endofpacket),                                                       //          .endofpacket
-		.in_ready             (cmd_demux_001_src2_ready),                                                             //          .ready
-		.in_data              (cmd_demux_001_src2_data),                                                              //          .data
-		.out_endofpacket      (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_data),          //          .data
-		.out_channel          (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_channel),       //          .channel
-		.out_valid            (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_valid),         //          .valid
-		.out_ready            (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_0_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (175),
-		.IN_PKT_ADDR_L                 (144),
-		.IN_PKT_DATA_H                 (127),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (143),
-		.IN_PKT_BYTEEN_L               (128),
-		.IN_PKT_BYTE_CNT_H             (190),
-		.IN_PKT_BYTE_CNT_L             (182),
-		.IN_PKT_TRANS_COMPRESSED_READ  (176),
-		.IN_PKT_TRANS_WRITE            (178),
-		.IN_PKT_BURSTWRAP_H            (199),
-		.IN_PKT_BURSTWRAP_L            (191),
-		.IN_PKT_BURST_SIZE_H           (202),
-		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
-		.IN_PKT_TRANS_EXCLUSIVE        (181),
-		.IN_PKT_BURST_TYPE_H           (204),
-		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
-		.OUT_PKT_ADDR_H                (103),
-		.OUT_PKT_ADDR_L                (72),
-		.OUT_PKT_DATA_H                (63),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (71),
-		.OUT_PKT_BYTEEN_L              (64),
-		.OUT_PKT_BYTE_CNT_H            (118),
-		.OUT_PKT_BYTE_CNT_L            (110),
-		.OUT_PKT_TRANS_COMPRESSED_READ (104),
-		.OUT_PKT_BURST_SIZE_H          (130),
-		.OUT_PKT_BURST_SIZE_L          (128),
-		.OUT_PKT_RESPONSE_STATUS_H     (163),
-		.OUT_PKT_RESPONSE_STATUS_L     (162),
-		.OUT_PKT_TRANS_EXCLUSIVE       (109),
-		.OUT_PKT_BURST_TYPE_H          (132),
-		.OUT_PKT_BURST_TYPE_L          (131),
-		.OUT_PKT_ORI_BURST_SIZE_L      (164),
-		.OUT_PKT_ORI_BURST_SIZE_H      (166),
-		.OUT_ST_DATA_W                 (167),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (0),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (0),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                // clk_reset.reset
-		.in_valid             (cmd_demux_001_src3_valid),                                                             //      sink.valid
-		.in_channel           (cmd_demux_001_src3_channel),                                                           //          .channel
-		.in_startofpacket     (cmd_demux_001_src3_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (cmd_demux_001_src3_endofpacket),                                                       //          .endofpacket
-		.in_ready             (cmd_demux_001_src3_ready),                                                             //          .ready
-		.in_data              (cmd_demux_001_src3_data),                                                              //          .data
-		.out_endofpacket      (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_data),          //          .data
-		.out_channel          (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_channel),       //          .channel
-		.out_valid            (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_valid),         //          .valid
-		.out_ready            (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_1_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (175),
-		.IN_PKT_ADDR_L                 (144),
-		.IN_PKT_DATA_H                 (127),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (143),
-		.IN_PKT_BYTEEN_L               (128),
-		.IN_PKT_BYTE_CNT_H             (190),
-		.IN_PKT_BYTE_CNT_L             (182),
-		.IN_PKT_TRANS_COMPRESSED_READ  (176),
-		.IN_PKT_TRANS_WRITE            (178),
-		.IN_PKT_BURSTWRAP_H            (199),
-		.IN_PKT_BURSTWRAP_L            (191),
-		.IN_PKT_BURST_SIZE_H           (202),
-		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
-		.IN_PKT_TRANS_EXCLUSIVE        (181),
-		.IN_PKT_BURST_TYPE_H           (204),
-		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
-		.OUT_PKT_ADDR_H                (103),
-		.OUT_PKT_ADDR_L                (72),
-		.OUT_PKT_DATA_H                (63),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (71),
-		.OUT_PKT_BYTEEN_L              (64),
-		.OUT_PKT_BYTE_CNT_H            (118),
-		.OUT_PKT_BYTE_CNT_L            (110),
-		.OUT_PKT_TRANS_COMPRESSED_READ (104),
-		.OUT_PKT_BURST_SIZE_H          (130),
-		.OUT_PKT_BURST_SIZE_L          (128),
-		.OUT_PKT_RESPONSE_STATUS_H     (163),
-		.OUT_PKT_RESPONSE_STATUS_L     (162),
-		.OUT_PKT_TRANS_EXCLUSIVE       (109),
-		.OUT_PKT_BURST_TYPE_H          (132),
-		.OUT_PKT_BURST_TYPE_L          (131),
-		.OUT_PKT_ORI_BURST_SIZE_L      (164),
-		.OUT_PKT_ORI_BURST_SIZE_H      (166),
-		.OUT_ST_DATA_W                 (167),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (0),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (0),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                // clk_reset.reset
-		.in_valid             (cmd_demux_001_src4_valid),                                                             //      sink.valid
-		.in_channel           (cmd_demux_001_src4_channel),                                                           //          .channel
-		.in_startofpacket     (cmd_demux_001_src4_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (cmd_demux_001_src4_endofpacket),                                                       //          .endofpacket
-		.in_ready             (cmd_demux_001_src4_ready),                                                             //          .ready
-		.in_data              (cmd_demux_001_src4_data),                                                              //          .data
-		.out_endofpacket      (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_data),          //          .data
-		.out_channel          (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_channel),       //          .channel
-		.out_valid            (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_valid),         //          .valid
-		.out_ready            (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_2_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (175),
-		.IN_PKT_ADDR_L                 (144),
-		.IN_PKT_DATA_H                 (127),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (143),
-		.IN_PKT_BYTEEN_L               (128),
-		.IN_PKT_BYTE_CNT_H             (190),
-		.IN_PKT_BYTE_CNT_L             (182),
-		.IN_PKT_TRANS_COMPRESSED_READ  (176),
-		.IN_PKT_TRANS_WRITE            (178),
-		.IN_PKT_BURSTWRAP_H            (199),
-		.IN_PKT_BURSTWRAP_L            (191),
-		.IN_PKT_BURST_SIZE_H           (202),
-		.IN_PKT_BURST_SIZE_L           (200),
-		.IN_PKT_RESPONSE_STATUS_H      (235),
-		.IN_PKT_RESPONSE_STATUS_L      (234),
-		.IN_PKT_TRANS_EXCLUSIVE        (181),
-		.IN_PKT_BURST_TYPE_H           (204),
-		.IN_PKT_BURST_TYPE_L           (203),
-		.IN_PKT_ORI_BURST_SIZE_L       (236),
-		.IN_PKT_ORI_BURST_SIZE_H       (238),
-		.IN_ST_DATA_W                  (239),
-		.OUT_PKT_ADDR_H                (103),
-		.OUT_PKT_ADDR_L                (72),
-		.OUT_PKT_DATA_H                (63),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (71),
-		.OUT_PKT_BYTEEN_L              (64),
-		.OUT_PKT_BYTE_CNT_H            (118),
-		.OUT_PKT_BYTE_CNT_L            (110),
-		.OUT_PKT_TRANS_COMPRESSED_READ (104),
-		.OUT_PKT_BURST_SIZE_H          (130),
-		.OUT_PKT_BURST_SIZE_L          (128),
-		.OUT_PKT_RESPONSE_STATUS_H     (163),
-		.OUT_PKT_RESPONSE_STATUS_L     (162),
-		.OUT_PKT_TRANS_EXCLUSIVE       (109),
-		.OUT_PKT_BURST_TYPE_H          (132),
-		.OUT_PKT_BURST_TYPE_L          (131),
-		.OUT_PKT_ORI_BURST_SIZE_L      (164),
-		.OUT_PKT_ORI_BURST_SIZE_H      (166),
-		.OUT_ST_DATA_W                 (167),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (0),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (0),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (ARM_A9_HPS_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset),                // clk_reset.reset
-		.in_valid             (cmd_demux_001_src5_valid),                                                             //      sink.valid
-		.in_channel           (cmd_demux_001_src5_channel),                                                           //          .channel
-		.in_startofpacket     (cmd_demux_001_src5_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (cmd_demux_001_src5_endofpacket),                                                       //          .endofpacket
-		.in_ready             (cmd_demux_001_src5_ready),                                                             //          .ready
-		.in_data              (cmd_demux_001_src5_data),                                                              //          .data
-		.out_endofpacket      (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_data),          //          .data
-		.out_channel          (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_channel),       //          .channel
-		.out_valid            (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_valid),         //          .valid
-		.out_ready            (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (arm_a9_hps_h2f_axi_master_rd_to_onchip_sram_3_s2_cmd_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
 	);
 
 	altera_merlin_width_adapter #(
@@ -4333,14 +2508,14 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (56),
 		.IN_PKT_BURST_SIZE_H           (67),
 		.IN_PKT_BURST_SIZE_L           (65),
-		.IN_PKT_RESPONSE_STATUS_H      (100),
-		.IN_PKT_RESPONSE_STATUS_L      (99),
+		.IN_PKT_RESPONSE_STATUS_H      (98),
+		.IN_PKT_RESPONSE_STATUS_L      (97),
 		.IN_PKT_TRANS_EXCLUSIVE        (46),
 		.IN_PKT_BURST_TYPE_H           (69),
 		.IN_PKT_BURST_TYPE_L           (68),
-		.IN_PKT_ORI_BURST_SIZE_L       (101),
-		.IN_PKT_ORI_BURST_SIZE_H       (103),
-		.IN_ST_DATA_W                  (104),
+		.IN_PKT_ORI_BURST_SIZE_L       (99),
+		.IN_PKT_ORI_BURST_SIZE_H       (101),
+		.IN_ST_DATA_W                  (102),
 		.OUT_PKT_ADDR_H                (49),
 		.OUT_PKT_ADDR_L                (18),
 		.OUT_PKT_DATA_H                (15),
@@ -4352,15 +2527,15 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (50),
 		.OUT_PKT_BURST_SIZE_H          (76),
 		.OUT_PKT_BURST_SIZE_L          (74),
-		.OUT_PKT_RESPONSE_STATUS_H     (109),
-		.OUT_PKT_RESPONSE_STATUS_L     (108),
+		.OUT_PKT_RESPONSE_STATUS_H     (107),
+		.OUT_PKT_RESPONSE_STATUS_L     (106),
 		.OUT_PKT_TRANS_EXCLUSIVE       (55),
 		.OUT_PKT_BURST_TYPE_H          (78),
 		.OUT_PKT_BURST_TYPE_L          (77),
-		.OUT_PKT_ORI_BURST_SIZE_L      (110),
-		.OUT_PKT_ORI_BURST_SIZE_H      (112),
-		.OUT_ST_DATA_W                 (113),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (108),
+		.OUT_PKT_ORI_BURST_SIZE_H      (110),
+		.OUT_ST_DATA_W                 (111),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (0),
 		.CONSTANT_BURST_SIZE           (0),
@@ -4368,7 +2543,7 @@ module Computer_System_mm_interconnect_0 (
 		.ENABLE_ADDRESS_ALIGNMENT      (1)
 	) vga_subsystem_pixel_dma_master_to_sdram_s1_cmd_width_adapter (
 		.clk                  (System_PLL_sys_clk_clk),                                                         //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                        // clk_reset.reset
+		.reset                (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                // clk_reset.reset
 		.in_valid             (cmd_demux_002_src0_valid),                                                       //      sink.valid
 		.in_channel           (cmd_demux_002_src0_channel),                                                     //          .channel
 		.in_startofpacket     (cmd_demux_002_src0_startofpacket),                                               //          .startofpacket
@@ -4385,6 +2560,138 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_width_adapter #(
+		.IN_PKT_ADDR_H                 (103),
+		.IN_PKT_ADDR_L                 (72),
+		.IN_PKT_DATA_H                 (63),
+		.IN_PKT_DATA_L                 (0),
+		.IN_PKT_BYTEEN_H               (71),
+		.IN_PKT_BYTEEN_L               (64),
+		.IN_PKT_BYTE_CNT_H             (118),
+		.IN_PKT_BYTE_CNT_L             (110),
+		.IN_PKT_TRANS_COMPRESSED_READ  (104),
+		.IN_PKT_TRANS_WRITE            (106),
+		.IN_PKT_BURSTWRAP_H            (127),
+		.IN_PKT_BURSTWRAP_L            (119),
+		.IN_PKT_BURST_SIZE_H           (130),
+		.IN_PKT_BURST_SIZE_L           (128),
+		.IN_PKT_RESPONSE_STATUS_H      (161),
+		.IN_PKT_RESPONSE_STATUS_L      (160),
+		.IN_PKT_TRANS_EXCLUSIVE        (109),
+		.IN_PKT_BURST_TYPE_H           (132),
+		.IN_PKT_BURST_TYPE_L           (131),
+		.IN_PKT_ORI_BURST_SIZE_L       (162),
+		.IN_PKT_ORI_BURST_SIZE_H       (164),
+		.IN_ST_DATA_W                  (165),
+		.OUT_PKT_ADDR_H                (175),
+		.OUT_PKT_ADDR_L                (144),
+		.OUT_PKT_DATA_H                (127),
+		.OUT_PKT_DATA_L                (0),
+		.OUT_PKT_BYTEEN_H              (143),
+		.OUT_PKT_BYTEEN_L              (128),
+		.OUT_PKT_BYTE_CNT_H            (190),
+		.OUT_PKT_BYTE_CNT_L            (182),
+		.OUT_PKT_TRANS_COMPRESSED_READ (176),
+		.OUT_PKT_BURST_SIZE_H          (202),
+		.OUT_PKT_BURST_SIZE_L          (200),
+		.OUT_PKT_RESPONSE_STATUS_H     (233),
+		.OUT_PKT_RESPONSE_STATUS_L     (232),
+		.OUT_PKT_TRANS_EXCLUSIVE       (181),
+		.OUT_PKT_BURST_TYPE_H          (204),
+		.OUT_PKT_BURST_TYPE_L          (203),
+		.OUT_PKT_ORI_BURST_SIZE_L      (234),
+		.OUT_PKT_ORI_BURST_SIZE_H      (236),
+		.OUT_ST_DATA_W                 (237),
+		.ST_CHANNEL_W                  (3),
+		.OPTIMIZE_FOR_RSP              (0),
+		.RESPONSE_PATH                 (1),
+		.CONSTANT_BURST_SIZE           (0),
+		.PACKING                       (1),
+		.ENABLE_ADDRESS_ALIGNMENT      (1)
+	) mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter (
+		.clk                  (System_PLL_sys_clk_clk),                                                                           //       clk.clk
+		.reset                (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                                  // clk_reset.reset
+		.in_valid             (rsp_demux_src0_valid),                                                                             //      sink.valid
+		.in_channel           (rsp_demux_src0_channel),                                                                           //          .channel
+		.in_startofpacket     (rsp_demux_src0_startofpacket),                                                                     //          .startofpacket
+		.in_endofpacket       (rsp_demux_src0_endofpacket),                                                                       //          .endofpacket
+		.in_ready             (rsp_demux_src0_ready),                                                                             //          .ready
+		.in_data              (rsp_demux_src0_data),                                                                              //          .data
+		.out_endofpacket      (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
+		.out_data             (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),          //          .data
+		.out_channel          (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),       //          .channel
+		.out_valid            (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),         //          .valid
+		.out_ready            (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),         //          .ready
+		.out_startofpacket    (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket), //          .startofpacket
+		.in_command_size_data (3'b000)                                                                                            // (terminated)
+	);
+
+	altera_merlin_width_adapter #(
+		.IN_PKT_ADDR_H                 (103),
+		.IN_PKT_ADDR_L                 (72),
+		.IN_PKT_DATA_H                 (63),
+		.IN_PKT_DATA_L                 (0),
+		.IN_PKT_BYTEEN_H               (71),
+		.IN_PKT_BYTEEN_L               (64),
+		.IN_PKT_BYTE_CNT_H             (118),
+		.IN_PKT_BYTE_CNT_L             (110),
+		.IN_PKT_TRANS_COMPRESSED_READ  (104),
+		.IN_PKT_TRANS_WRITE            (106),
+		.IN_PKT_BURSTWRAP_H            (127),
+		.IN_PKT_BURSTWRAP_L            (119),
+		.IN_PKT_BURST_SIZE_H           (130),
+		.IN_PKT_BURST_SIZE_L           (128),
+		.IN_PKT_RESPONSE_STATUS_H      (161),
+		.IN_PKT_RESPONSE_STATUS_L      (160),
+		.IN_PKT_TRANS_EXCLUSIVE        (109),
+		.IN_PKT_BURST_TYPE_H           (132),
+		.IN_PKT_BURST_TYPE_L           (131),
+		.IN_PKT_ORI_BURST_SIZE_L       (162),
+		.IN_PKT_ORI_BURST_SIZE_H       (164),
+		.IN_ST_DATA_W                  (165),
+		.OUT_PKT_ADDR_H                (175),
+		.OUT_PKT_ADDR_L                (144),
+		.OUT_PKT_DATA_H                (127),
+		.OUT_PKT_DATA_L                (0),
+		.OUT_PKT_BYTEEN_H              (143),
+		.OUT_PKT_BYTEEN_L              (128),
+		.OUT_PKT_BYTE_CNT_H            (190),
+		.OUT_PKT_BYTE_CNT_L            (182),
+		.OUT_PKT_TRANS_COMPRESSED_READ (176),
+		.OUT_PKT_BURST_SIZE_H          (202),
+		.OUT_PKT_BURST_SIZE_L          (200),
+		.OUT_PKT_RESPONSE_STATUS_H     (233),
+		.OUT_PKT_RESPONSE_STATUS_L     (232),
+		.OUT_PKT_TRANS_EXCLUSIVE       (181),
+		.OUT_PKT_BURST_TYPE_H          (204),
+		.OUT_PKT_BURST_TYPE_L          (203),
+		.OUT_PKT_ORI_BURST_SIZE_L      (234),
+		.OUT_PKT_ORI_BURST_SIZE_H      (236),
+		.OUT_ST_DATA_W                 (237),
+		.ST_CHANNEL_W                  (3),
+		.OPTIMIZE_FOR_RSP              (0),
+		.RESPONSE_PATH                 (1),
+		.CONSTANT_BURST_SIZE           (0),
+		.PACKING                       (1),
+		.ENABLE_ADDRESS_ALIGNMENT      (1)
+	) mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter (
+		.clk                  (System_PLL_sys_clk_clk),                                                                           //       clk.clk
+		.reset                (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                                  // clk_reset.reset
+		.in_valid             (rsp_demux_src1_valid),                                                                             //      sink.valid
+		.in_channel           (rsp_demux_src1_channel),                                                                           //          .channel
+		.in_startofpacket     (rsp_demux_src1_startofpacket),                                                                     //          .startofpacket
+		.in_endofpacket       (rsp_demux_src1_endofpacket),                                                                       //          .endofpacket
+		.in_ready             (rsp_demux_src1_ready),                                                                             //          .ready
+		.in_data              (rsp_demux_src1_data),                                                                              //          .data
+		.out_endofpacket      (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
+		.out_data             (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),          //          .data
+		.out_channel          (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),       //          .channel
+		.out_valid            (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),         //          .valid
+		.out_ready            (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),         //          .ready
+		.out_startofpacket    (mcmc_system_0_avalon_slave_0_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket), //          .startofpacket
+		.in_command_size_data (3'b000)                                                                                            // (terminated)
+	);
+
+	altera_merlin_width_adapter #(
 		.IN_PKT_ADDR_H                 (40),
 		.IN_PKT_ADDR_L                 (9),
 		.IN_PKT_DATA_H                 (7),
@@ -4399,14 +2706,14 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (56),
 		.IN_PKT_BURST_SIZE_H           (67),
 		.IN_PKT_BURST_SIZE_L           (65),
-		.IN_PKT_RESPONSE_STATUS_H      (100),
-		.IN_PKT_RESPONSE_STATUS_L      (99),
+		.IN_PKT_RESPONSE_STATUS_H      (98),
+		.IN_PKT_RESPONSE_STATUS_L      (97),
 		.IN_PKT_TRANS_EXCLUSIVE        (46),
 		.IN_PKT_BURST_TYPE_H           (69),
 		.IN_PKT_BURST_TYPE_L           (68),
-		.IN_PKT_ORI_BURST_SIZE_L       (101),
-		.IN_PKT_ORI_BURST_SIZE_H       (103),
-		.IN_ST_DATA_W                  (104),
+		.IN_PKT_ORI_BURST_SIZE_L       (99),
+		.IN_PKT_ORI_BURST_SIZE_H       (101),
+		.IN_ST_DATA_W                  (102),
 		.OUT_PKT_ADDR_H                (175),
 		.OUT_PKT_ADDR_L                (144),
 		.OUT_PKT_DATA_H                (127),
@@ -4418,15 +2725,15 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (176),
 		.OUT_PKT_BURST_SIZE_H          (202),
 		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
+		.OUT_PKT_RESPONSE_STATUS_H     (233),
+		.OUT_PKT_RESPONSE_STATUS_L     (232),
 		.OUT_PKT_TRANS_EXCLUSIVE       (181),
 		.OUT_PKT_BURST_TYPE_H          (204),
 		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (234),
+		.OUT_PKT_ORI_BURST_SIZE_H      (236),
+		.OUT_ST_DATA_W                 (237),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (1),
 		.CONSTANT_BURST_SIZE           (0),
@@ -4434,13 +2741,13 @@ module Computer_System_mm_interconnect_0 (
 		.ENABLE_ADDRESS_ALIGNMENT      (1)
 	) vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter (
 		.clk                  (System_PLL_sys_clk_clk),                                                                              //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                                             // clk_reset.reset
-		.in_valid             (rsp_demux_src0_valid),                                                                                //      sink.valid
-		.in_channel           (rsp_demux_src0_channel),                                                                              //          .channel
-		.in_startofpacket     (rsp_demux_src0_startofpacket),                                                                        //          .startofpacket
-		.in_endofpacket       (rsp_demux_src0_endofpacket),                                                                          //          .endofpacket
-		.in_ready             (rsp_demux_src0_ready),                                                                                //          .ready
-		.in_data              (rsp_demux_src0_data),                                                                                 //          .data
+		.reset                (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                                     // clk_reset.reset
+		.in_valid             (rsp_demux_001_src0_valid),                                                                            //      sink.valid
+		.in_channel           (rsp_demux_001_src0_channel),                                                                          //          .channel
+		.in_startofpacket     (rsp_demux_001_src0_startofpacket),                                                                    //          .startofpacket
+		.in_endofpacket       (rsp_demux_001_src0_endofpacket),                                                                      //          .endofpacket
+		.in_ready             (rsp_demux_001_src0_ready),                                                                            //          .ready
+		.in_data              (rsp_demux_001_src0_data),                                                                             //          .data
 		.out_endofpacket      (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
 		.out_data             (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),          //          .data
 		.out_channel          (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),       //          .channel
@@ -4465,14 +2772,14 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (56),
 		.IN_PKT_BURST_SIZE_H           (67),
 		.IN_PKT_BURST_SIZE_L           (65),
-		.IN_PKT_RESPONSE_STATUS_H      (100),
-		.IN_PKT_RESPONSE_STATUS_L      (99),
+		.IN_PKT_RESPONSE_STATUS_H      (98),
+		.IN_PKT_RESPONSE_STATUS_L      (97),
 		.IN_PKT_TRANS_EXCLUSIVE        (46),
 		.IN_PKT_BURST_TYPE_H           (69),
 		.IN_PKT_BURST_TYPE_L           (68),
-		.IN_PKT_ORI_BURST_SIZE_L       (101),
-		.IN_PKT_ORI_BURST_SIZE_H       (103),
-		.IN_ST_DATA_W                  (104),
+		.IN_PKT_ORI_BURST_SIZE_L       (99),
+		.IN_PKT_ORI_BURST_SIZE_H       (101),
+		.IN_ST_DATA_W                  (102),
 		.OUT_PKT_ADDR_H                (175),
 		.OUT_PKT_ADDR_L                (144),
 		.OUT_PKT_DATA_H                (127),
@@ -4484,15 +2791,15 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (176),
 		.OUT_PKT_BURST_SIZE_H          (202),
 		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
+		.OUT_PKT_RESPONSE_STATUS_H     (233),
+		.OUT_PKT_RESPONSE_STATUS_L     (232),
 		.OUT_PKT_TRANS_EXCLUSIVE       (181),
 		.OUT_PKT_BURST_TYPE_H          (204),
 		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (234),
+		.OUT_PKT_ORI_BURST_SIZE_H      (236),
+		.OUT_ST_DATA_W                 (237),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (1),
 		.CONSTANT_BURST_SIZE           (0),
@@ -4500,13 +2807,13 @@ module Computer_System_mm_interconnect_0 (
 		.ENABLE_ADDRESS_ALIGNMENT      (1)
 	) vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter (
 		.clk                  (System_PLL_sys_clk_clk),                                                                              //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                                             // clk_reset.reset
-		.in_valid             (rsp_demux_src1_valid),                                                                                //      sink.valid
-		.in_channel           (rsp_demux_src1_channel),                                                                              //          .channel
-		.in_startofpacket     (rsp_demux_src1_startofpacket),                                                                        //          .startofpacket
-		.in_endofpacket       (rsp_demux_src1_endofpacket),                                                                          //          .endofpacket
-		.in_ready             (rsp_demux_src1_ready),                                                                                //          .ready
-		.in_data              (rsp_demux_src1_data),                                                                                 //          .data
+		.reset                (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                                     // clk_reset.reset
+		.in_valid             (rsp_demux_001_src1_valid),                                                                            //      sink.valid
+		.in_channel           (rsp_demux_001_src1_channel),                                                                          //          .channel
+		.in_startofpacket     (rsp_demux_001_src1_startofpacket),                                                                    //          .startofpacket
+		.in_endofpacket       (rsp_demux_001_src1_endofpacket),                                                                      //          .endofpacket
+		.in_ready             (rsp_demux_001_src1_ready),                                                                            //          .ready
+		.in_data              (rsp_demux_001_src1_data),                                                                             //          .data
 		.out_endofpacket      (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
 		.out_data             (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),          //          .data
 		.out_channel          (vga_subsystem_char_buffer_slave_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),       //          .channel
@@ -4531,14 +2838,14 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (65),
 		.IN_PKT_BURST_SIZE_H           (76),
 		.IN_PKT_BURST_SIZE_L           (74),
-		.IN_PKT_RESPONSE_STATUS_H      (109),
-		.IN_PKT_RESPONSE_STATUS_L      (108),
+		.IN_PKT_RESPONSE_STATUS_H      (107),
+		.IN_PKT_RESPONSE_STATUS_L      (106),
 		.IN_PKT_TRANS_EXCLUSIVE        (55),
 		.IN_PKT_BURST_TYPE_H           (78),
 		.IN_PKT_BURST_TYPE_L           (77),
-		.IN_PKT_ORI_BURST_SIZE_L       (110),
-		.IN_PKT_ORI_BURST_SIZE_H       (112),
-		.IN_ST_DATA_W                  (113),
+		.IN_PKT_ORI_BURST_SIZE_L       (108),
+		.IN_PKT_ORI_BURST_SIZE_H       (110),
+		.IN_ST_DATA_W                  (111),
 		.OUT_PKT_ADDR_H                (175),
 		.OUT_PKT_ADDR_L                (144),
 		.OUT_PKT_DATA_H                (127),
@@ -4550,15 +2857,15 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (176),
 		.OUT_PKT_BURST_SIZE_H          (202),
 		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
+		.OUT_PKT_RESPONSE_STATUS_H     (233),
+		.OUT_PKT_RESPONSE_STATUS_L     (232),
 		.OUT_PKT_TRANS_EXCLUSIVE       (181),
 		.OUT_PKT_BURST_TYPE_H          (204),
 		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (234),
+		.OUT_PKT_ORI_BURST_SIZE_H      (236),
+		.OUT_ST_DATA_W                 (237),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (1),
 		.CONSTANT_BURST_SIZE           (0),
@@ -4566,13 +2873,13 @@ module Computer_System_mm_interconnect_0 (
 		.ENABLE_ADDRESS_ALIGNMENT      (1)
 	) sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter (
 		.clk                  (System_PLL_sys_clk_clk),                                                       //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                      // clk_reset.reset
-		.in_valid             (rsp_demux_001_src0_valid),                                                     //      sink.valid
-		.in_channel           (rsp_demux_001_src0_channel),                                                   //          .channel
-		.in_startofpacket     (rsp_demux_001_src0_startofpacket),                                             //          .startofpacket
-		.in_endofpacket       (rsp_demux_001_src0_endofpacket),                                               //          .endofpacket
-		.in_ready             (rsp_demux_001_src0_ready),                                                     //          .ready
-		.in_data              (rsp_demux_001_src0_data),                                                      //          .data
+		.reset                (mcmc_system_0_reset_reset_bridge_in_reset_reset),                              // clk_reset.reset
+		.in_valid             (rsp_demux_002_src0_valid),                                                     //      sink.valid
+		.in_channel           (rsp_demux_002_src0_channel),                                                   //          .channel
+		.in_startofpacket     (rsp_demux_002_src0_startofpacket),                                             //          .startofpacket
+		.in_endofpacket       (rsp_demux_002_src0_endofpacket),                                               //          .endofpacket
+		.in_ready             (rsp_demux_002_src0_ready),                                                     //          .ready
+		.in_data              (rsp_demux_002_src0_data),                                                      //          .data
 		.out_endofpacket      (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
 		.out_data             (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),          //          .data
 		.out_channel          (sdram_s1_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),       //          .channel
@@ -4597,14 +2904,14 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (65),
 		.IN_PKT_BURST_SIZE_H           (76),
 		.IN_PKT_BURST_SIZE_L           (74),
-		.IN_PKT_RESPONSE_STATUS_H      (109),
-		.IN_PKT_RESPONSE_STATUS_L      (108),
+		.IN_PKT_RESPONSE_STATUS_H      (107),
+		.IN_PKT_RESPONSE_STATUS_L      (106),
 		.IN_PKT_TRANS_EXCLUSIVE        (55),
 		.IN_PKT_BURST_TYPE_H           (78),
 		.IN_PKT_BURST_TYPE_L           (77),
-		.IN_PKT_ORI_BURST_SIZE_L       (110),
-		.IN_PKT_ORI_BURST_SIZE_H       (112),
-		.IN_ST_DATA_W                  (113),
+		.IN_PKT_ORI_BURST_SIZE_L       (108),
+		.IN_PKT_ORI_BURST_SIZE_H       (110),
+		.IN_ST_DATA_W                  (111),
 		.OUT_PKT_ADDR_H                (175),
 		.OUT_PKT_ADDR_L                (144),
 		.OUT_PKT_DATA_H                (127),
@@ -4616,15 +2923,15 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (176),
 		.OUT_PKT_BURST_SIZE_H          (202),
 		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
+		.OUT_PKT_RESPONSE_STATUS_H     (233),
+		.OUT_PKT_RESPONSE_STATUS_L     (232),
 		.OUT_PKT_TRANS_EXCLUSIVE       (181),
 		.OUT_PKT_BURST_TYPE_H          (204),
 		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (234),
+		.OUT_PKT_ORI_BURST_SIZE_H      (236),
+		.OUT_ST_DATA_W                 (237),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (0),
 		.RESPONSE_PATH                 (1),
 		.CONSTANT_BURST_SIZE           (0),
@@ -4632,13 +2939,13 @@ module Computer_System_mm_interconnect_0 (
 		.ENABLE_ADDRESS_ALIGNMENT      (1)
 	) sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter (
 		.clk                  (System_PLL_sys_clk_clk),                                                       //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                      // clk_reset.reset
-		.in_valid             (rsp_demux_001_src1_valid),                                                     //      sink.valid
-		.in_channel           (rsp_demux_001_src1_channel),                                                   //          .channel
-		.in_startofpacket     (rsp_demux_001_src1_startofpacket),                                             //          .startofpacket
-		.in_endofpacket       (rsp_demux_001_src1_endofpacket),                                               //          .endofpacket
-		.in_ready             (rsp_demux_001_src1_ready),                                                     //          .ready
-		.in_data              (rsp_demux_001_src1_data),                                                      //          .data
+		.reset                (mcmc_system_0_reset_reset_bridge_in_reset_reset),                              // clk_reset.reset
+		.in_valid             (rsp_demux_002_src1_valid),                                                     //      sink.valid
+		.in_channel           (rsp_demux_002_src1_channel),                                                   //          .channel
+		.in_startofpacket     (rsp_demux_002_src1_startofpacket),                                             //          .startofpacket
+		.in_endofpacket       (rsp_demux_002_src1_endofpacket),                                               //          .endofpacket
+		.in_ready             (rsp_demux_002_src1_ready),                                                     //          .ready
+		.in_data              (rsp_demux_002_src1_data),                                                      //          .data
 		.out_endofpacket      (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
 		.out_data             (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),          //          .data
 		.out_channel          (sdram_s1_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),       //          .channel
@@ -4663,14 +2970,14 @@ module Computer_System_mm_interconnect_0 (
 		.IN_PKT_BURSTWRAP_L            (65),
 		.IN_PKT_BURST_SIZE_H           (76),
 		.IN_PKT_BURST_SIZE_L           (74),
-		.IN_PKT_RESPONSE_STATUS_H      (109),
-		.IN_PKT_RESPONSE_STATUS_L      (108),
+		.IN_PKT_RESPONSE_STATUS_H      (107),
+		.IN_PKT_RESPONSE_STATUS_L      (106),
 		.IN_PKT_TRANS_EXCLUSIVE        (55),
 		.IN_PKT_BURST_TYPE_H           (78),
 		.IN_PKT_BURST_TYPE_L           (77),
-		.IN_PKT_ORI_BURST_SIZE_L       (110),
-		.IN_PKT_ORI_BURST_SIZE_H       (112),
-		.IN_ST_DATA_W                  (113),
+		.IN_PKT_ORI_BURST_SIZE_L       (108),
+		.IN_PKT_ORI_BURST_SIZE_H       (110),
+		.IN_ST_DATA_W                  (111),
 		.OUT_PKT_ADDR_H                (40),
 		.OUT_PKT_ADDR_L                (9),
 		.OUT_PKT_DATA_H                (7),
@@ -4682,15 +2989,15 @@ module Computer_System_mm_interconnect_0 (
 		.OUT_PKT_TRANS_COMPRESSED_READ (41),
 		.OUT_PKT_BURST_SIZE_H          (67),
 		.OUT_PKT_BURST_SIZE_L          (65),
-		.OUT_PKT_RESPONSE_STATUS_H     (100),
-		.OUT_PKT_RESPONSE_STATUS_L     (99),
+		.OUT_PKT_RESPONSE_STATUS_H     (98),
+		.OUT_PKT_RESPONSE_STATUS_L     (97),
 		.OUT_PKT_TRANS_EXCLUSIVE       (46),
 		.OUT_PKT_BURST_TYPE_H          (69),
 		.OUT_PKT_BURST_TYPE_L          (68),
-		.OUT_PKT_ORI_BURST_SIZE_L      (101),
-		.OUT_PKT_ORI_BURST_SIZE_H      (103),
-		.OUT_ST_DATA_W                 (104),
-		.ST_CHANNEL_W                  (6),
+		.OUT_PKT_ORI_BURST_SIZE_L      (99),
+		.OUT_PKT_ORI_BURST_SIZE_H      (101),
+		.OUT_ST_DATA_W                 (102),
+		.ST_CHANNEL_W                  (3),
 		.OPTIMIZE_FOR_RSP              (1),
 		.RESPONSE_PATH                 (1),
 		.CONSTANT_BURST_SIZE           (0),
@@ -4698,13 +3005,13 @@ module Computer_System_mm_interconnect_0 (
 		.ENABLE_ADDRESS_ALIGNMENT      (1)
 	) sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter (
 		.clk                  (System_PLL_sys_clk_clk),                                                         //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                        // clk_reset.reset
-		.in_valid             (rsp_demux_001_src2_valid),                                                       //      sink.valid
-		.in_channel           (rsp_demux_001_src2_channel),                                                     //          .channel
-		.in_startofpacket     (rsp_demux_001_src2_startofpacket),                                               //          .startofpacket
-		.in_endofpacket       (rsp_demux_001_src2_endofpacket),                                                 //          .endofpacket
-		.in_ready             (rsp_demux_001_src2_ready),                                                       //          .ready
-		.in_data              (rsp_demux_001_src2_data),                                                        //          .data
+		.reset                (mcmc_system_0_reset_reset_bridge_in_reset_reset),                                // clk_reset.reset
+		.in_valid             (rsp_demux_002_src2_valid),                                                       //      sink.valid
+		.in_channel           (rsp_demux_002_src2_channel),                                                     //          .channel
+		.in_startofpacket     (rsp_demux_002_src2_startofpacket),                                               //          .startofpacket
+		.in_endofpacket       (rsp_demux_002_src2_endofpacket),                                                 //          .endofpacket
+		.in_ready             (rsp_demux_002_src2_ready),                                                       //          .ready
+		.in_data              (rsp_demux_002_src2_data),                                                        //          .data
 		.out_endofpacket      (sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
 		.out_data             (sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_data),          //          .data
 		.out_channel          (sdram_s1_to_vga_subsystem_pixel_dma_master_rsp_width_adapter_src_channel),       //          .channel
@@ -4714,535 +3021,36 @@ module Computer_System_mm_interconnect_0 (
 		.in_command_size_data (3'b000)                                                                          // (terminated)
 	);
 
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (103),
-		.IN_PKT_ADDR_L                 (72),
-		.IN_PKT_DATA_H                 (63),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (71),
-		.IN_PKT_BYTEEN_L               (64),
-		.IN_PKT_BYTE_CNT_H             (118),
-		.IN_PKT_BYTE_CNT_L             (110),
-		.IN_PKT_TRANS_COMPRESSED_READ  (104),
-		.IN_PKT_TRANS_WRITE            (106),
-		.IN_PKT_BURSTWRAP_H            (127),
-		.IN_PKT_BURSTWRAP_L            (119),
-		.IN_PKT_BURST_SIZE_H           (130),
-		.IN_PKT_BURST_SIZE_L           (128),
-		.IN_PKT_RESPONSE_STATUS_H      (163),
-		.IN_PKT_RESPONSE_STATUS_L      (162),
-		.IN_PKT_TRANS_EXCLUSIVE        (109),
-		.IN_PKT_BURST_TYPE_H           (132),
-		.IN_PKT_BURST_TYPE_L           (131),
-		.IN_PKT_ORI_BURST_SIZE_L       (164),
-		.IN_PKT_ORI_BURST_SIZE_H       (166),
-		.IN_ST_DATA_W                  (167),
-		.OUT_PKT_ADDR_H                (175),
-		.OUT_PKT_ADDR_L                (144),
-		.OUT_PKT_DATA_H                (127),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (143),
-		.OUT_PKT_BYTEEN_L              (128),
-		.OUT_PKT_BYTE_CNT_H            (190),
-		.OUT_PKT_BYTE_CNT_L            (182),
-		.OUT_PKT_TRANS_COMPRESSED_READ (176),
-		.OUT_PKT_BURST_SIZE_H          (202),
-		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
-		.OUT_PKT_TRANS_EXCLUSIVE       (181),
-		.OUT_PKT_BURST_TYPE_H          (204),
-		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (1),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (1),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.in_valid             (rsp_demux_002_src0_valid),                                                             //      sink.valid
-		.in_channel           (rsp_demux_002_src0_channel),                                                           //          .channel
-		.in_startofpacket     (rsp_demux_002_src0_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (rsp_demux_002_src0_endofpacket),                                                       //          .endofpacket
-		.in_ready             (rsp_demux_002_src0_ready),                                                             //          .ready
-		.in_data              (rsp_demux_002_src0_data),                                                              //          .data
-		.out_endofpacket      (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),          //          .data
-		.out_channel          (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),       //          .channel
-		.out_valid            (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),         //          .valid
-		.out_ready            (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (103),
-		.IN_PKT_ADDR_L                 (72),
-		.IN_PKT_DATA_H                 (63),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (71),
-		.IN_PKT_BYTEEN_L               (64),
-		.IN_PKT_BYTE_CNT_H             (118),
-		.IN_PKT_BYTE_CNT_L             (110),
-		.IN_PKT_TRANS_COMPRESSED_READ  (104),
-		.IN_PKT_TRANS_WRITE            (106),
-		.IN_PKT_BURSTWRAP_H            (127),
-		.IN_PKT_BURSTWRAP_L            (119),
-		.IN_PKT_BURST_SIZE_H           (130),
-		.IN_PKT_BURST_SIZE_L           (128),
-		.IN_PKT_RESPONSE_STATUS_H      (163),
-		.IN_PKT_RESPONSE_STATUS_L      (162),
-		.IN_PKT_TRANS_EXCLUSIVE        (109),
-		.IN_PKT_BURST_TYPE_H           (132),
-		.IN_PKT_BURST_TYPE_L           (131),
-		.IN_PKT_ORI_BURST_SIZE_L       (164),
-		.IN_PKT_ORI_BURST_SIZE_H       (166),
-		.IN_ST_DATA_W                  (167),
-		.OUT_PKT_ADDR_H                (175),
-		.OUT_PKT_ADDR_L                (144),
-		.OUT_PKT_DATA_H                (127),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (143),
-		.OUT_PKT_BYTEEN_L              (128),
-		.OUT_PKT_BYTE_CNT_H            (190),
-		.OUT_PKT_BYTE_CNT_L            (182),
-		.OUT_PKT_TRANS_COMPRESSED_READ (176),
-		.OUT_PKT_BURST_SIZE_H          (202),
-		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
-		.OUT_PKT_TRANS_EXCLUSIVE       (181),
-		.OUT_PKT_BURST_TYPE_H          (204),
-		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (1),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (1),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.in_valid             (rsp_demux_002_src1_valid),                                                             //      sink.valid
-		.in_channel           (rsp_demux_002_src1_channel),                                                           //          .channel
-		.in_startofpacket     (rsp_demux_002_src1_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (rsp_demux_002_src1_endofpacket),                                                       //          .endofpacket
-		.in_ready             (rsp_demux_002_src1_ready),                                                             //          .ready
-		.in_data              (rsp_demux_002_src1_data),                                                              //          .data
-		.out_endofpacket      (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),          //          .data
-		.out_channel          (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),       //          .channel
-		.out_valid            (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),         //          .valid
-		.out_ready            (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (onchip_sram_0_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (103),
-		.IN_PKT_ADDR_L                 (72),
-		.IN_PKT_DATA_H                 (63),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (71),
-		.IN_PKT_BYTEEN_L               (64),
-		.IN_PKT_BYTE_CNT_H             (118),
-		.IN_PKT_BYTE_CNT_L             (110),
-		.IN_PKT_TRANS_COMPRESSED_READ  (104),
-		.IN_PKT_TRANS_WRITE            (106),
-		.IN_PKT_BURSTWRAP_H            (127),
-		.IN_PKT_BURSTWRAP_L            (119),
-		.IN_PKT_BURST_SIZE_H           (130),
-		.IN_PKT_BURST_SIZE_L           (128),
-		.IN_PKT_RESPONSE_STATUS_H      (163),
-		.IN_PKT_RESPONSE_STATUS_L      (162),
-		.IN_PKT_TRANS_EXCLUSIVE        (109),
-		.IN_PKT_BURST_TYPE_H           (132),
-		.IN_PKT_BURST_TYPE_L           (131),
-		.IN_PKT_ORI_BURST_SIZE_L       (164),
-		.IN_PKT_ORI_BURST_SIZE_H       (166),
-		.IN_ST_DATA_W                  (167),
-		.OUT_PKT_ADDR_H                (175),
-		.OUT_PKT_ADDR_L                (144),
-		.OUT_PKT_DATA_H                (127),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (143),
-		.OUT_PKT_BYTEEN_L              (128),
-		.OUT_PKT_BYTE_CNT_H            (190),
-		.OUT_PKT_BYTE_CNT_L            (182),
-		.OUT_PKT_TRANS_COMPRESSED_READ (176),
-		.OUT_PKT_BURST_SIZE_H          (202),
-		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
-		.OUT_PKT_TRANS_EXCLUSIVE       (181),
-		.OUT_PKT_BURST_TYPE_H          (204),
-		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (1),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (1),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.in_valid             (rsp_demux_003_src0_valid),                                                             //      sink.valid
-		.in_channel           (rsp_demux_003_src0_channel),                                                           //          .channel
-		.in_startofpacket     (rsp_demux_003_src0_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (rsp_demux_003_src0_endofpacket),                                                       //          .endofpacket
-		.in_ready             (rsp_demux_003_src0_ready),                                                             //          .ready
-		.in_data              (rsp_demux_003_src0_data),                                                              //          .data
-		.out_endofpacket      (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),          //          .data
-		.out_channel          (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),       //          .channel
-		.out_valid            (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),         //          .valid
-		.out_ready            (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (103),
-		.IN_PKT_ADDR_L                 (72),
-		.IN_PKT_DATA_H                 (63),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (71),
-		.IN_PKT_BYTEEN_L               (64),
-		.IN_PKT_BYTE_CNT_H             (118),
-		.IN_PKT_BYTE_CNT_L             (110),
-		.IN_PKT_TRANS_COMPRESSED_READ  (104),
-		.IN_PKT_TRANS_WRITE            (106),
-		.IN_PKT_BURSTWRAP_H            (127),
-		.IN_PKT_BURSTWRAP_L            (119),
-		.IN_PKT_BURST_SIZE_H           (130),
-		.IN_PKT_BURST_SIZE_L           (128),
-		.IN_PKT_RESPONSE_STATUS_H      (163),
-		.IN_PKT_RESPONSE_STATUS_L      (162),
-		.IN_PKT_TRANS_EXCLUSIVE        (109),
-		.IN_PKT_BURST_TYPE_H           (132),
-		.IN_PKT_BURST_TYPE_L           (131),
-		.IN_PKT_ORI_BURST_SIZE_L       (164),
-		.IN_PKT_ORI_BURST_SIZE_H       (166),
-		.IN_ST_DATA_W                  (167),
-		.OUT_PKT_ADDR_H                (175),
-		.OUT_PKT_ADDR_L                (144),
-		.OUT_PKT_DATA_H                (127),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (143),
-		.OUT_PKT_BYTEEN_L              (128),
-		.OUT_PKT_BYTE_CNT_H            (190),
-		.OUT_PKT_BYTE_CNT_L            (182),
-		.OUT_PKT_TRANS_COMPRESSED_READ (176),
-		.OUT_PKT_BURST_SIZE_H          (202),
-		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
-		.OUT_PKT_TRANS_EXCLUSIVE       (181),
-		.OUT_PKT_BURST_TYPE_H          (204),
-		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (1),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (1),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.in_valid             (rsp_demux_003_src1_valid),                                                             //      sink.valid
-		.in_channel           (rsp_demux_003_src1_channel),                                                           //          .channel
-		.in_startofpacket     (rsp_demux_003_src1_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (rsp_demux_003_src1_endofpacket),                                                       //          .endofpacket
-		.in_ready             (rsp_demux_003_src1_ready),                                                             //          .ready
-		.in_data              (rsp_demux_003_src1_data),                                                              //          .data
-		.out_endofpacket      (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),          //          .data
-		.out_channel          (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),       //          .channel
-		.out_valid            (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),         //          .valid
-		.out_ready            (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (onchip_sram_1_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (103),
-		.IN_PKT_ADDR_L                 (72),
-		.IN_PKT_DATA_H                 (63),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (71),
-		.IN_PKT_BYTEEN_L               (64),
-		.IN_PKT_BYTE_CNT_H             (118),
-		.IN_PKT_BYTE_CNT_L             (110),
-		.IN_PKT_TRANS_COMPRESSED_READ  (104),
-		.IN_PKT_TRANS_WRITE            (106),
-		.IN_PKT_BURSTWRAP_H            (127),
-		.IN_PKT_BURSTWRAP_L            (119),
-		.IN_PKT_BURST_SIZE_H           (130),
-		.IN_PKT_BURST_SIZE_L           (128),
-		.IN_PKT_RESPONSE_STATUS_H      (163),
-		.IN_PKT_RESPONSE_STATUS_L      (162),
-		.IN_PKT_TRANS_EXCLUSIVE        (109),
-		.IN_PKT_BURST_TYPE_H           (132),
-		.IN_PKT_BURST_TYPE_L           (131),
-		.IN_PKT_ORI_BURST_SIZE_L       (164),
-		.IN_PKT_ORI_BURST_SIZE_H       (166),
-		.IN_ST_DATA_W                  (167),
-		.OUT_PKT_ADDR_H                (175),
-		.OUT_PKT_ADDR_L                (144),
-		.OUT_PKT_DATA_H                (127),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (143),
-		.OUT_PKT_BYTEEN_L              (128),
-		.OUT_PKT_BYTE_CNT_H            (190),
-		.OUT_PKT_BYTE_CNT_L            (182),
-		.OUT_PKT_TRANS_COMPRESSED_READ (176),
-		.OUT_PKT_BURST_SIZE_H          (202),
-		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
-		.OUT_PKT_TRANS_EXCLUSIVE       (181),
-		.OUT_PKT_BURST_TYPE_H          (204),
-		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (1),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (1),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.in_valid             (rsp_demux_004_src0_valid),                                                             //      sink.valid
-		.in_channel           (rsp_demux_004_src0_channel),                                                           //          .channel
-		.in_startofpacket     (rsp_demux_004_src0_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (rsp_demux_004_src0_endofpacket),                                                       //          .endofpacket
-		.in_ready             (rsp_demux_004_src0_ready),                                                             //          .ready
-		.in_data              (rsp_demux_004_src0_data),                                                              //          .data
-		.out_endofpacket      (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),          //          .data
-		.out_channel          (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),       //          .channel
-		.out_valid            (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),         //          .valid
-		.out_ready            (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (103),
-		.IN_PKT_ADDR_L                 (72),
-		.IN_PKT_DATA_H                 (63),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (71),
-		.IN_PKT_BYTEEN_L               (64),
-		.IN_PKT_BYTE_CNT_H             (118),
-		.IN_PKT_BYTE_CNT_L             (110),
-		.IN_PKT_TRANS_COMPRESSED_READ  (104),
-		.IN_PKT_TRANS_WRITE            (106),
-		.IN_PKT_BURSTWRAP_H            (127),
-		.IN_PKT_BURSTWRAP_L            (119),
-		.IN_PKT_BURST_SIZE_H           (130),
-		.IN_PKT_BURST_SIZE_L           (128),
-		.IN_PKT_RESPONSE_STATUS_H      (163),
-		.IN_PKT_RESPONSE_STATUS_L      (162),
-		.IN_PKT_TRANS_EXCLUSIVE        (109),
-		.IN_PKT_BURST_TYPE_H           (132),
-		.IN_PKT_BURST_TYPE_L           (131),
-		.IN_PKT_ORI_BURST_SIZE_L       (164),
-		.IN_PKT_ORI_BURST_SIZE_H       (166),
-		.IN_ST_DATA_W                  (167),
-		.OUT_PKT_ADDR_H                (175),
-		.OUT_PKT_ADDR_L                (144),
-		.OUT_PKT_DATA_H                (127),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (143),
-		.OUT_PKT_BYTEEN_L              (128),
-		.OUT_PKT_BYTE_CNT_H            (190),
-		.OUT_PKT_BYTE_CNT_L            (182),
-		.OUT_PKT_TRANS_COMPRESSED_READ (176),
-		.OUT_PKT_BURST_SIZE_H          (202),
-		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
-		.OUT_PKT_TRANS_EXCLUSIVE       (181),
-		.OUT_PKT_BURST_TYPE_H          (204),
-		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (1),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (1),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.in_valid             (rsp_demux_004_src1_valid),                                                             //      sink.valid
-		.in_channel           (rsp_demux_004_src1_channel),                                                           //          .channel
-		.in_startofpacket     (rsp_demux_004_src1_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (rsp_demux_004_src1_endofpacket),                                                       //          .endofpacket
-		.in_ready             (rsp_demux_004_src1_ready),                                                             //          .ready
-		.in_data              (rsp_demux_004_src1_data),                                                              //          .data
-		.out_endofpacket      (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),          //          .data
-		.out_channel          (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),       //          .channel
-		.out_valid            (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),         //          .valid
-		.out_ready            (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (onchip_sram_2_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (103),
-		.IN_PKT_ADDR_L                 (72),
-		.IN_PKT_DATA_H                 (63),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (71),
-		.IN_PKT_BYTEEN_L               (64),
-		.IN_PKT_BYTE_CNT_H             (118),
-		.IN_PKT_BYTE_CNT_L             (110),
-		.IN_PKT_TRANS_COMPRESSED_READ  (104),
-		.IN_PKT_TRANS_WRITE            (106),
-		.IN_PKT_BURSTWRAP_H            (127),
-		.IN_PKT_BURSTWRAP_L            (119),
-		.IN_PKT_BURST_SIZE_H           (130),
-		.IN_PKT_BURST_SIZE_L           (128),
-		.IN_PKT_RESPONSE_STATUS_H      (163),
-		.IN_PKT_RESPONSE_STATUS_L      (162),
-		.IN_PKT_TRANS_EXCLUSIVE        (109),
-		.IN_PKT_BURST_TYPE_H           (132),
-		.IN_PKT_BURST_TYPE_L           (131),
-		.IN_PKT_ORI_BURST_SIZE_L       (164),
-		.IN_PKT_ORI_BURST_SIZE_H       (166),
-		.IN_ST_DATA_W                  (167),
-		.OUT_PKT_ADDR_H                (175),
-		.OUT_PKT_ADDR_L                (144),
-		.OUT_PKT_DATA_H                (127),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (143),
-		.OUT_PKT_BYTEEN_L              (128),
-		.OUT_PKT_BYTE_CNT_H            (190),
-		.OUT_PKT_BYTE_CNT_L            (182),
-		.OUT_PKT_TRANS_COMPRESSED_READ (176),
-		.OUT_PKT_BURST_SIZE_H          (202),
-		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
-		.OUT_PKT_TRANS_EXCLUSIVE       (181),
-		.OUT_PKT_BURST_TYPE_H          (204),
-		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (1),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (1),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.in_valid             (rsp_demux_005_src0_valid),                                                             //      sink.valid
-		.in_channel           (rsp_demux_005_src0_channel),                                                           //          .channel
-		.in_startofpacket     (rsp_demux_005_src0_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (rsp_demux_005_src0_endofpacket),                                                       //          .endofpacket
-		.in_ready             (rsp_demux_005_src0_ready),                                                             //          .ready
-		.in_data              (rsp_demux_005_src0_data),                                                              //          .data
-		.out_endofpacket      (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_data),          //          .data
-		.out_channel          (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_channel),       //          .channel
-		.out_valid            (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_valid),         //          .valid
-		.out_ready            (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_wr_rsp_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
-	altera_merlin_width_adapter #(
-		.IN_PKT_ADDR_H                 (103),
-		.IN_PKT_ADDR_L                 (72),
-		.IN_PKT_DATA_H                 (63),
-		.IN_PKT_DATA_L                 (0),
-		.IN_PKT_BYTEEN_H               (71),
-		.IN_PKT_BYTEEN_L               (64),
-		.IN_PKT_BYTE_CNT_H             (118),
-		.IN_PKT_BYTE_CNT_L             (110),
-		.IN_PKT_TRANS_COMPRESSED_READ  (104),
-		.IN_PKT_TRANS_WRITE            (106),
-		.IN_PKT_BURSTWRAP_H            (127),
-		.IN_PKT_BURSTWRAP_L            (119),
-		.IN_PKT_BURST_SIZE_H           (130),
-		.IN_PKT_BURST_SIZE_L           (128),
-		.IN_PKT_RESPONSE_STATUS_H      (163),
-		.IN_PKT_RESPONSE_STATUS_L      (162),
-		.IN_PKT_TRANS_EXCLUSIVE        (109),
-		.IN_PKT_BURST_TYPE_H           (132),
-		.IN_PKT_BURST_TYPE_L           (131),
-		.IN_PKT_ORI_BURST_SIZE_L       (164),
-		.IN_PKT_ORI_BURST_SIZE_H       (166),
-		.IN_ST_DATA_W                  (167),
-		.OUT_PKT_ADDR_H                (175),
-		.OUT_PKT_ADDR_L                (144),
-		.OUT_PKT_DATA_H                (127),
-		.OUT_PKT_DATA_L                (0),
-		.OUT_PKT_BYTEEN_H              (143),
-		.OUT_PKT_BYTEEN_L              (128),
-		.OUT_PKT_BYTE_CNT_H            (190),
-		.OUT_PKT_BYTE_CNT_L            (182),
-		.OUT_PKT_TRANS_COMPRESSED_READ (176),
-		.OUT_PKT_BURST_SIZE_H          (202),
-		.OUT_PKT_BURST_SIZE_L          (200),
-		.OUT_PKT_RESPONSE_STATUS_H     (235),
-		.OUT_PKT_RESPONSE_STATUS_L     (234),
-		.OUT_PKT_TRANS_EXCLUSIVE       (181),
-		.OUT_PKT_BURST_TYPE_H          (204),
-		.OUT_PKT_BURST_TYPE_L          (203),
-		.OUT_PKT_ORI_BURST_SIZE_L      (236),
-		.OUT_PKT_ORI_BURST_SIZE_H      (238),
-		.OUT_ST_DATA_W                 (239),
-		.ST_CHANNEL_W                  (6),
-		.OPTIMIZE_FOR_RSP              (0),
-		.RESPONSE_PATH                 (1),
-		.CONSTANT_BURST_SIZE           (0),
-		.PACKING                       (1),
-		.ENABLE_ADDRESS_ALIGNMENT      (1)
-	) onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter (
-		.clk                  (System_PLL_sys_clk_clk),                                                               //       clk.clk
-		.reset                (SDRAM_reset_reset_bridge_in_reset_reset),                                              // clk_reset.reset
-		.in_valid             (rsp_demux_005_src1_valid),                                                             //      sink.valid
-		.in_channel           (rsp_demux_005_src1_channel),                                                           //          .channel
-		.in_startofpacket     (rsp_demux_005_src1_startofpacket),                                                     //          .startofpacket
-		.in_endofpacket       (rsp_demux_005_src1_endofpacket),                                                       //          .endofpacket
-		.in_ready             (rsp_demux_005_src1_ready),                                                             //          .ready
-		.in_data              (rsp_demux_005_src1_data),                                                              //          .data
-		.out_endofpacket      (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_endofpacket),   //       src.endofpacket
-		.out_data             (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_data),          //          .data
-		.out_channel          (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_channel),       //          .channel
-		.out_valid            (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_valid),         //          .valid
-		.out_ready            (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_ready),         //          .ready
-		.out_startofpacket    (onchip_sram_3_s2_to_arm_a9_hps_h2f_axi_master_rd_rsp_width_adapter_src_startofpacket), //          .startofpacket
-		.in_command_size_data (3'b000)                                                                                // (terminated)
-	);
-
 	Computer_System_mm_interconnect_0_avalon_st_adapter #(
+		.inBitsPerSymbol (66),
+		.inUsePackets    (0),
+		.inDataWidth     (66),
+		.inChannelWidth  (0),
+		.inErrorWidth    (0),
+		.inUseEmptyPort  (0),
+		.inUseValid      (1),
+		.inUseReady      (1),
+		.inReadyLatency  (0),
+		.outDataWidth    (66),
+		.outChannelWidth (0),
+		.outErrorWidth   (1),
+		.outUseEmptyPort (0),
+		.outUseValid     (1),
+		.outUseReady     (1),
+		.outReadyLatency (0)
+	) avalon_st_adapter (
+		.in_clk_0_clk   (System_PLL_sys_clk_clk),                                  // in_clk_0.clk
+		.in_rst_0_reset (mcmc_system_0_reset_reset_bridge_in_reset_reset),         // in_rst_0.reset
+		.in_0_data      (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_data),  //     in_0.data
+		.in_0_valid     (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_valid), //         .valid
+		.in_0_ready     (mcmc_system_0_avalon_slave_0_agent_rdata_fifo_out_ready), //         .ready
+		.out_0_data     (avalon_st_adapter_out_0_data),                            //    out_0.data
+		.out_0_valid    (avalon_st_adapter_out_0_valid),                           //         .valid
+		.out_0_ready    (avalon_st_adapter_out_0_ready),                           //         .ready
+		.out_0_error    (avalon_st_adapter_out_0_error)                            //         .error
+	);
+
+	Computer_System_mm_interconnect_0_avalon_st_adapter_001 #(
 		.inBitsPerSymbol (10),
 		.inUsePackets    (0),
 		.inDataWidth     (10),
@@ -5259,19 +3067,19 @@ module Computer_System_mm_interconnect_0 (
 		.outUseValid     (1),
 		.outUseReady     (1),
 		.outReadyLatency (0)
-	) avalon_st_adapter (
+	) avalon_st_adapter_001 (
 		.in_clk_0_clk   (System_PLL_sys_clk_clk),                                     // in_clk_0.clk
-		.in_rst_0_reset (SDRAM_reset_reset_bridge_in_reset_reset),                    // in_rst_0.reset
+		.in_rst_0_reset (mcmc_system_0_reset_reset_bridge_in_reset_reset),            // in_rst_0.reset
 		.in_0_data      (vga_subsystem_char_buffer_slave_agent_rdata_fifo_out_data),  //     in_0.data
 		.in_0_valid     (vga_subsystem_char_buffer_slave_agent_rdata_fifo_out_valid), //         .valid
 		.in_0_ready     (vga_subsystem_char_buffer_slave_agent_rdata_fifo_out_ready), //         .ready
-		.out_0_data     (avalon_st_adapter_out_0_data),                               //    out_0.data
-		.out_0_valid    (avalon_st_adapter_out_0_valid),                              //         .valid
-		.out_0_ready    (avalon_st_adapter_out_0_ready),                              //         .ready
-		.out_0_error    (avalon_st_adapter_out_0_error)                               //         .error
+		.out_0_data     (avalon_st_adapter_001_out_0_data),                           //    out_0.data
+		.out_0_valid    (avalon_st_adapter_001_out_0_valid),                          //         .valid
+		.out_0_ready    (avalon_st_adapter_001_out_0_ready),                          //         .ready
+		.out_0_error    (avalon_st_adapter_001_out_0_error)                           //         .error
 	);
 
-	Computer_System_mm_interconnect_0_avalon_st_adapter_001 #(
+	Computer_System_mm_interconnect_0_avalon_st_adapter_002 #(
 		.inBitsPerSymbol (18),
 		.inUsePackets    (0),
 		.inDataWidth     (18),
@@ -5288,132 +3096,16 @@ module Computer_System_mm_interconnect_0 (
 		.outUseValid     (1),
 		.outUseReady     (1),
 		.outReadyLatency (0)
-	) avalon_st_adapter_001 (
-		.in_clk_0_clk   (System_PLL_sys_clk_clk),                  // in_clk_0.clk
-		.in_rst_0_reset (SDRAM_reset_reset_bridge_in_reset_reset), // in_rst_0.reset
-		.in_0_data      (sdram_s1_agent_rdata_fifo_out_data),      //     in_0.data
-		.in_0_valid     (sdram_s1_agent_rdata_fifo_out_valid),     //         .valid
-		.in_0_ready     (sdram_s1_agent_rdata_fifo_out_ready),     //         .ready
-		.out_0_data     (avalon_st_adapter_001_out_0_data),        //    out_0.data
-		.out_0_valid    (avalon_st_adapter_001_out_0_valid),       //         .valid
-		.out_0_ready    (avalon_st_adapter_001_out_0_ready),       //         .ready
-		.out_0_error    (avalon_st_adapter_001_out_0_error)        //         .error
-	);
-
-	Computer_System_mm_interconnect_0_avalon_st_adapter_002 #(
-		.inBitsPerSymbol (66),
-		.inUsePackets    (0),
-		.inDataWidth     (66),
-		.inChannelWidth  (0),
-		.inErrorWidth    (0),
-		.inUseEmptyPort  (0),
-		.inUseValid      (1),
-		.inUseReady      (1),
-		.inReadyLatency  (0),
-		.outDataWidth    (66),
-		.outChannelWidth (0),
-		.outErrorWidth   (1),
-		.outUseEmptyPort (0),
-		.outUseValid     (1),
-		.outUseReady     (1),
-		.outReadyLatency (0)
 	) avalon_st_adapter_002 (
-		.in_clk_0_clk   (System_PLL_sys_clk_clk),                      // in_clk_0.clk
-		.in_rst_0_reset (SDRAM_reset_reset_bridge_in_reset_reset),     // in_rst_0.reset
-		.in_0_data      (onchip_sram_0_s2_agent_rdata_fifo_out_data),  //     in_0.data
-		.in_0_valid     (onchip_sram_0_s2_agent_rdata_fifo_out_valid), //         .valid
-		.in_0_ready     (onchip_sram_0_s2_agent_rdata_fifo_out_ready), //         .ready
-		.out_0_data     (avalon_st_adapter_002_out_0_data),            //    out_0.data
-		.out_0_valid    (avalon_st_adapter_002_out_0_valid),           //         .valid
-		.out_0_ready    (avalon_st_adapter_002_out_0_ready),           //         .ready
-		.out_0_error    (avalon_st_adapter_002_out_0_error)            //         .error
-	);
-
-	Computer_System_mm_interconnect_0_avalon_st_adapter_002 #(
-		.inBitsPerSymbol (66),
-		.inUsePackets    (0),
-		.inDataWidth     (66),
-		.inChannelWidth  (0),
-		.inErrorWidth    (0),
-		.inUseEmptyPort  (0),
-		.inUseValid      (1),
-		.inUseReady      (1),
-		.inReadyLatency  (0),
-		.outDataWidth    (66),
-		.outChannelWidth (0),
-		.outErrorWidth   (1),
-		.outUseEmptyPort (0),
-		.outUseValid     (1),
-		.outUseReady     (1),
-		.outReadyLatency (0)
-	) avalon_st_adapter_003 (
-		.in_clk_0_clk   (System_PLL_sys_clk_clk),                      // in_clk_0.clk
-		.in_rst_0_reset (SDRAM_reset_reset_bridge_in_reset_reset),     // in_rst_0.reset
-		.in_0_data      (onchip_sram_1_s2_agent_rdata_fifo_out_data),  //     in_0.data
-		.in_0_valid     (onchip_sram_1_s2_agent_rdata_fifo_out_valid), //         .valid
-		.in_0_ready     (onchip_sram_1_s2_agent_rdata_fifo_out_ready), //         .ready
-		.out_0_data     (avalon_st_adapter_003_out_0_data),            //    out_0.data
-		.out_0_valid    (avalon_st_adapter_003_out_0_valid),           //         .valid
-		.out_0_ready    (avalon_st_adapter_003_out_0_ready),           //         .ready
-		.out_0_error    (avalon_st_adapter_003_out_0_error)            //         .error
-	);
-
-	Computer_System_mm_interconnect_0_avalon_st_adapter_002 #(
-		.inBitsPerSymbol (66),
-		.inUsePackets    (0),
-		.inDataWidth     (66),
-		.inChannelWidth  (0),
-		.inErrorWidth    (0),
-		.inUseEmptyPort  (0),
-		.inUseValid      (1),
-		.inUseReady      (1),
-		.inReadyLatency  (0),
-		.outDataWidth    (66),
-		.outChannelWidth (0),
-		.outErrorWidth   (1),
-		.outUseEmptyPort (0),
-		.outUseValid     (1),
-		.outUseReady     (1),
-		.outReadyLatency (0)
-	) avalon_st_adapter_004 (
-		.in_clk_0_clk   (System_PLL_sys_clk_clk),                      // in_clk_0.clk
-		.in_rst_0_reset (SDRAM_reset_reset_bridge_in_reset_reset),     // in_rst_0.reset
-		.in_0_data      (onchip_sram_2_s2_agent_rdata_fifo_out_data),  //     in_0.data
-		.in_0_valid     (onchip_sram_2_s2_agent_rdata_fifo_out_valid), //         .valid
-		.in_0_ready     (onchip_sram_2_s2_agent_rdata_fifo_out_ready), //         .ready
-		.out_0_data     (avalon_st_adapter_004_out_0_data),            //    out_0.data
-		.out_0_valid    (avalon_st_adapter_004_out_0_valid),           //         .valid
-		.out_0_ready    (avalon_st_adapter_004_out_0_ready),           //         .ready
-		.out_0_error    (avalon_st_adapter_004_out_0_error)            //         .error
-	);
-
-	Computer_System_mm_interconnect_0_avalon_st_adapter_002 #(
-		.inBitsPerSymbol (66),
-		.inUsePackets    (0),
-		.inDataWidth     (66),
-		.inChannelWidth  (0),
-		.inErrorWidth    (0),
-		.inUseEmptyPort  (0),
-		.inUseValid      (1),
-		.inUseReady      (1),
-		.inReadyLatency  (0),
-		.outDataWidth    (66),
-		.outChannelWidth (0),
-		.outErrorWidth   (1),
-		.outUseEmptyPort (0),
-		.outUseValid     (1),
-		.outUseReady     (1),
-		.outReadyLatency (0)
-	) avalon_st_adapter_005 (
-		.in_clk_0_clk   (System_PLL_sys_clk_clk),                      // in_clk_0.clk
-		.in_rst_0_reset (SDRAM_reset_reset_bridge_in_reset_reset),     // in_rst_0.reset
-		.in_0_data      (onchip_sram_3_s2_agent_rdata_fifo_out_data),  //     in_0.data
-		.in_0_valid     (onchip_sram_3_s2_agent_rdata_fifo_out_valid), //         .valid
-		.in_0_ready     (onchip_sram_3_s2_agent_rdata_fifo_out_ready), //         .ready
-		.out_0_data     (avalon_st_adapter_005_out_0_data),            //    out_0.data
-		.out_0_valid    (avalon_st_adapter_005_out_0_valid),           //         .valid
-		.out_0_ready    (avalon_st_adapter_005_out_0_ready),           //         .ready
-		.out_0_error    (avalon_st_adapter_005_out_0_error)            //         .error
+		.in_clk_0_clk   (System_PLL_sys_clk_clk),                          // in_clk_0.clk
+		.in_rst_0_reset (mcmc_system_0_reset_reset_bridge_in_reset_reset), // in_rst_0.reset
+		.in_0_data      (sdram_s1_agent_rdata_fifo_out_data),              //     in_0.data
+		.in_0_valid     (sdram_s1_agent_rdata_fifo_out_valid),             //         .valid
+		.in_0_ready     (sdram_s1_agent_rdata_fifo_out_ready),             //         .ready
+		.out_0_data     (avalon_st_adapter_002_out_0_data),                //    out_0.data
+		.out_0_valid    (avalon_st_adapter_002_out_0_valid),               //         .valid
+		.out_0_ready    (avalon_st_adapter_002_out_0_ready),               //         .ready
+		.out_0_error    (avalon_st_adapter_002_out_0_error)                //         .error
 	);
 
 endmodule
