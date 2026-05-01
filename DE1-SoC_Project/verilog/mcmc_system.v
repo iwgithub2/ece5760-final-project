@@ -50,19 +50,35 @@ module mcmc_system #(
     genvar i;
     generate
         for (i = 0; i < N_NODES; i = i + 1) begin : gen_rams
-            reg [63:0] ram [0:63];
+            
+            // Split the 64-bit memory into two 32-bit halves.
+            // This perfectly matches the M10K hardware limits and ARM write patterns.
+            reg [31:0] ram_lower [0:63];
+            reg [31:0] ram_upper [0:63];
+            
             wire [9:0] read_addr = packed_addrs[(i*10)+:10];
             reg [63:0] read_data;
 
+            // Pull the Write Enable logic out of the always block to help synthesis
+            wire local_we = avs_write && (avs_address[10:6] == i);
+
             always @(posedge clk) begin
-                if (avs_write && (avs_address[10:6] == i)) begin
-                    if (avs_byteenable[3:0] == 4'hF)
-                        ram[avs_address[5:0]][31:0] <= avs_writedata[31:0];
-                    if (avs_byteenable[7:4] == 4'hF)
-                        ram[avs_address[5:0]][63:32] <= avs_writedata[63:32];
+                if (local_we) begin
+                    // If the lower 4 bytes are targeted (avs_byteenable is 8'h0F or 8'hFF)
+                    if (avs_byteenable[3:0] == 4'hF) begin
+                        ram_lower[avs_address[5:0]] <= avs_writedata[31:0];
+                    end
+                    
+                    // If the upper 4 bytes are targeted (avs_byteenable is 8'hF0 or 8'hFF)
+                    if (avs_byteenable[7:4] == 4'hF) begin
+                        ram_upper[avs_address[5:0]] <= avs_writedata[63:32];
+                    end
                 end
-                read_data <= ram[read_addr[5:0]];
+                
+                // Synchronous Read: Stitch the two halves back together for the custom logic
+                read_data <= { ram_upper[read_addr[5:0]], ram_lower[read_addr[5:0]] };
             end
+            
             assign packed_datas[(i*64)+:64] = read_data;
         end
     endgenerate

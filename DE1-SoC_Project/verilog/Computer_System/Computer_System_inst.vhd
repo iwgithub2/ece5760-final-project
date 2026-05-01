@@ -82,8 +82,11 @@
 			memory_mem_odt                              : out   std_logic;                                        -- mem_odt
 			memory_mem_dm                               : out   std_logic_vector(3 downto 0);                     -- mem_dm
 			memory_oct_rzqin                            : in    std_logic                     := 'X';             -- oct_rzqin
+			pio_active_nodes_external_connection_export : out   std_logic_vector(31 downto 0);                    -- export
 			pio_best_score_external_connection_export   : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
 			pio_done_external_connection_export         : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
+			pio_iterations_external_connection_export   : out   std_logic_vector(31 downto 0);                    -- export
+			pio_node_mask_external_connection_export    : out   std_logic_vector(31 downto 0);                    -- export
 			pio_seed_external_connection_export         : out   std_logic_vector(31 downto 0);                    -- export
 			pio_start_external_connection_export        : out   std_logic_vector(31 downto 0);                    -- export
 			sdram_addr                                  : out   std_logic_vector(12 downto 0);                    -- addr
@@ -107,10 +110,7 @@
 			vga_G                                       : out   std_logic_vector(7 downto 0);                     -- G
 			vga_B                                       : out   std_logic_vector(7 downto 0);                     -- B
 			vga_pll_ref_clk_clk                         : in    std_logic                     := 'X';             -- clk
-			vga_pll_ref_reset_reset                     : in    std_logic                     := 'X';             -- reset
-			pio_iterations_external_connection_export   : out   std_logic_vector(31 downto 0);                    -- export
-			pio_active_nodes_external_connection_export : out   std_logic_vector(31 downto 0);                    -- export
-			pio_node_mask_external_connection_export    : out   std_logic_vector(31 downto 0)                     -- export
+			vga_pll_ref_reset_reset                     : in    std_logic                     := 'X'              -- reset
 		);
 	end component Computer_System;
 
@@ -198,8 +198,11 @@
 			memory_mem_odt                              => CONNECTED_TO_memory_mem_odt,                              --                                     .mem_odt
 			memory_mem_dm                               => CONNECTED_TO_memory_mem_dm,                               --                                     .mem_dm
 			memory_oct_rzqin                            => CONNECTED_TO_memory_oct_rzqin,                            --                                     .oct_rzqin
+			pio_active_nodes_external_connection_export => CONNECTED_TO_pio_active_nodes_external_connection_export, -- pio_active_nodes_external_connection.export
 			pio_best_score_external_connection_export   => CONNECTED_TO_pio_best_score_external_connection_export,   --   pio_best_score_external_connection.export
 			pio_done_external_connection_export         => CONNECTED_TO_pio_done_external_connection_export,         --         pio_done_external_connection.export
+			pio_iterations_external_connection_export   => CONNECTED_TO_pio_iterations_external_connection_export,   --   pio_iterations_external_connection.export
+			pio_node_mask_external_connection_export    => CONNECTED_TO_pio_node_mask_external_connection_export,    --    pio_node_mask_external_connection.export
 			pio_seed_external_connection_export         => CONNECTED_TO_pio_seed_external_connection_export,         --         pio_seed_external_connection.export
 			pio_start_external_connection_export        => CONNECTED_TO_pio_start_external_connection_export,        --        pio_start_external_connection.export
 			sdram_addr                                  => CONNECTED_TO_sdram_addr,                                  --                                sdram.addr
@@ -223,9 +226,6 @@
 			vga_G                                       => CONNECTED_TO_vga_G,                                       --                                     .G
 			vga_B                                       => CONNECTED_TO_vga_B,                                       --                                     .B
 			vga_pll_ref_clk_clk                         => CONNECTED_TO_vga_pll_ref_clk_clk,                         --                      vga_pll_ref_clk.clk
-			vga_pll_ref_reset_reset                     => CONNECTED_TO_vga_pll_ref_reset_reset,                     --                    vga_pll_ref_reset.reset
-			pio_iterations_external_connection_export   => CONNECTED_TO_pio_iterations_external_connection_export,   --   pio_iterations_external_connection.export
-			pio_active_nodes_external_connection_export => CONNECTED_TO_pio_active_nodes_external_connection_export, -- pio_active_nodes_external_connection.export
-			pio_node_mask_external_connection_export    => CONNECTED_TO_pio_node_mask_external_connection_export     --    pio_node_mask_external_connection.export
+			vga_pll_ref_reset_reset                     => CONNECTED_TO_vga_pll_ref_reset_reset                      --                    vga_pll_ref_reset.reset
 		);
 

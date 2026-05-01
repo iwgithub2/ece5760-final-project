@@ -82,8 +82,11 @@ module Computer_System (
 	memory_mem_odt,
 	memory_mem_dm,
 	memory_oct_rzqin,
+	pio_active_nodes_external_connection_export,
 	pio_best_score_external_connection_export,
 	pio_done_external_connection_export,
+	pio_iterations_external_connection_export,
+	pio_node_mask_external_connection_export,
 	pio_seed_external_connection_export,
 	pio_start_external_connection_export,
 	sdram_addr,
@@ -107,10 +110,7 @@ module Computer_System (
 	vga_G,
 	vga_B,
 	vga_pll_ref_clk_clk,
-	vga_pll_ref_reset_reset,
-	pio_iterations_external_connection_export,
-	pio_active_nodes_external_connection_export,
-	pio_node_mask_external_connection_export);	
+	vga_pll_ref_reset_reset);	
 
 	inout		av_config_SDAT;
 	output		av_config_SCLK;
@@ -194,8 +194,11 @@ module Computer_System (
 	output		memory_mem_odt;
 	output	[3:0]	memory_mem_dm;
 	input		memory_oct_rzqin;
+	output	[31:0]	pio_active_nodes_external_connection_export;
 	input	[31:0]	pio_best_score_external_connection_export;
 	input	[31:0]	pio_done_external_connection_export;
+	output	[31:0]	pio_iterations_external_connection_export;
+	output	[31:0]	pio_node_mask_external_connection_export;
 	output	[31:0]	pio_seed_external_connection_export;
 	output	[31:0]	pio_start_external_connection_export;
 	output	[12:0]	sdram_addr;
@@ -220,7 +223,4 @@ module Computer_System (
 	output	[7:0]	vga_B;
 	input		vga_pll_ref_clk_clk;
 	input		vga_pll_ref_reset_reset;
-	output	[31:0]	pio_iterations_external_connection_export;
-	output	[31:0]	pio_active_nodes_external_connection_export;
-	output	[31:0]	pio_node_mask_external_connection_export;
 endmodule

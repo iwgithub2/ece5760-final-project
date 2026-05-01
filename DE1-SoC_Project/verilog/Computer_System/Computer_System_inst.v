@@ -81,8 +81,11 @@
 		.memory_mem_odt                              (<connected-to-memory_mem_odt>),                              //                                     .mem_odt
 		.memory_mem_dm                               (<connected-to-memory_mem_dm>),                               //                                     .mem_dm
 		.memory_oct_rzqin                            (<connected-to-memory_oct_rzqin>),                            //                                     .oct_rzqin
+		.pio_active_nodes_external_connection_export (<connected-to-pio_active_nodes_external_connection_export>), // pio_active_nodes_external_connection.export
 		.pio_best_score_external_connection_export   (<connected-to-pio_best_score_external_connection_export>),   //   pio_best_score_external_connection.export
 		.pio_done_external_connection_export         (<connected-to-pio_done_external_connection_export>),         //         pio_done_external_connection.export
+		.pio_iterations_external_connection_export   (<connected-to-pio_iterations_external_connection_export>),   //   pio_iterations_external_connection.export
+		.pio_node_mask_external_connection_export    (<connected-to-pio_node_mask_external_connection_export>),    //    pio_node_mask_external_connection.export
 		.pio_seed_external_connection_export         (<connected-to-pio_seed_external_connection_export>),         //         pio_seed_external_connection.export
 		.pio_start_external_connection_export        (<connected-to-pio_start_external_connection_export>),        //        pio_start_external_connection.export
 		.sdram_addr                                  (<connected-to-sdram_addr>),                                  //                                sdram.addr
@@ -106,9 +109,6 @@
 		.vga_G                                       (<connected-to-vga_G>),                                       //                                     .G
 		.vga_B                                       (<connected-to-vga_B>),                                       //                                     .B
 		.vga_pll_ref_clk_clk                         (<connected-to-vga_pll_ref_clk_clk>),                         //                      vga_pll_ref_clk.clk
-		.vga_pll_ref_reset_reset                     (<connected-to-vga_pll_ref_reset_reset>),                     //                    vga_pll_ref_reset.reset
-		.pio_iterations_external_connection_export   (<connected-to-pio_iterations_external_connection_export>),   //   pio_iterations_external_connection.export
-		.pio_active_nodes_external_connection_export (<connected-to-pio_active_nodes_external_connection_export>), // pio_active_nodes_external_connection.export
-		.pio_node_mask_external_connection_export    (<connected-to-pio_node_mask_external_connection_export>)     //    pio_node_mask_external_connection.export
+		.vga_pll_ref_reset_reset                     (<connected-to-vga_pll_ref_reset_reset>)                      //                    vga_pll_ref_reset.reset
 	);
 

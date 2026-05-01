@@ -58,6 +58,7 @@ module Computer_System_mm_interconnect_0 (
 		output wire         mcmc_system_0_avalon_slave_0_read,                                     //                                                                .read
 		input  wire [63:0]  mcmc_system_0_avalon_slave_0_readdata,                                 //                                                                .readdata
 		output wire [63:0]  mcmc_system_0_avalon_slave_0_writedata,                                //                                                                .writedata
+		output wire [7:0]   mcmc_system_0_avalon_slave_0_byteenable,                               //                                                                .byteenable
 		output wire [24:0]  SDRAM_s1_address,                                                      //                                                        SDRAM_s1.address
 		output wire         SDRAM_s1_write,                                                        //                                                                .write
 		output wire         SDRAM_s1_read,                                                         //                                                                .read
@@ -599,10 +600,10 @@ module Computer_System_mm_interconnect_0 (
 		.av_read                (mcmc_system_0_avalon_slave_0_read),                   //                         .read
 		.av_readdata            (mcmc_system_0_avalon_slave_0_readdata),               //                         .readdata
 		.av_writedata           (mcmc_system_0_avalon_slave_0_writedata),              //                         .writedata
+		.av_byteenable          (mcmc_system_0_avalon_slave_0_byteenable),             //                         .byteenable
 		.av_begintransfer       (),                                                    //              (terminated)
 		.av_beginbursttransfer  (),                                                    //              (terminated)
 		.av_burstcount          (),                                                    //              (terminated)
-		.av_byteenable          (),                                                    //              (terminated)
 		.av_readdatavalid       (1'b0),                                                //              (terminated)
 		.av_waitrequest         (1'b0),                                                //              (terminated)
 		.av_writebyteenable     (),                                                    //              (terminated)

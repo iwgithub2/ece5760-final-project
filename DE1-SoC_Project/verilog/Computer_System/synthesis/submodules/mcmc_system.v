@@ -11,6 +11,7 @@ module mcmc_system #(
     input  wire [10:0] avs_address,
     input  wire        avs_write,
     input  wire [63:0] avs_writedata,
+    input  wire [7:0]  avs_byteenable,
     
     input  wire        avs_read, 
     output reg  [63:0] avs_readdata, 
@@ -29,19 +30,18 @@ module mcmc_system #(
     wire [(N_NODES*64)-1:0] packed_datas;
     wire [(N_NODES*5)-1:0]  best_order_packed; // 32 nodes * 5 bits = 160 bits
 
-    // Avalon Read Logic for Best Order Extraction
+    // Avalon Read Logic for Best Order Extraction (Synchronous)
     always @(posedge clk) begin
+        // Default assignment to clear the bus
+        avs_readdata <= 64'd0; 
+        
         if (avs_read) begin
-            // Address 1024 (0x400) and above is reserved for reading the best order
             if (avs_address[10] == 1'b1) begin
-                case (avs_address[1:0]) // Read the 160 bits out in 64-bit chunks
+                case (avs_address[1:0]) 
                     2'd0: avs_readdata <= best_order_packed[63:0];
                     2'd1: avs_readdata <= best_order_packed[127:64];
                     2'd2: avs_readdata <= {32'd0, best_order_packed[159:128]};
-                    default: avs_readdata <= 64'd0;
                 endcase
-            end else begin
-                avs_readdata <= 64'd0; 
             end
         end
     end
@@ -56,7 +56,10 @@ module mcmc_system #(
 
             always @(posedge clk) begin
                 if (avs_write && (avs_address[10:6] == i)) begin
-                    ram[avs_address[5:0]] <= avs_writedata;
+                    if (avs_byteenable[3:0] == 4'hF)
+                        ram[avs_address[5:0]][31:0] <= avs_writedata[31:0];
+                    if (avs_byteenable[7:4] == 4'hF)
+                        ram[avs_address[5:0]][63:32] <= avs_writedata[63:32];
                 end
                 read_data <= ram[read_addr[5:0]];
             end
@@ -263,7 +266,13 @@ module mcmc_controller #(
                         score_start   <= 1'b0;
                         current_score <= proposed_score;
                         best_score    <= proposed_score; 
-                        state         <= S_PROPOSE;
+                        
+                        // initialize order
+                        for (i = 0; i < N_NODES; i = i + 1) begin
+                            best_order_internal[i] <= proposed_order[i];
+                        end
+                        
+                        state <= S_PROPOSE;
                     end
                 end
 
