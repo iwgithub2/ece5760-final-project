@@ -66,6 +66,8 @@ module Computer_System (
 	mcmc_system_0_mcmc_control_active_nodes,
 	mcmc_system_0_mcmc_control_iterations,
 	mcmc_system_0_mcmc_control_node_idx_mask,
+	mcmc_system_0_mcmc_control_pio_reset,
+	mcmc_system_0_mcmc_control_clk_count,
 	memory_mem_a,
 	memory_mem_ba,
 	memory_mem_ck,
@@ -84,9 +86,11 @@ module Computer_System (
 	memory_oct_rzqin,
 	pio_active_nodes_external_connection_export,
 	pio_best_score_external_connection_export,
+	pio_clk_count_external_connection_export,
 	pio_done_external_connection_export,
 	pio_iterations_external_connection_export,
 	pio_node_mask_external_connection_export,
+	pio_reset_external_connection_export,
 	pio_seed_external_connection_export,
 	pio_start_external_connection_export,
 	sdram_addr,
@@ -178,6 +182,8 @@ module Computer_System (
 	input	[31:0]	mcmc_system_0_mcmc_control_active_nodes;
 	input	[31:0]	mcmc_system_0_mcmc_control_iterations;
 	input	[31:0]	mcmc_system_0_mcmc_control_node_idx_mask;
+	input		mcmc_system_0_mcmc_control_pio_reset;
+	output	[31:0]	mcmc_system_0_mcmc_control_clk_count;
 	output	[14:0]	memory_mem_a;
 	output	[2:0]	memory_mem_ba;
 	output		memory_mem_ck;
@@ -196,9 +202,11 @@ module Computer_System (
 	input		memory_oct_rzqin;
 	output	[31:0]	pio_active_nodes_external_connection_export;
 	input	[31:0]	pio_best_score_external_connection_export;
+	input	[31:0]	pio_clk_count_external_connection_export;
 	input	[31:0]	pio_done_external_connection_export;
 	output	[31:0]	pio_iterations_external_connection_export;
 	output	[31:0]	pio_node_mask_external_connection_export;
+	output	[31:0]	pio_reset_external_connection_export;
 	output	[31:0]	pio_seed_external_connection_export;
 	output	[31:0]	pio_start_external_connection_export;
 	output	[12:0]	sdram_addr;

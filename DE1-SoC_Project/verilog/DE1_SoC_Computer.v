@@ -368,6 +368,8 @@ output					HPS_USB_STP;
 wire [31:0] w_pio_start;
 wire [31:0] w_pio_seed;
 wire [31:0] w_pio_active_nodes;
+wire [31:0] w_pio_reset;
+wire [31:0] w_pio_clk_count;
 
 wire        w_mcmc_done;
 wire [31:0] w_mcmc_best_score;
@@ -393,11 +395,13 @@ Computer_System The_System (
 	.av_config_SDAT							(FPGA_I2C_SDAT),
 	
 	// PIOs (HPS Outputs to FPGA)
-	.pio_start_external_connection_export     (w_pio_start),
-	.pio_seed_external_connection_export      (w_pio_seed),
-	.pio_iterations_external_connection_export (w_pio_iterations),
-	.pio_active_nodes_external_connection_export(w_pio_active_nodes),
-	.pio_node_mask_external_connection_export(w_pio_node_mask),
+	.pio_start_external_connection_export     	(w_pio_start),
+	.pio_seed_external_connection_export      	(w_pio_seed),
+	.pio_iterations_external_connection_export 	(w_pio_iterations),
+	.pio_active_nodes_external_connection_export	(w_pio_active_nodes),
+	.pio_node_mask_external_connection_export		(w_pio_node_mask),
+	.pio_reset_external_connection_export			(w_pio_reset),
+	.pio_clk_count_external_connection_export		(w_pio_clk_count),
 	
 	// PIOs (FPGA Inputs to HPS) 
 	.pio_done_external_connection_export       ({31'd0, w_mcmc_done}),
@@ -412,6 +416,8 @@ Computer_System The_System (
 	.mcmc_system_0_mcmc_control_node_idx_mask       (w_pio_node_mask),
 	.mcmc_system_0_mcmc_control_done                (w_mcmc_done),
 	.mcmc_system_0_mcmc_control_best_score          (w_mcmc_best_score),
+	.mcmc_system_0_mcmc_control_pio_reset				(w_pio_reset[0]),
+	.mcmc_system_0_mcmc_control_clk_count				(w_pio_clk_count),
 	
 	// Slider Switches
 	//.slider_switches_export					(SW),

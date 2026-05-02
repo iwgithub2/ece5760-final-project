@@ -1,5 +1,5 @@
 Flow report for DE1_SoC_Computer
-Fri May 01 15:24:24 2026
+Sat May 02 00:18:40 2026
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -40,15 +40,15 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------------------+
 ; Flow Summary                                                                  ;
 +---------------------------------+---------------------------------------------+
-; Flow Status                     ; Successful - Fri May 01 15:23:50 2026       ;
+; Flow Status                     ; Successful - Sat May 02 00:18:06 2026       ;
 ; Quartus Prime Version           ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                   ; DE1_SoC_Computer                            ;
 ; Top-level Entity Name           ; DE1_SoC_Computer                            ;
 ; Family                          ; Cyclone V                                   ;
 ; Device                          ; 5CSEMA5F31C6                                ;
 ; Timing Models                   ; Final                                       ;
-; Logic utilization (in ALMs)     ; 12,755 / 32,070 ( 40 % )                    ;
-; Total registers                 ; 12327                                       ;
+; Logic utilization (in ALMs)     ; 13,387 / 32,070 ( 42 % )                    ;
+; Total registers                 ; 12974                                       ;
 ; Total pins                      ; 368 / 457 ( 81 % )                          ;
 ; Total virtual pins              ; 0                                           ;
 ; Total block memory bits         ; 1,250,816 / 4,065,280 ( 31 % )              ;
@@ -67,7 +67,7 @@ refer to the applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 05/01/2026 15:13:14 ;
+; Start date & time ; 05/02/2026 00:08:01 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; DE1_SoC_Computer    ;
 +-------------------+---------------------+
@@ -78,7 +78,7 @@ refer to the applicable agreement for further details.
 +-------------------------------------+-------------------------------------------------------------------------------+---------------+------------------------------------------+------------+
 ; Assignment Name                     ; Value                                                                         ; Default Value ; Entity Name                              ; Section Id ;
 +-------------------------------------+-------------------------------------------------------------------------------+---------------+------------------------------------------+------------+
-; COMPILER_SIGNATURE_ID               ; 198915911212168.177766279106636                                               ; --            ; --                                       ; --         ;
+; COMPILER_SIGNATURE_ID               ; 198915911212168.177769487812604                                               ; --            ; --                                       ; --         ;
 ; HPS_ISW_FILE                        ; Computer_System/synthesis/submodules/sequencer/alt_types.pre.h                ; --            ; Computer_System_ARM_A9_HPS_hps_io_border ; --         ;
 ; HPS_ISW_FILE                        ; Computer_System/synthesis/submodules/sequencer/emif.pre.xml                   ; --            ; Computer_System_ARM_A9_HPS_hps_io_border ; --         ;
 ; HPS_ISW_FILE                        ; Computer_System/synthesis/submodules/sequencer/sdram_io.pre.h                 ; --            ; Computer_System_ARM_A9_HPS_hps_io_border ; --         ;
@@ -120,7 +120,7 @@ refer to the applicable agreement for further details.
 ; POWER_PRESET_COOLING_SOLUTION       ; 23 MM HEAT SINK WITH 200 LFPM AIRFLOW                                         ; --            ; --                                       ; --         ;
 ; SLD_FILE                            ; Computer_System/synthesis/Computer_System.regmap                              ; --            ; --                                       ; --         ;
 ; SLD_FILE                            ; Computer_System/synthesis/Computer_System.debuginfo                           ; --            ; --                                       ; --         ;
-; SLD_INFO                            ; QSYS_NAME Computer_System HAS_SOPCINFO 1 GENERATION_ID 1777662164             ; --            ; Computer_System                          ; --         ;
+; SLD_INFO                            ; QSYS_NAME Computer_System HAS_SOPCINFO 1 GENERATION_ID 1777694832             ; --            ; Computer_System                          ; --         ;
 ; SOPCINFO_FILE                       ; Computer_System/synthesis/../../Computer_System.sopcinfo                      ; --            ; --                                       ; --         ;
 ; SYNTHESIS_ONLY_QIP                  ; On                                                                            ; --            ; --                                       ; --         ;
 +-------------------------------------+-------------------------------------------------------------------------------+---------------+------------------------------------------+------------+
@@ -131,11 +131,11 @@ refer to the applicable agreement for further details.
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis ; 00:00:55     ; 4.6                     ; 5525 MB             ; 00:03:23                           ;
-; Fitter               ; 00:07:16     ; 1.3                     ; 9422 MB             ; 00:59:18                           ;
-; Assembler            ; 00:00:11     ; 1.0                     ; 5122 MB             ; 00:00:11                           ;
-; Timing Analyzer      ; 00:00:32     ; 3.2                     ; 6291 MB             ; 00:01:27                           ;
-; Total                ; 00:08:54     ; --                      ; --                  ; 01:04:19                           ;
+; Analysis & Synthesis ; 00:00:50     ; 4.7                     ; 5592 MB             ; 00:03:08                           ;
+; Fitter               ; 00:06:48     ; 1.4                     ; 9436 MB             ; 00:53:34                           ;
+; Assembler            ; 00:00:11     ; 1.0                     ; 5133 MB             ; 00:00:11                           ;
+; Timing Analyzer      ; 00:00:33     ; 3.2                     ; 6311 MB             ; 00:01:26                           ;
+; Total                ; 00:08:22     ; --                      ; --                  ; 00:58:19                           ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 

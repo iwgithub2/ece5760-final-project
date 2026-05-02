@@ -66,6 +66,8 @@
 			mcmc_system_0_mcmc_control_active_nodes     : in    std_logic_vector(31 downto 0) := (others => 'X'); -- active_nodes
 			mcmc_system_0_mcmc_control_iterations       : in    std_logic_vector(31 downto 0) := (others => 'X'); -- iterations
 			mcmc_system_0_mcmc_control_node_idx_mask    : in    std_logic_vector(31 downto 0) := (others => 'X'); -- node_idx_mask
+			mcmc_system_0_mcmc_control_pio_reset        : in    std_logic                     := 'X';             -- pio_reset
+			mcmc_system_0_mcmc_control_clk_count        : out   std_logic_vector(31 downto 0);                    -- clk_count
 			memory_mem_a                                : out   std_logic_vector(14 downto 0);                    -- mem_a
 			memory_mem_ba                               : out   std_logic_vector(2 downto 0);                     -- mem_ba
 			memory_mem_ck                               : out   std_logic;                                        -- mem_ck
@@ -84,9 +86,11 @@
 			memory_oct_rzqin                            : in    std_logic                     := 'X';             -- oct_rzqin
 			pio_active_nodes_external_connection_export : out   std_logic_vector(31 downto 0);                    -- export
 			pio_best_score_external_connection_export   : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
+			pio_clk_count_external_connection_export    : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
 			pio_done_external_connection_export         : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
 			pio_iterations_external_connection_export   : out   std_logic_vector(31 downto 0);                    -- export
 			pio_node_mask_external_connection_export    : out   std_logic_vector(31 downto 0);                    -- export
+			pio_reset_external_connection_export        : out   std_logic_vector(31 downto 0);                    -- export
 			pio_seed_external_connection_export         : out   std_logic_vector(31 downto 0);                    -- export
 			pio_start_external_connection_export        : out   std_logic_vector(31 downto 0);                    -- export
 			sdram_addr                                  : out   std_logic_vector(12 downto 0);                    -- addr
@@ -182,6 +186,8 @@
 			mcmc_system_0_mcmc_control_active_nodes     => CONNECTED_TO_mcmc_system_0_mcmc_control_active_nodes,     --                                     .active_nodes
 			mcmc_system_0_mcmc_control_iterations       => CONNECTED_TO_mcmc_system_0_mcmc_control_iterations,       --                                     .iterations
 			mcmc_system_0_mcmc_control_node_idx_mask    => CONNECTED_TO_mcmc_system_0_mcmc_control_node_idx_mask,    --                                     .node_idx_mask
+			mcmc_system_0_mcmc_control_pio_reset        => CONNECTED_TO_mcmc_system_0_mcmc_control_pio_reset,        --                                     .pio_reset
+			mcmc_system_0_mcmc_control_clk_count        => CONNECTED_TO_mcmc_system_0_mcmc_control_clk_count,        --                                     .clk_count
 			memory_mem_a                                => CONNECTED_TO_memory_mem_a,                                --                               memory.mem_a
 			memory_mem_ba                               => CONNECTED_TO_memory_mem_ba,                               --                                     .mem_ba
 			memory_mem_ck                               => CONNECTED_TO_memory_mem_ck,                               --                                     .mem_ck
@@ -200,9 +206,11 @@
 			memory_oct_rzqin                            => CONNECTED_TO_memory_oct_rzqin,                            --                                     .oct_rzqin
 			pio_active_nodes_external_connection_export => CONNECTED_TO_pio_active_nodes_external_connection_export, -- pio_active_nodes_external_connection.export
 			pio_best_score_external_connection_export   => CONNECTED_TO_pio_best_score_external_connection_export,   --   pio_best_score_external_connection.export
+			pio_clk_count_external_connection_export    => CONNECTED_TO_pio_clk_count_external_connection_export,    --    pio_clk_count_external_connection.export
 			pio_done_external_connection_export         => CONNECTED_TO_pio_done_external_connection_export,         --         pio_done_external_connection.export
 			pio_iterations_external_connection_export   => CONNECTED_TO_pio_iterations_external_connection_export,   --   pio_iterations_external_connection.export
 			pio_node_mask_external_connection_export    => CONNECTED_TO_pio_node_mask_external_connection_export,    --    pio_node_mask_external_connection.export
+			pio_reset_external_connection_export        => CONNECTED_TO_pio_reset_external_connection_export,        --        pio_reset_external_connection.export
 			pio_seed_external_connection_export         => CONNECTED_TO_pio_seed_external_connection_export,         --         pio_seed_external_connection.export
 			pio_start_external_connection_export        => CONNECTED_TO_pio_start_external_connection_export,        --        pio_start_external_connection.export
 			sdram_addr                                  => CONNECTED_TO_sdram_addr,                                  --                                sdram.addr

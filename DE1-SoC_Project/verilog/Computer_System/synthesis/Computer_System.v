@@ -70,6 +70,8 @@ module Computer_System (
 		input  wire [31:0] mcmc_system_0_mcmc_control_active_nodes,     //                                     .active_nodes
 		input  wire [31:0] mcmc_system_0_mcmc_control_iterations,       //                                     .iterations
 		input  wire [31:0] mcmc_system_0_mcmc_control_node_idx_mask,    //                                     .node_idx_mask
+		input  wire        mcmc_system_0_mcmc_control_pio_reset,        //                                     .pio_reset
+		output wire [31:0] mcmc_system_0_mcmc_control_clk_count,        //                                     .clk_count
 		output wire [14:0] memory_mem_a,                                //                               memory.mem_a
 		output wire [2:0]  memory_mem_ba,                               //                                     .mem_ba
 		output wire        memory_mem_ck,                               //                                     .mem_ck
@@ -88,9 +90,11 @@ module Computer_System (
 		input  wire        memory_oct_rzqin,                            //                                     .oct_rzqin
 		output wire [31:0] pio_active_nodes_external_connection_export, // pio_active_nodes_external_connection.export
 		input  wire [31:0] pio_best_score_external_connection_export,   //   pio_best_score_external_connection.export
+		input  wire [31:0] pio_clk_count_external_connection_export,    //    pio_clk_count_external_connection.export
 		input  wire [31:0] pio_done_external_connection_export,         //         pio_done_external_connection.export
 		output wire [31:0] pio_iterations_external_connection_export,   //   pio_iterations_external_connection.export
 		output wire [31:0] pio_node_mask_external_connection_export,    //    pio_node_mask_external_connection.export
+		output wire [31:0] pio_reset_external_connection_export,        //        pio_reset_external_connection.export
 		output wire [31:0] pio_seed_external_connection_export,         //         pio_seed_external_connection.export
 		output wire [31:0] pio_start_external_connection_export,        //        pio_start_external_connection.export
 		output wire [12:0] sdram_addr,                                  //                                sdram.addr
@@ -117,7 +121,7 @@ module Computer_System (
 		input  wire        vga_pll_ref_reset_reset                      //                    vga_pll_ref_reset.reset
 	);
 
-	wire          system_pll_sys_clk_clk;                                               // System_PLL:sys_clk_clk -> [ARM_A9_HPS:f2h_axi_clk, ARM_A9_HPS:h2f_axi_clk, ARM_A9_HPS:h2f_lw_axi_clk, AV_Config:clk, Pixel_DMA_Addr_Translation:clk, SDRAM:clk, VGA_Subsystem:sys_clk_clk, mcmc_system_0:clk, mm_interconnect_0:System_PLL_sys_clk_clk, mm_interconnect_1:System_PLL_sys_clk_clk, mm_interconnect_2:System_PLL_sys_clk_clk, pio_active_nodes:clk, pio_best_score:clk, pio_done:clk, pio_iterations:clk, pio_node_mask:clk, pio_seed:clk, pio_start:clk, rst_controller:clk, rst_controller_002:clk]
+	wire          system_pll_sys_clk_clk;                                               // System_PLL:sys_clk_clk -> [ARM_A9_HPS:f2h_axi_clk, ARM_A9_HPS:h2f_axi_clk, ARM_A9_HPS:h2f_lw_axi_clk, AV_Config:clk, Pixel_DMA_Addr_Translation:clk, SDRAM:clk, VGA_Subsystem:sys_clk_clk, mcmc_system_0:clk, mm_interconnect_0:System_PLL_sys_clk_clk, mm_interconnect_1:System_PLL_sys_clk_clk, mm_interconnect_2:System_PLL_sys_clk_clk, pio_active_nodes:clk, pio_best_score:clk, pio_clk_count:clk, pio_done:clk, pio_iterations:clk, pio_node_mask:clk, pio_reset:clk, pio_seed:clk, pio_start:clk, rst_controller:clk, rst_controller_002:clk]
 	wire    [1:0] arm_a9_hps_h2f_axi_master_awburst;                                    // ARM_A9_HPS:h2f_AWBURST -> mm_interconnect_0:ARM_A9_HPS_h2f_axi_master_awburst
 	wire    [3:0] arm_a9_hps_h2f_axi_master_arlen;                                      // ARM_A9_HPS:h2f_ARLEN -> mm_interconnect_0:ARM_A9_HPS_h2f_axi_master_arlen
 	wire   [15:0] arm_a9_hps_h2f_axi_master_wstrb;                                      // ARM_A9_HPS:h2f_WSTRB -> mm_interconnect_0:ARM_A9_HPS_h2f_axi_master_wstrb
@@ -261,6 +265,13 @@ module Computer_System (
 	wire    [1:0] mm_interconnect_1_pio_node_mask_s1_address;                           // mm_interconnect_1:pio_node_mask_s1_address -> pio_node_mask:address
 	wire          mm_interconnect_1_pio_node_mask_s1_write;                             // mm_interconnect_1:pio_node_mask_s1_write -> pio_node_mask:write_n
 	wire   [31:0] mm_interconnect_1_pio_node_mask_s1_writedata;                         // mm_interconnect_1:pio_node_mask_s1_writedata -> pio_node_mask:writedata
+	wire          mm_interconnect_1_pio_reset_s1_chipselect;                            // mm_interconnect_1:pio_reset_s1_chipselect -> pio_reset:chipselect
+	wire   [31:0] mm_interconnect_1_pio_reset_s1_readdata;                              // pio_reset:readdata -> mm_interconnect_1:pio_reset_s1_readdata
+	wire    [1:0] mm_interconnect_1_pio_reset_s1_address;                               // mm_interconnect_1:pio_reset_s1_address -> pio_reset:address
+	wire          mm_interconnect_1_pio_reset_s1_write;                                 // mm_interconnect_1:pio_reset_s1_write -> pio_reset:write_n
+	wire   [31:0] mm_interconnect_1_pio_reset_s1_writedata;                             // mm_interconnect_1:pio_reset_s1_writedata -> pio_reset:writedata
+	wire   [31:0] mm_interconnect_1_pio_clk_count_s1_readdata;                          // pio_clk_count:readdata -> mm_interconnect_1:pio_clk_count_s1_readdata
+	wire    [1:0] mm_interconnect_1_pio_clk_count_s1_address;                           // mm_interconnect_1:pio_clk_count_s1_address -> pio_clk_count:address
 	wire   [31:0] mm_interconnect_1_pixel_dma_addr_translation_slave_readdata;          // Pixel_DMA_Addr_Translation:slave_readdata -> mm_interconnect_1:Pixel_DMA_Addr_Translation_slave_readdata
 	wire          mm_interconnect_1_pixel_dma_addr_translation_slave_waitrequest;       // Pixel_DMA_Addr_Translation:slave_waitrequest -> mm_interconnect_1:Pixel_DMA_Addr_Translation_slave_waitrequest
 	wire    [1:0] mm_interconnect_1_pixel_dma_addr_translation_slave_address;           // mm_interconnect_1:Pixel_DMA_Addr_Translation_slave_address -> Pixel_DMA_Addr_Translation:slave_address
@@ -283,7 +294,7 @@ module Computer_System (
 	wire   [31:0] mm_interconnect_2_vga_subsystem_pixel_dma_control_slave_writedata;    // mm_interconnect_2:VGA_Subsystem_pixel_dma_control_slave_writedata -> VGA_Subsystem:pixel_dma_control_slave_writedata
 	wire   [31:0] arm_a9_hps_f2h_irq0_irq;                                              // irq_mapper:sender_irq -> ARM_A9_HPS:f2h_irq_p0
 	wire   [31:0] arm_a9_hps_f2h_irq1_irq;                                              // irq_mapper_001:sender_irq -> ARM_A9_HPS:f2h_irq_p1
-	wire          rst_controller_reset_out_reset;                                       // rst_controller:reset_out -> [AV_Config:reset, Pixel_DMA_Addr_Translation:reset, SDRAM:reset_n, mcmc_system_0:reset_n, mm_interconnect_0:VGA_Subsystem_sys_reset_reset_bridge_in_reset_reset, mm_interconnect_0:mcmc_system_0_reset_reset_bridge_in_reset_reset, mm_interconnect_1:AV_Config_reset_reset_bridge_in_reset_reset, mm_interconnect_1:VGA_Subsystem_sys_reset_reset_bridge_in_reset_reset, mm_interconnect_2:Pixel_DMA_Addr_Translation_reset_reset_bridge_in_reset_reset, mm_interconnect_2:VGA_Subsystem_sys_reset_reset_bridge_in_reset_reset, pio_active_nodes:reset_n, pio_best_score:reset_n, pio_done:reset_n, pio_iterations:reset_n, pio_node_mask:reset_n, pio_seed:reset_n, pio_start:reset_n]
+	wire          rst_controller_reset_out_reset;                                       // rst_controller:reset_out -> [AV_Config:reset, Pixel_DMA_Addr_Translation:reset, SDRAM:reset_n, mcmc_system_0:reset_n, mm_interconnect_0:VGA_Subsystem_sys_reset_reset_bridge_in_reset_reset, mm_interconnect_0:mcmc_system_0_reset_reset_bridge_in_reset_reset, mm_interconnect_1:AV_Config_reset_reset_bridge_in_reset_reset, mm_interconnect_1:VGA_Subsystem_sys_reset_reset_bridge_in_reset_reset, mm_interconnect_2:Pixel_DMA_Addr_Translation_reset_reset_bridge_in_reset_reset, mm_interconnect_2:VGA_Subsystem_sys_reset_reset_bridge_in_reset_reset, pio_active_nodes:reset_n, pio_best_score:reset_n, pio_clk_count:reset_n, pio_done:reset_n, pio_iterations:reset_n, pio_node_mask:reset_n, pio_reset:reset_n, pio_seed:reset_n, pio_start:reset_n]
 	wire          arm_a9_hps_h2f_reset_reset;                                           // ARM_A9_HPS:h2f_rst_n -> [rst_controller:reset_in0, rst_controller_001:reset_in0, rst_controller_002:reset_in0]
 	wire          system_pll_reset_source_reset;                                        // System_PLL:reset_source_reset -> [rst_controller:reset_in1, rst_controller_001:reset_in1]
 	wire          rst_controller_001_reset_out_reset;                                   // rst_controller_001:reset_out -> VGA_Subsystem:sys_reset_reset_n
@@ -607,7 +618,9 @@ module Computer_System (
 		.start         (mcmc_system_0_mcmc_control_start),                         //               .start
 		.active_nodes  (mcmc_system_0_mcmc_control_active_nodes),                  //               .active_nodes
 		.iterations    (mcmc_system_0_mcmc_control_iterations),                    //               .iterations
-		.node_idx_mask (mcmc_system_0_mcmc_control_node_idx_mask)                  //               .node_idx_mask
+		.node_idx_mask (mcmc_system_0_mcmc_control_node_idx_mask),                 //               .node_idx_mask
+		.pio_reset     (mcmc_system_0_mcmc_control_pio_reset),                     //               .pio_reset
+		.clk_count     (mcmc_system_0_mcmc_control_clk_count)                      //               .clk_count
 	);
 
 	Computer_System_pio_active_nodes pio_active_nodes (
@@ -627,6 +640,14 @@ module Computer_System (
 		.address  (mm_interconnect_1_pio_best_score_s1_address),  //                  s1.address
 		.readdata (mm_interconnect_1_pio_best_score_s1_readdata), //                    .readdata
 		.in_port  (pio_best_score_external_connection_export)     // external_connection.export
+	);
+
+	Computer_System_pio_best_score pio_clk_count (
+		.clk      (system_pll_sys_clk_clk),                      //                 clk.clk
+		.reset_n  (~rst_controller_reset_out_reset),             //               reset.reset_n
+		.address  (mm_interconnect_1_pio_clk_count_s1_address),  //                  s1.address
+		.readdata (mm_interconnect_1_pio_clk_count_s1_readdata), //                    .readdata
+		.in_port  (pio_clk_count_external_connection_export)     // external_connection.export
 	);
 
 	Computer_System_pio_best_score pio_done (
@@ -657,6 +678,17 @@ module Computer_System (
 		.chipselect (mm_interconnect_1_pio_node_mask_s1_chipselect), //                    .chipselect
 		.readdata   (mm_interconnect_1_pio_node_mask_s1_readdata),   //                    .readdata
 		.out_port   (pio_node_mask_external_connection_export)       // external_connection.export
+	);
+
+	Computer_System_pio_active_nodes pio_reset (
+		.clk        (system_pll_sys_clk_clk),                    //                 clk.clk
+		.reset_n    (~rst_controller_reset_out_reset),           //               reset.reset_n
+		.address    (mm_interconnect_1_pio_reset_s1_address),    //                  s1.address
+		.write_n    (~mm_interconnect_1_pio_reset_s1_write),     //                    .write_n
+		.writedata  (mm_interconnect_1_pio_reset_s1_writedata),  //                    .writedata
+		.chipselect (mm_interconnect_1_pio_reset_s1_chipselect), //                    .chipselect
+		.readdata   (mm_interconnect_1_pio_reset_s1_readdata),   //                    .readdata
+		.out_port   (pio_reset_external_connection_export)       // external_connection.export
 	);
 
 	Computer_System_pio_active_nodes pio_seed (
@@ -807,6 +839,8 @@ module Computer_System (
 		.pio_active_nodes_s1_chipselect                                           (mm_interconnect_1_pio_active_nodes_s1_chipselect),                     //                                                                   .chipselect
 		.pio_best_score_s1_address                                                (mm_interconnect_1_pio_best_score_s1_address),                          //                                                  pio_best_score_s1.address
 		.pio_best_score_s1_readdata                                               (mm_interconnect_1_pio_best_score_s1_readdata),                         //                                                                   .readdata
+		.pio_clk_count_s1_address                                                 (mm_interconnect_1_pio_clk_count_s1_address),                           //                                                   pio_clk_count_s1.address
+		.pio_clk_count_s1_readdata                                                (mm_interconnect_1_pio_clk_count_s1_readdata),                          //                                                                   .readdata
 		.pio_done_s1_address                                                      (mm_interconnect_1_pio_done_s1_address),                                //                                                        pio_done_s1.address
 		.pio_done_s1_readdata                                                     (mm_interconnect_1_pio_done_s1_readdata),                               //                                                                   .readdata
 		.pio_iterations_s1_address                                                (mm_interconnect_1_pio_iterations_s1_address),                          //                                                  pio_iterations_s1.address
@@ -819,6 +853,11 @@ module Computer_System (
 		.pio_node_mask_s1_readdata                                                (mm_interconnect_1_pio_node_mask_s1_readdata),                          //                                                                   .readdata
 		.pio_node_mask_s1_writedata                                               (mm_interconnect_1_pio_node_mask_s1_writedata),                         //                                                                   .writedata
 		.pio_node_mask_s1_chipselect                                              (mm_interconnect_1_pio_node_mask_s1_chipselect),                        //                                                                   .chipselect
+		.pio_reset_s1_address                                                     (mm_interconnect_1_pio_reset_s1_address),                               //                                                       pio_reset_s1.address
+		.pio_reset_s1_write                                                       (mm_interconnect_1_pio_reset_s1_write),                                 //                                                                   .write
+		.pio_reset_s1_readdata                                                    (mm_interconnect_1_pio_reset_s1_readdata),                              //                                                                   .readdata
+		.pio_reset_s1_writedata                                                   (mm_interconnect_1_pio_reset_s1_writedata),                             //                                                                   .writedata
+		.pio_reset_s1_chipselect                                                  (mm_interconnect_1_pio_reset_s1_chipselect),                            //                                                                   .chipselect
 		.pio_seed_s1_address                                                      (mm_interconnect_1_pio_seed_s1_address),                                //                                                        pio_seed_s1.address
 		.pio_seed_s1_write                                                        (mm_interconnect_1_pio_seed_s1_write),                                  //                                                                   .write
 		.pio_seed_s1_readdata                                                     (mm_interconnect_1_pio_seed_s1_readdata),                               //                                                                   .readdata

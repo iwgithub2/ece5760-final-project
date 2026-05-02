@@ -10,19 +10,35 @@ module mcmc_system #(
     // Avalon-MM Slave Interface
     input  wire [11:0] avs_address,   // 12 bits to address 4096 32-bit words
     input  wire        avs_write,
-    input  wire [31:0] avs_writedata, // Native 32-bit
+    input  wire [31:0] avs_writedata,
     input  wire        avs_read, 
     output reg  [31:0] avs_readdata,
 
     // Conduits
     input  wire        start,
+	 input  wire		  pio_reset,
     input  wire [31:0] seed,
     input  wire [31:0] iterations,  
     input  wire [31:0] active_nodes, 
     input  wire [31:0] node_idx_mask,
     output wire        done,
-    output wire [31:0] best_score
+    output wire [31:0] best_score,
+	 output reg  [31:0] clk_count
 );
+	 wire global_reset_n;
+	 assign global_reset_n = reset_n & (~pio_reset);
+	 
+    // Clock Counter Logic
+    always @(posedge clk or negedge global_reset_n) begin
+        if (!global_reset_n) begin
+            clk_count <= 32'd0;
+        end else begin
+            // Count up only while the engine is actively running
+            if (start && !done) begin
+                clk_count <= clk_count + 1;
+            end
+        end
+    end
 
     wire [(N_NODES*10)-1:0] packed_addrs;
     wire [(N_NODES*64)-1:0] packed_datas;
@@ -64,7 +80,7 @@ module mcmc_system #(
 
     mcmc_controller #(.N_NODES(N_NODES)) core (
         .clk(clk), 
-        .rst_n(reset_n), 
+        .rst_n(global_reset_n), 
         .start(start), 
         .seed(seed),
         .iterations(iterations), 
@@ -124,6 +140,9 @@ module mcmc_controller #(
     );
 
     // Fast Bitmask Randomization
+    reg [4:0] saved_rand_i;
+    reg [4:0] saved_rand_j;
+    reg [15:0] saved_rand_u;
     wire [4:0] rand_i = lfsr_out[4:0] & node_idx_mask[4:0];
     wire [4:0] rand_j = lfsr_out[9:5] & node_idx_mask[4:0];
     wire [15:0] rand_u = lfsr_out[31:16];
@@ -205,13 +224,22 @@ module mcmc_controller #(
         end
     endgenerate
 
-    // Threshold Decay
-    reg signed [17:0] current_threshold;
-    wire signed [17:0] next_threshold;
-    times0pt9998 decay_inst (.in(current_threshold), .out(next_threshold));
+    // ==============================================================
+    // Metropolis-Hastings Acceptance Logic
+    // ==============================================================
+    wire [31:0] abs_diff = -score_diff;
+    
+    // Approximate P = exp(-abs_diff) using a bit-shift.
+    // We shift right by the Integer part (bits 20:16), plus the 
+    // 0.5 fractional bit (bit 15) to round to the nearest power of 2.
+    wire [4:0] shift_amt = abs_diff[20:16] + abs_diff[15];
+    
+    // If the move is worse by more than 15.0 log-likelihood, probability is 0%
+    wire [15:0] dynamic_prob = (abs_diff >= 32'h000F_0000) ? 16'd0 : (16'hFFFF >> shift_amt);
 
-    assign accept_move = (score_diff >= 0) ? 1'b1 : (rand_u < current_threshold[15:0]);
-
+    // Accept if better, OR randomly accept based on how bad the move is
+    assign accept_move = (score_diff >= 0) ? 1'b1 : (saved_rand_u < dynamic_prob);
+    
     // MCMC State Machine
     integer i;
     always @(posedge clk or negedge rst_n) begin
@@ -231,7 +259,7 @@ module mcmc_controller #(
                 proposed_pos[i]   <= i;
             end
         end else begin
-            lfsr_en     <= 1'b0;
+            lfsr_en     <= 1'b1;
             load_seed   <= 1'b0;
 
             case (state)
@@ -240,7 +268,6 @@ module mcmc_controller #(
                         done        <= 1'b0;
                         iter_count  <= 0;
                         load_seed   <= 1'b1;
-                        current_threshold <= 18'h0FFFF; 
                         state       <= S_INIT_SCORE;
                     end
                 end
@@ -267,11 +294,18 @@ module mcmc_controller #(
 
                 S_PROPOSE: begin
                     if (iter_count < iterations) begin
+                        // 1. Snapshot the random variables
+                        saved_rand_i <= rand_i;
+                        saved_rand_j <= rand_j;
+                        saved_rand_u <= rand_u;
+
+                        // 2. Make the proposal using the live wires
                         proposed_order[rand_i] <= current_order[rand_j];
                         proposed_order[rand_j] <= current_order[rand_i];
                         proposed_pos[current_order[rand_i]] <= rand_j;
                         proposed_pos[current_order[rand_j]] <= rand_i;
-                        score_start <= 1'b1; 
+                        
+                        score_start <= 1'b1;
                         state       <= S_WAIT_SCORE;
                     end else begin
                         state <= S_DONE;
@@ -288,27 +322,28 @@ module mcmc_controller #(
                 S_DECIDE: begin
                     if (accept_move) begin
                         current_score <= proposed_score;
-                        current_order[rand_i] <= proposed_order[rand_i];
-                        current_order[rand_j] <= proposed_order[rand_j];
-                        current_pos[proposed_order[rand_i]] <= proposed_pos[proposed_order[rand_i]];
-                        current_pos[proposed_order[rand_j]] <= proposed_pos[proposed_order[rand_j]];
+                        
+                        // COMMIT the swap using the SAVED indices
+                        current_order[saved_rand_i] <= proposed_order[saved_rand_i];
+                        current_order[saved_rand_j] <= proposed_order[saved_rand_j];
+                        current_pos[proposed_order[saved_rand_i]] <= proposed_pos[proposed_order[saved_rand_i]];
+                        current_pos[proposed_order[saved_rand_j]] <= proposed_pos[proposed_order[saved_rand_j]];
+                        
                         if (proposed_score > best_score) begin
                             best_score <= proposed_score;
-                            // Capture Best Order dynamically
                             for (i = 0; i < N_NODES; i = i + 1) begin
                                 best_order_internal[i] <= proposed_order[i];
                             end
                         end
                     end else begin
-                        proposed_order[rand_i] <= current_order[rand_i];
-                        proposed_order[rand_j] <= current_order[rand_j];
-                        proposed_pos[current_order[rand_i]] <= current_pos[current_order[rand_i]];
-                        proposed_pos[current_order[rand_j]] <= current_pos[current_order[rand_j]];
+                        // REVERT the swap using the SAVED indices
+                        proposed_order[saved_rand_i] <= current_order[saved_rand_i];
+                        proposed_order[saved_rand_j] <= current_order[saved_rand_j];
+                        proposed_pos[current_order[saved_rand_i]] <= current_pos[current_order[saved_rand_i]];
+                        proposed_pos[current_order[saved_rand_j]] <= current_pos[current_order[saved_rand_j]];
                     end
                     
                     iter_count <= iter_count + 1;
-                    lfsr_en <= 1'b1;
-                    current_threshold <= next_threshold;
                     state      <= S_PROPOSE;
                 end
 
@@ -409,8 +444,13 @@ module node_scorer (
 
                 DONE: begin
                     final_score <= accum_score;
-                    done <= 1'b1;
-                    if (!start) state <= IDLE;
+                    // Instantly drop 'done' the moment the main FSM drops 'start'
+                    if (!start) begin
+                        done <= 1'b0;
+                        state <= IDLE;
+                    end else begin
+                        done <= 1'b1;
+                    end
                 end
                 default: state <= IDLE;
             endcase
@@ -533,16 +573,6 @@ module log_add (
 
         end
     end
-endmodule
-
-module times0pt9998 (
-    input  wire signed [17:0] in,
-    output wire signed [17:0] out
-);
-    wire signed [17:0] decay =
-        (in == 18'sd0) ? 18'sd0 :
-        ((in >>> 12) == 18'sd0 ? 18'sd1 : (in >>> 12));
-    assign out = in - decay;
 endmodule
 
 // ==========================================

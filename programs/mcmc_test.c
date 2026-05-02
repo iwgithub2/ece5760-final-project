@@ -23,9 +23,13 @@
 #define PIO_ITERATIONS_OFFSET   0x40 
 #define PIO_ACTIVE_NODES_OFFSET 0x50 
 #define PIO_NODE_MASK           0x60 
+#define PIO_RESET_OFFSET        0x70 
+#define PIO_CLK_COUNT_OFFSET    0x80 
 
 #define DATASET_NAME "asia"
 #define NUM_NODES 8
+#define ITERATIONS 100000
+#define SEED 0xDEADBEEF
 #define MAX_PARENTS_PER_NODE 64 
 
 char node_names[NUM_NODES][64];
@@ -48,6 +52,8 @@ volatile unsigned int *pio_best_score=NULL;
 volatile unsigned int *pio_iterations=NULL;
 volatile unsigned int *pio_active_nodes=NULL;
 volatile unsigned int *pio_node_mask=NULL;
+volatile unsigned int *pio_reset=NULL;
+volatile unsigned int *pio_clock_count=NULL;
 
 volatile unsigned int *mcmc_system_base;
 void *fpga_ram_virtual_base;
@@ -128,6 +134,28 @@ void precompute_fixed_k(int** dataset, int num_samples) {
         }
         num_candidates[i] = candidate_count;
     }
+
+    // Normalization to prevent Q16.16 FPGA Overflow
+    for (int i = 0; i < NUM_NODES; i++) {
+        // Find the maximum score for this specific node
+        float max_score = -1e30f;
+        for (int p = 0; p < num_candidates[i]; p++) {
+            if (precomputed_db[i][p].local_score > max_score) {
+                max_score = precomputed_db[i][p].local_score;
+            }
+        }
+        
+        // Shift scores and CLAMP them to prevent signed underflow
+        for (int p = 0; p < num_candidates[i]; p++) {
+            precomputed_db[i][p].local_score -= max_score;
+            
+            // Clamp terrible scores to -500.0f
+            // -500 * 65536 * 32 nodes = -1,048,576,000 (Safely inside 32-bit limit)
+            if (precomputed_db[i][p].local_score < -500.0f) {
+                precomputed_db[i][p].local_score = -500.0f;
+            }
+        }
+    }
 }
 
 int** load_csv(const char* filename, int* out_num_samples, int num_nodes) {
@@ -193,13 +221,15 @@ int main(void)
     pio_iterations    = (unsigned int *)(h2p_lw_virtual_base + PIO_ITERATIONS_OFFSET);
     pio_active_nodes  = (unsigned int *)(h2p_lw_virtual_base + PIO_ACTIVE_NODES_OFFSET);
     pio_node_mask     = (unsigned int *)(h2p_lw_virtual_base + PIO_NODE_MASK);
+    pio_reset         = (unsigned int *)(h2p_lw_virtual_base + PIO_RESET_OFFSET);
+    pio_clock_count   = (unsigned int *)(h2p_lw_virtual_base + PIO_CLK_COUNT_OFFSET);
     
     fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); 
     if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
     
     mcmc_system_base = (unsigned int *)fpga_ram_virtual_base;
 
-    // === 1. Load Dataset & Precompute (ARM) ===
+    // Load Dataset & Precompute (ARM)
     printf("Loading dataset and precomputing...\n");
     char samples_path[256];
     sprintf(samples_path, "cleaned-datasets/%s_samples.csv", DATASET_NAME);
@@ -207,7 +237,7 @@ int main(void)
     int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
     precompute_fixed_k(dataset, num_samples);
 
-    // === 2. Transfer Data to FPGA ===
+    // Transfer Data to FPGA
     printf("Writing databases to FPGA Broadcast Memory...\n");
     uint32_t num_cands_packed = 0;
 
@@ -216,10 +246,9 @@ int main(void)
             uint32_t mask = precomputed_db[i][p].parent_bitmask;
             int32_t q16_score = float_to_q16(precomputed_db[i][p].local_score);
             
-            // Address logic: Node is [11:7], Candidate is [6:1].
+            // Node is [11:7], Candidate is [6:1].
             int base_offset = (i << 7) | (p << 1); 
             
-            // Sequential 32-bit writes! No byte-enable bugs!
             *(mcmc_system_base + base_offset)     = (uint32_t)q16_score; 
             *(mcmc_system_base + base_offset + 1) = mask; 
         }
@@ -230,7 +259,7 @@ int main(void)
         *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF;
     }
     
-    // --- FIX 2: Write Sentinel at index 0 for all UNUSED hardware nodes ---
+    // Write Sentinel at index 0 for all UNUSED hardware nodes
     // The hardware instantiates 32 nodes. We must satisfy all of them so &score_done == 1
     for (int i = NUM_NODES; i < 32; i++) {
         // Address logic for node i, candidate 0
@@ -241,30 +270,31 @@ int main(void)
         *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF; // parent_mask
     }
 
-    // Tell the hardware we are running Asia (8 nodes) for 50,000 iterations
-    *pio_iterations = 100000;
+    printf("Reset FPGA\n");
+    *pio_start = 0;       // Ensure start is low
+    *pio_reset = 1;       // Assert soft reset
+    usleep(10);           // Wait 10 microseconds (plenty of time for 50MHz clock)
+    *pio_reset = 0;       // De-assert soft reset
+
+    *pio_iterations = ITERATIONS;
     *pio_active_nodes = NUM_NODES;
     *pio_node_mask = NUM_NODES - 1;
-    
-    // (If you were running 20 nodes, mask would be 0x1F)
+    *pio_seed = SEED;
 
-    *pio_seed = 0xABCD1234;
-    printf("Starting 32-Node Engine (Configured for %d nodes)...\n", *pio_active_nodes);
+    printf("Starting 32-Node Engine...\n");
     
-    // Synchronized Handshake ---
-    
-    // 1. Ensure start is low, and wait for the FPGA to drop the 'done' flag
-    *pio_start = 0;
-    while (*pio_done == 1) { } 
-    
-    // 2. Trigger the hardware engine
     *pio_start = 1;
+    while (*pio_done == 0) { } // Wait for completion
+    *pio_start = 0;            // Clean up
+
+    // Performance Metrics
+    uint32_t clocks = *pio_clock_count;
+    float time_seconds = (float)clocks / 50000000.0f; // 50 MHz clock
     
-    // 3. Wait for the NEW run to actually finish
-    while (*pio_done == 0) { } 
-    
-    // 4. Clear start for safety
-    *pio_start = 0;
+    printf("\n=== MCMC Hardware Complete ===\n");
+    printf("Hardware Iterations: %d\n", *pio_iterations);
+    printf("Cycle Count:         %u clocks\n", clocks);
+    printf("Execution Time:      %f seconds\n\n", time_seconds);
     
     // Extract the Best Order directly from the Heavyweight Memory Bus
     

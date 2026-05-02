@@ -65,6 +65,8 @@
 		.mcmc_system_0_mcmc_control_active_nodes     (<connected-to-mcmc_system_0_mcmc_control_active_nodes>),     //                                     .active_nodes
 		.mcmc_system_0_mcmc_control_iterations       (<connected-to-mcmc_system_0_mcmc_control_iterations>),       //                                     .iterations
 		.mcmc_system_0_mcmc_control_node_idx_mask    (<connected-to-mcmc_system_0_mcmc_control_node_idx_mask>),    //                                     .node_idx_mask
+		.mcmc_system_0_mcmc_control_pio_reset        (<connected-to-mcmc_system_0_mcmc_control_pio_reset>),        //                                     .pio_reset
+		.mcmc_system_0_mcmc_control_clk_count        (<connected-to-mcmc_system_0_mcmc_control_clk_count>),        //                                     .clk_count
 		.memory_mem_a                                (<connected-to-memory_mem_a>),                                //                               memory.mem_a
 		.memory_mem_ba                               (<connected-to-memory_mem_ba>),                               //                                     .mem_ba
 		.memory_mem_ck                               (<connected-to-memory_mem_ck>),                               //                                     .mem_ck
@@ -83,9 +85,11 @@
 		.memory_oct_rzqin                            (<connected-to-memory_oct_rzqin>),                            //                                     .oct_rzqin
 		.pio_active_nodes_external_connection_export (<connected-to-pio_active_nodes_external_connection_export>), // pio_active_nodes_external_connection.export
 		.pio_best_score_external_connection_export   (<connected-to-pio_best_score_external_connection_export>),   //   pio_best_score_external_connection.export
+		.pio_clk_count_external_connection_export    (<connected-to-pio_clk_count_external_connection_export>),    //    pio_clk_count_external_connection.export
 		.pio_done_external_connection_export         (<connected-to-pio_done_external_connection_export>),         //         pio_done_external_connection.export
 		.pio_iterations_external_connection_export   (<connected-to-pio_iterations_external_connection_export>),   //   pio_iterations_external_connection.export
 		.pio_node_mask_external_connection_export    (<connected-to-pio_node_mask_external_connection_export>),    //    pio_node_mask_external_connection.export
+		.pio_reset_external_connection_export        (<connected-to-pio_reset_external_connection_export>),        //        pio_reset_external_connection.export
 		.pio_seed_external_connection_export         (<connected-to-pio_seed_external_connection_export>),         //         pio_seed_external_connection.export
 		.pio_start_external_connection_export        (<connected-to-pio_start_external_connection_export>),        //        pio_start_external_connection.export
 		.sdram_addr                                  (<connected-to-sdram_addr>),                                  //                                sdram.addr

@@ -209,6 +209,22 @@
          type = "String";
       }
    }
+   element pio_clk_count
+   {
+      datum _sortIndex
+      {
+         value = "17";
+         type = "int";
+      }
+   }
+   element pio_clk_count.s1
+   {
+      datum baseAddress
+      {
+         value = "128";
+         type = "String";
+      }
+   }
    element pio_done
    {
       datum _sortIndex
@@ -262,6 +278,22 @@
       datum baseAddress
       {
          value = "96";
+         type = "String";
+      }
+   }
+   element pio_reset
+   {
+      datum _sortIndex
+      {
+         value = "16";
+         type = "int";
+      }
+   }
+   element pio_reset.s1
+   {
+      datum baseAddress
+      {
+         value = "112";
          type = "String";
       }
    }
@@ -338,6 +370,11 @@
    type="conduit"
    dir="end" />
  <interface
+   name="pio_clk_count_external_connection"
+   internal="pio_clk_count.external_connection"
+   type="conduit"
+   dir="end" />
+ <interface
    name="pio_done_external_connection"
    internal="pio_done.external_connection"
    type="conduit"
@@ -350,6 +387,11 @@
  <interface
    name="pio_node_mask_external_connection"
    internal="pio_node_mask.external_connection"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="pio_reset_external_connection"
+   internal="pio_reset.external_connection"
    type="conduit"
    dir="end" />
  <interface
@@ -1070,6 +1112,24 @@
   <parameter name="simDrivenValue" value="0" />
   <parameter name="width" value="32" />
  </module>
+ <module
+   name="pio_clk_count"
+   kind="altera_avalon_pio"
+   version="18.1"
+   enabled="1">
+  <parameter name="bitClearingEdgeCapReg" value="false" />
+  <parameter name="bitModifyingOutReg" value="false" />
+  <parameter name="captureEdge" value="false" />
+  <parameter name="clockRate" value="100000000" />
+  <parameter name="direction" value="Input" />
+  <parameter name="edgeType" value="RISING" />
+  <parameter name="generateIRQ" value="false" />
+  <parameter name="irqType" value="LEVEL" />
+  <parameter name="resetValue" value="0" />
+  <parameter name="simDoTestBenchWiring" value="false" />
+  <parameter name="simDrivenValue" value="0" />
+  <parameter name="width" value="32" />
+ </module>
  <module name="pio_done" kind="altera_avalon_pio" version="18.1" enabled="1">
   <parameter name="bitClearingEdgeCapReg" value="false" />
   <parameter name="bitModifyingOutReg" value="false" />
@@ -1107,6 +1167,20 @@
    kind="altera_avalon_pio"
    version="18.1"
    enabled="1">
+  <parameter name="bitClearingEdgeCapReg" value="false" />
+  <parameter name="bitModifyingOutReg" value="false" />
+  <parameter name="captureEdge" value="false" />
+  <parameter name="clockRate" value="100000000" />
+  <parameter name="direction" value="Output" />
+  <parameter name="edgeType" value="RISING" />
+  <parameter name="generateIRQ" value="false" />
+  <parameter name="irqType" value="LEVEL" />
+  <parameter name="resetValue" value="0" />
+  <parameter name="simDoTestBenchWiring" value="false" />
+  <parameter name="simDrivenValue" value="0" />
+  <parameter name="width" value="32" />
+ </module>
+ <module name="pio_reset" kind="altera_avalon_pio" version="18.1" enabled="1">
   <parameter name="bitClearingEdgeCapReg" value="false" />
   <parameter name="bitModifyingOutReg" value="false" />
   <parameter name="captureEdge" value="false" />
@@ -1269,6 +1343,24 @@
    kind="avalon"
    version="18.1"
    start="ARM_A9_HPS.h2f_lw_axi_master"
+   end="pio_reset.s1">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0070" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="ARM_A9_HPS.h2f_lw_axi_master"
+   end="pio_clk_count.s1">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0080" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="ARM_A9_HPS.h2f_lw_axi_master"
    end="Pixel_DMA_Addr_Translation.slave">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x3020" />
@@ -1337,6 +1429,16 @@
    version="18.1"
    start="System_PLL.sys_clk"
    end="pio_node_mask.clk" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="System_PLL.sys_clk"
+   end="pio_reset.clk" />
+ <connection
+   kind="clock"
+   version="18.1"
+   start="System_PLL.sys_clk"
+   end="pio_clk_count.clk" />
  <connection
    kind="clock"
    version="18.1"
@@ -1436,6 +1538,16 @@
    kind="reset"
    version="18.1"
    start="ARM_A9_HPS.h2f_reset"
+   end="pio_reset.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ARM_A9_HPS.h2f_reset"
+   end="pio_clk_count.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="ARM_A9_HPS.h2f_reset"
    end="VGA_Subsystem.sys_reset" />
  <connection
    kind="reset"
@@ -1497,6 +1609,16 @@
    version="18.1"
    start="System_PLL.reset_source"
    end="pio_node_mask.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="System_PLL.reset_source"
+   end="pio_reset.reset" />
+ <connection
+   kind="reset"
+   version="18.1"
+   start="System_PLL.reset_source"
+   end="pio_clk_count.reset" />
  <connection
    kind="reset"
    version="18.1"
