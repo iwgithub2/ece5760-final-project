@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 // ============================================================================
 // Single-Core MCMC System Wrapper (Parameterizable)
 // ============================================================================
@@ -25,8 +27,24 @@ module mcmc_system #(
     output wire [31:0] best_score,
 	 output reg  [31:0] clk_count
 );
-	 wire global_reset_n;
-	 assign global_reset_n = reset_n & (~pio_reset);
+    wire async_reset_n;
+    reg  [1:0] reset_sync;
+    wire global_reset_n;
+
+    assign async_reset_n = reset_n & (~pio_reset);
+
+    // PIO reset can be released at an arbitrary time relative to clk. Assert
+    // reset immediately, but release it synchronously so controller/scorer
+    // state cannot split across cycles after a software reset.
+    always @(posedge clk or negedge async_reset_n) begin
+        if (!async_reset_n) begin
+            reset_sync <= 2'b00;
+        end else begin
+            reset_sync <= {reset_sync[0], 1'b1};
+        end
+    end
+
+    assign global_reset_n = reset_sync[1];
 	 
     // Clock Counter Logic
     always @(posedge clk or negedge global_reset_n) begin
@@ -143,8 +161,42 @@ module mcmc_controller #(
     reg [4:0] saved_rand_i;
     reg [4:0] saved_rand_j;
     reg [15:0] saved_rand_u;
-    wire [4:0] rand_i = lfsr_out[4:0] & node_idx_mask[4:0];
-    wire [4:0] rand_j = lfsr_out[9:5] & node_idx_mask[4:0];
+    localparam [5:0] MAX_ACTIVE_NODES = N_NODES;
+
+    wire [5:0] clamped_active_nodes =
+        (active_nodes == 32'd0) ? 6'd1 :
+        (active_nodes > MAX_ACTIVE_NODES) ? MAX_ACTIVE_NODES :
+        active_nodes[5:0];
+    wire [4:0] active_idx_mask = clamped_active_nodes[4:0] - 5'd1;
+    wire [4:0] configured_idx_mask = node_idx_mask[4:0];
+    wire [4:0] power2_idx_mask =
+        (configured_idx_mask == active_idx_mask) ? configured_idx_mask : active_idx_mask;
+    wire active_count_power2 = (clamped_active_nodes & (clamped_active_nodes - 6'd1)) == 6'd0;
+
+    function [4:0] bounded_random_index;
+        input [4:0] raw_index;
+        input [5:0] count;
+        reg [5:0] raw_ext;
+        reg [5:0] reduced;
+        begin
+            raw_ext = {1'b0, raw_index};
+            if (count <= 6'd1)
+                bounded_random_index = 5'd0;
+            else if (count >= 6'd32)
+                bounded_random_index = raw_index;
+            else begin
+                reduced = raw_ext % count;
+                bounded_random_index = reduced[4:0];
+            end
+        end
+    endfunction
+
+    wire [4:0] rand_i = active_count_power2 ?
+        (lfsr_out[4:0] & power2_idx_mask) :
+        bounded_random_index(lfsr_out[4:0], clamped_active_nodes);
+    wire [4:0] rand_j = active_count_power2 ?
+        (lfsr_out[9:5] & power2_idx_mask) :
+        bounded_random_index(lfsr_out[9:5], clamped_active_nodes);
     wire [15:0] rand_u = lfsr_out[31:16];
 
     // Order Matrix Management
@@ -157,7 +209,6 @@ module mcmc_controller #(
     wire signed [DATA_W-1:0] proposed_score;
 
     wire [N_NODES-1:0] proposed_masks [0:N_NODES-1];
-    integer i_node, j_pos;
 
     genvar n_row, n_col;
     generate
@@ -232,7 +283,7 @@ module mcmc_controller #(
     // Approximate P = exp(-abs_diff) using a bit-shift.
     // We shift right by the Integer part (bits 20:16), plus the 
     // 0.5 fractional bit (bit 15) to round to the nearest power of 2.
-    wire [4:0] shift_amt = abs_diff[20:16] + abs_diff[15];
+    wire [4:0] shift_amt = abs_diff[20:16] + {4'd0, abs_diff[15]};
     
     // If the move is worse by more than 15.0 log-likelihood, probability is 0%
     wire [15:0] dynamic_prob = (abs_diff >= 32'h000F_0000) ? 16'd0 : (16'hFFFF >> shift_amt);
@@ -253,10 +304,10 @@ module mcmc_controller #(
             current_score <= 32'h8000_0000;
             best_score  <= 32'h8000_0000;
             for (i = 0; i < N_NODES; i = i + 1) begin
-                current_order[i]  <= i;
-                proposed_order[i] <= i;
-                current_pos[i]    <= i;
-                proposed_pos[i]   <= i;
+                current_order[i]  <= i[4:0];
+                proposed_order[i] <= i[4:0];
+                current_pos[i]    <= i[4:0];
+                proposed_pos[i]   <= i[4:0];
             end
         end else begin
             lfsr_en     <= 1'b1;
@@ -299,11 +350,22 @@ module mcmc_controller #(
                         saved_rand_j <= rand_j;
                         saved_rand_u <= rand_u;
 
-                        // 2. Make the proposal using the live wires
-                        proposed_order[rand_i] <= current_order[rand_j];
-                        proposed_order[rand_j] <= current_order[rand_i];
-                        proposed_pos[current_order[rand_i]] <= rand_j;
-                        proposed_pos[current_order[rand_j]] <= rand_i;
+                        // 2. Rebuild proposal from current state, then apply one swap.
+                        for (i = 0; i < N_NODES; i = i + 1) begin
+                            if (i[4:0] == rand_i)
+                                proposed_order[i] <= current_order[rand_j];
+                            else if (i[4:0] == rand_j)
+                                proposed_order[i] <= current_order[rand_i];
+                            else
+                                proposed_order[i] <= current_order[i];
+
+                            if (i[4:0] == current_order[rand_i])
+                                proposed_pos[i] <= rand_j;
+                            else if (i[4:0] == current_order[rand_j])
+                                proposed_pos[i] <= rand_i;
+                            else
+                                proposed_pos[i] <= current_pos[i];
+                        end
                         
                         score_start <= 1'b1;
                         state       <= S_WAIT_SCORE;
@@ -323,11 +385,12 @@ module mcmc_controller #(
                     if (accept_move) begin
                         current_score <= proposed_score;
                         
-                        // COMMIT the swap using the SAVED indices
-                        current_order[saved_rand_i] <= proposed_order[saved_rand_i];
-                        current_order[saved_rand_j] <= proposed_order[saved_rand_j];
-                        current_pos[proposed_order[saved_rand_i]] <= proposed_pos[proposed_order[saved_rand_i]];
-                        current_pos[proposed_order[saved_rand_j]] <= proposed_pos[proposed_order[saved_rand_j]];
+                        // Commit the full proposed state. This keeps order and inverse
+                        // position maps synchronized even after rejected proposals.
+                        for (i = 0; i < N_NODES; i = i + 1) begin
+                            current_order[i] <= proposed_order[i];
+                            current_pos[i]   <= proposed_pos[i];
+                        end
                         
                         if (proposed_score > best_score) begin
                             best_score <= proposed_score;
@@ -335,12 +398,6 @@ module mcmc_controller #(
                                 best_order_internal[i] <= proposed_order[i];
                             end
                         end
-                    end else begin
-                        // REVERT the swap using the SAVED indices
-                        proposed_order[saved_rand_i] <= current_order[saved_rand_i];
-                        proposed_order[saved_rand_j] <= current_order[saved_rand_j];
-                        proposed_pos[current_order[saved_rand_i]] <= current_pos[current_order[saved_rand_i]];
-                        proposed_pos[current_order[saved_rand_j]] <= current_pos[current_order[saved_rand_j]];
                     end
                     
                     iter_count <= iter_count + 1;
@@ -499,7 +556,7 @@ module log_add_rom (
 
     // Load the hex file. Both iverilog and Quartus support this.
     initial begin
-        $readmemh("log_lut.txt", mem);
+        $readmemh("log_lut.hex", mem);
     end
 
     // Synchronous read (CRITICAL for Quartus M10K block inference)
