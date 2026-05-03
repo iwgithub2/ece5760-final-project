@@ -136,15 +136,19 @@ module mcmc_controller #(
 );
 
     // FSM States
-    localparam S_IDLE            = 3'd0;
-    localparam S_INIT_SCORE      = 3'd1; 
-    localparam S_WAIT_INIT_SCORE = 3'd2;
-    localparam S_PROPOSE         = 3'd3;
-    localparam S_WAIT_SCORE      = 3'd4; 
-    localparam S_DECIDE          = 3'd5;
-    localparam S_DONE            = 3'd6;
+    localparam S_IDLE                = 4'd0;
+    localparam S_INIT_SCORE          = 4'd1;
+    localparam S_WAIT_INIT_SCORE     = 4'd2;
+    localparam S_SUM_INIT_SCORE      = 4'd3;
+    localparam S_WAIT_SUM_INIT_SCORE = 4'd4;
+    localparam S_PROPOSE             = 4'd5;
+    localparam S_WAIT_SCORE          = 4'd6;
+    localparam S_SUM_SCORE           = 4'd7;
+    localparam S_WAIT_SUM_SCORE      = 4'd8;
+    localparam S_DECIDE              = 4'd9;
+    localparam S_DONE                = 4'd10;
 
-    reg [2:0] state;
+    reg [3:0] state;
     reg [31:0] iter_count;
 
     // LFSR
@@ -206,7 +210,7 @@ module mcmc_controller #(
     reg [4:0] proposed_pos   [0:N_NODES-1]; 
 
     reg signed [DATA_W-1:0] current_score;
-    wire signed [DATA_W-1:0] proposed_score;
+    reg signed [DATA_W-1:0] proposed_score;
 
     wire [N_NODES-1:0] proposed_masks [0:N_NODES-1];
 
@@ -221,8 +225,12 @@ module mcmc_controller #(
 
     // Parallel Node Scorers
     reg score_start;
+    reg sum_start;
     wire [N_NODES-1:0] score_done;
     wire signed [DATA_W-1:0] node_scores [0:N_NODES-1];
+    wire [(N_NODES*DATA_W)-1:0] node_scores_packed;
+    wire sum_done;
+    wire signed [DATA_W-1:0] sum_result;
 
     genvar n;
     generate
@@ -245,23 +253,27 @@ module mcmc_controller #(
                 .mem_local_score(local_ram_data[31:0]),
                 .mem_parent_mask(local_ram_data[63:32])
             );
+
+            assign node_scores_packed[(n*DATA_W)+:DATA_W] = node_scores[n];
         end
     endgenerate
 
     wire all_scores_done = &score_done;
 
-    // Masked Adder Tree
-    reg signed [DATA_W-1:0] score_sum;
-    integer k;
-    always @(*) begin
-        score_sum = 0;
-        for (k = 0; k < N_NODES; k = k + 1) begin
-            if (k < active_nodes) begin 
-                score_sum = score_sum + node_scores[k];
-            end
-        end
-    end
-    assign proposed_score = score_sum;
+    // Multi-cycle score sum. This replaces the old wide combinational adder
+    // tree with one registered mux stage and one 32-bit add stage.
+    score_accumulator #(
+        .N_NODES(N_NODES),
+        .DATA_W(DATA_W)
+    ) score_sum_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+        .start(sum_start),
+        .active_count(clamped_active_nodes),
+        .scores_packed(node_scores_packed),
+        .done(sum_done),
+        .sum(sum_result)
+    );
 
     wire signed [DATA_W-1:0] score_diff = proposed_score - current_score;
     wire accept_move;
@@ -298,10 +310,12 @@ module mcmc_controller #(
             state       <= S_IDLE;
             done        <= 1'b0;
             score_start <= 1'b0;
+            sum_start   <= 1'b0;
             lfsr_en     <= 1'b0;
             load_seed   <= 1'b0;
             iter_count  <= 0;
             current_score <= 32'h8000_0000;
+            proposed_score <= 32'h8000_0000;
             best_score  <= 32'h8000_0000;
             for (i = 0; i < N_NODES; i = i + 1) begin
                 current_order[i]  <= i[4:0];
@@ -312,6 +326,7 @@ module mcmc_controller #(
         end else begin
             lfsr_en     <= 1'b1;
             load_seed   <= 1'b0;
+            sum_start   <= 1'b0;
 
             case (state)
                 S_IDLE: begin
@@ -330,15 +345,26 @@ module mcmc_controller #(
 
                 S_WAIT_INIT_SCORE: begin
                     if (all_scores_done) begin
-                        score_start   <= 1'b0;
-                        current_score <= proposed_score;
-                        best_score    <= proposed_score; 
-                        
-                        // initialize order
+                        score_start <= 1'b0;
+                        state       <= S_SUM_INIT_SCORE;
+                    end
+                end
+
+                S_SUM_INIT_SCORE: begin
+                    sum_start <= 1'b1;
+                    state     <= S_WAIT_SUM_INIT_SCORE;
+                end
+
+                S_WAIT_SUM_INIT_SCORE: begin
+                    if (sum_done) begin
+                        proposed_score <= sum_result;
+                        current_score  <= sum_result;
+                        best_score     <= sum_result;
+
                         for (i = 0; i < N_NODES; i = i + 1) begin
                             best_order_internal[i] <= proposed_order[i];
                         end
-                        
+
                         state <= S_PROPOSE;
                     end
                 end
@@ -377,7 +403,19 @@ module mcmc_controller #(
                 S_WAIT_SCORE: begin
                     if (all_scores_done) begin
                         score_start <= 1'b0;
-                        state       <= S_DECIDE;
+                        state       <= S_SUM_SCORE;
+                    end
+                end
+
+                S_SUM_SCORE: begin
+                    sum_start <= 1'b1;
+                    state     <= S_WAIT_SUM_SCORE;
+                end
+
+                S_WAIT_SUM_SCORE: begin
+                    if (sum_done) begin
+                        proposed_score <= sum_result;
+                        state          <= S_DECIDE;
                     end
                 end
 
@@ -409,6 +447,82 @@ module mcmc_controller #(
                     if (!start) state <= S_IDLE;
                 end
                 default: state <= S_IDLE;
+            endcase
+        end
+    end
+endmodule
+
+// ==========================================
+// Multi-Cycle Score Accumulator
+// ==========================================
+module score_accumulator #(
+    parameter N_NODES = 32,
+    parameter DATA_W = 32
+)(
+    input wire clk,
+    input wire rst_n,
+    input wire start,
+    input wire [5:0] active_count,
+    input wire [(N_NODES*DATA_W)-1:0] scores_packed,
+    output reg done,
+    output reg signed [DATA_W-1:0] sum
+);
+    localparam ACC_IDLE = 2'd0;
+    localparam ACC_LOAD = 2'd1;
+    localparam ACC_ADD  = 2'd2;
+
+    localparam [5:0] MAX_COUNT = N_NODES;
+
+    reg [1:0] state;
+    reg [5:0] idx;
+    reg signed [DATA_W-1:0] selected_score;
+    wire [5:0] safe_count = (active_count > MAX_COUNT) ? MAX_COUNT : active_count;
+    wire signed [DATA_W-1:0] score_at_idx = scores_packed[(idx*DATA_W)+:DATA_W];
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            state <= ACC_IDLE;
+            idx <= 6'd0;
+            selected_score <= {DATA_W{1'b0}};
+            sum <= {DATA_W{1'b0}};
+            done <= 1'b0;
+        end else begin
+            case (state)
+                ACC_IDLE: begin
+                    if (start) begin
+                        idx <= 6'd0;
+                        sum <= {DATA_W{1'b0}};
+                        done <= 1'b0;
+                        if (safe_count == 6'd0) begin
+                            done <= 1'b1;
+                        end else begin
+                            state <= ACC_LOAD;
+                        end
+                    end else begin
+                        done <= 1'b0;
+                    end
+                end
+
+                ACC_LOAD: begin
+                    selected_score <= score_at_idx;
+                    state <= ACC_ADD;
+                end
+
+                ACC_ADD: begin
+                    sum <= sum + selected_score;
+                    if ((idx + 6'd1) >= safe_count) begin
+                        done <= 1'b1;
+                        state <= ACC_IDLE;
+                    end else begin
+                        idx <= idx + 6'd1;
+                        state <= ACC_LOAD;
+                    end
+                end
+
+                default: begin
+                    state <= ACC_IDLE;
+                    done <= 1'b0;
+                end
             endcase
         end
     end
