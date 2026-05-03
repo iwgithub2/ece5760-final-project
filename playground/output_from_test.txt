@@ -1,0 +1,22 @@
+either -> xray -> dysp -> bronc -> lung -> smoke -> tub -> asia
+Order log-sum score: -1362.718506
+Initial-order log-sum score: -1362.718506
+Best compatible graph score: -1365.384766
+Learned DAG edges:
+  either -> xray
+  either -> bronc
+  dysp -> bronc
+  either -> lung
+  bronc -> smoke
+  lung -> smoke
+  either -> tub
+  lung -> tub
+Parent sets by node:
+  either <- (none)
+  xray <- either
+  dysp <- (none)
+  bronc <- either, dysp
+  lung <- either
+  smoke <- bronc, lung
+  tub <- either, lung
+  asia <- (none)
