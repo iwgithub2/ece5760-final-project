@@ -31,6 +31,8 @@
 #define ITERATIONS 100000
 #define SEED 0xDEADBEEF
 #define MAX_PARENTS_PER_NODE 64 
+#define DONE_TIMEOUT_US 10000000
+#define DEBUG_BUILD_TAG "mcmc_test debug-reset-readback-v1"
 #define VGA_BLACK 0x00
 #define VGA_WHITE 0xFF
 #define VGA_BLUE  0x03
@@ -77,6 +79,9 @@ void VGA_arrow(int x1, int y1, int x2, int y2, short c);
 int init_vga(int fd);
 void draw_learned_graph_vga(const int* order, int active_count, const unsigned int* parent_masks,
                             float order_score, float graph_score);
+void print_fpga_debug_status(const char* label);
+int wait_for_done_or_timeout(unsigned int timeout_us);
+void print_known_order_score_check(void);
 
 // --- Precomputation Math ---
 int count_set_bits(unsigned int n) {
@@ -223,6 +228,10 @@ int32_t float_to_q16(float val) {
     return (int32_t)scaled;
 }
 
+float q16_to_float(uint32_t raw) {
+    return (float)((int32_t)raw) / 65536.0f;
+}
+
 float log_add_float(float a, float b) {
     if (!isfinite(a)) return b;
     if (!isfinite(b)) return a;
@@ -259,6 +268,34 @@ float score_order_logsum(const int* order, int active_count) {
         total_score += node_score;
     }
     return total_score;
+}
+
+int node_index_by_name(const char* name) {
+    for (int i = 0; i < NUM_NODES; i++) {
+        if (strcmp(node_names[i], name) == 0) return i;
+    }
+    return -1;
+}
+
+void print_known_order_score_check(void) {
+    const char* pasted_names[NUM_NODES] = {
+        "either", "xray", "dysp", "bronc", "lung", "smoke", "tub", "asia"
+    };
+    int pasted_order[NUM_NODES];
+    int initial_order[NUM_NODES];
+
+    for (int i = 0; i < NUM_NODES; i++) {
+        pasted_order[i] = node_index_by_name(pasted_names[i]);
+        initial_order[i] = i;
+        if (pasted_order[i] < 0) {
+            printf("DEBUG score self-check skipped: node name '%s' not found\n", pasted_names[i]);
+            return;
+        }
+    }
+
+    printf("DEBUG score self-check: pasted-order=%.6f initial-order=%.6f\n",
+           score_order_logsum(pasted_order, NUM_NODES),
+           score_order_logsum(initial_order, NUM_NODES));
 }
 
 float choose_best_graph_for_order(const int* order, int active_count, unsigned int* best_parent_masks) {
@@ -476,8 +513,75 @@ void draw_learned_graph_vga(const int* order, int active_count, const unsigned i
     }
 }
 
+void print_fpga_debug_status(const char* label) {
+    uint32_t raw_order0 = 0;
+    uint32_t raw_order1 = 0;
+    uint32_t best_score_raw = pio_best_score ? *pio_best_score : 0;
+
+    if (mcmc_system_base) {
+        raw_order0 = *(mcmc_system_base + 2048);
+        raw_order1 = *(mcmc_system_base + 2049);
+    }
+
+    printf("[FPGA DEBUG] %s\n", label);
+    printf("  start=%u reset=%u done=%u clk_count=%u\n",
+           pio_start ? *pio_start : 0,
+           pio_reset ? *pio_reset : 0,
+           pio_done ? *pio_done : 0,
+           pio_clock_count ? *pio_clock_count : 0);
+    printf("  iterations=%u active_nodes=%u node_mask=0x%08x seed=0x%08x\n",
+           pio_iterations ? *pio_iterations : 0,
+           pio_active_nodes ? *pio_active_nodes : 0,
+           pio_node_mask ? *pio_node_mask : 0,
+           pio_seed ? *pio_seed : 0);
+    printf("  best_score_raw=0x%08x best_score_q16=%.6f raw_order_words=0x%08x 0x%08x\n",
+           best_score_raw,
+           q16_to_float(best_score_raw),
+           raw_order0,
+           raw_order1);
+    printf("  decoded_order_first8=%u,%u,%u,%u,%u,%u,%u,%u\n",
+           raw_order0 & 0x1F,
+           (raw_order0 >> 5) & 0x1F,
+           (raw_order0 >> 10) & 0x1F,
+           (raw_order0 >> 15) & 0x1F,
+           raw_order1 & 0x1F,
+           (raw_order1 >> 5) & 0x1F,
+           (raw_order1 >> 10) & 0x1F,
+           (raw_order1 >> 15) & 0x1F);
+}
+
+int wait_for_done_or_timeout(unsigned int timeout_us) {
+    struct timeval start_time, now;
+    unsigned int last_report_us = 0;
+
+    gettimeofday(&start_time, NULL);
+    while (*pio_done == 0) {
+        unsigned int elapsed_us;
+        usleep(1000);
+        gettimeofday(&now, NULL);
+        elapsed_us = (unsigned int)((now.tv_sec - start_time.tv_sec) * 1000000u +
+                                    (now.tv_usec - start_time.tv_usec));
+
+        if (elapsed_us - last_report_us >= 250000u) {
+            print_fpga_debug_status("waiting for done");
+            last_report_us = elapsed_us;
+        }
+
+        if (elapsed_us >= timeout_us) {
+            printf("ERROR: timed out waiting for FPGA done after %.3f seconds\n",
+                   (double)elapsed_us / 1000000.0);
+            print_fpga_debug_status("timeout");
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 int main(void)
 {
+    printf("Build ID: %s | %s %s\n", DEBUG_BUILD_TAG, __DATE__, __TIME__);
+
     // === Get FPGA addresses ===
     int fd;
     if( ( fd = open( "/dev/mem", ( O_RDWR | O_SYNC ) ) ) == -1 ) {
@@ -503,6 +607,7 @@ int main(void)
     if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
     
     mcmc_system_base = (unsigned int *)fpga_ram_virtual_base;
+    print_fpga_debug_status("after mmap before table load");
 
     // Load Dataset & Precompute (ARM)
     printf("Loading dataset and precomputing...\n");
@@ -511,6 +616,7 @@ int main(void)
     int num_samples;
     int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
     precompute_fixed_k(dataset, num_samples);
+    print_known_order_score_check();
 
     // Transfer Data to FPGA
     printf("Writing databases to FPGA Broadcast Memory...\n");
@@ -546,20 +652,45 @@ int main(void)
 
     printf("Reset FPGA\n");
     *pio_start = 0;       // Ensure start is low
+    usleep(10);
+    print_fpga_debug_status("before reset assert");
     *pio_reset = 1;       // Assert soft reset
     usleep(10);           // Wait 10 microseconds (plenty of time for 50MHz clock)
+    print_fpga_debug_status("during reset assert");
     *pio_reset = 0;       // De-assert soft reset
+    usleep(10);
+    print_fpga_debug_status("after reset deassert before config");
 
     *pio_iterations = ITERATIONS;
     *pio_active_nodes = NUM_NODES;
     *pio_node_mask = NUM_NODES - 1;
     *pio_seed = SEED;
+    print_fpga_debug_status("after config before start");
 
     printf("Starting 32-Node Engine...\n");
     
+    uint32_t clk_before_start = *pio_clock_count;
+    uint32_t done_before_start = *pio_done;
+    if (done_before_start != 0) {
+        printf("WARNING: done was already high before start; readback may be stale unless reset clears it.\n");
+    }
+
     *pio_start = 1;
-    while (*pio_done == 0) { } // Wait for completion
+    usleep(10);
+    print_fpga_debug_status("after start assert");
+    if (*pio_clock_count == clk_before_start && *pio_done == 0) {
+        printf("DEBUG: clk_count has not advanced yet immediately after start; continuing to poll.\n");
+    }
+
+    if (wait_for_done_or_timeout(DONE_TIMEOUT_US) != 0) {
+        *pio_start = 0;
+        print_fpga_debug_status("after timeout start cleared");
+        return 1;
+    }
+    print_fpga_debug_status("done observed before start clear");
     *pio_start = 0;            // Clean up
+    usleep(10);
+    print_fpga_debug_status("after start clear");
 
     // Performance Metrics
     uint32_t clocks = *pio_clock_count;
@@ -569,11 +700,17 @@ int main(void)
     printf("Hardware Iterations: %d\n", *pio_iterations);
     printf("Cycle Count:         %u clocks\n", clocks);
     printf("Execution Time:      %f seconds\n\n", time_seconds);
+    printf("Raw HW best_score:   0x%08x (%.6f Q16.16)\n",
+           *pio_best_score,
+           q16_to_float(*pio_best_score));
     
     // Extract the Best Order directly from the Heavyweight Memory Bus
     
     int best_order[32];
     int active_count = (int)(*pio_active_nodes);
+    uint32_t raw_order_word0 = *(mcmc_system_base + 2048);
+    uint32_t raw_order_word1 = *(mcmc_system_base + 2049);
+    printf("Raw best-order words: 0x%08x 0x%08x\n", raw_order_word0, raw_order_word1);
     for (int i = 0; i < active_count; i++) {
         // Read the 32-bit chunk containing this node (starts at address 2048)
         uint32_t word = *(mcmc_system_base + 2048 + (i / 4));
