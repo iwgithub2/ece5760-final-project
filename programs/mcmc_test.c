@@ -31,6 +31,12 @@
 #define ITERATIONS 100000
 #define SEED 0xDEADBEEF
 #define MAX_PARENTS_PER_NODE 64 
+#define VGA_BLACK 0x00
+#define VGA_WHITE 0xFF
+#define VGA_BLUE  0x03
+#define VGA_GREEN 0x1C
+#define VGA_RED   0xE0
+#define VGA_YELL  0xFC
 
 char node_names[NUM_NODES][64];
 
@@ -57,6 +63,20 @@ volatile unsigned int *pio_clock_count=NULL;
 
 volatile unsigned int *mcmc_system_base;
 void *fpga_ram_virtual_base;
+volatile unsigned int *vga_pixel_ptr=NULL;
+volatile unsigned int *vga_char_ptr=NULL;
+void *vga_pixel_virtual_base;
+void *vga_char_virtual_base;
+
+void VGA_text(int x, int y, const char* text_ptr);
+void VGA_text_clear(void);
+void VGA_box(int x1, int y1, int x2, int y2, short pixel_color);
+void VGA_line(int x1, int y1, int x2, int y2, short c);
+void VGA_disc(int x, int y, int r, short pixel_color);
+void VGA_arrow(int x1, int y1, int x2, int y2, short c);
+int init_vga(int fd);
+void draw_learned_graph_vga(const int* order, int active_count, const unsigned int* parent_masks,
+                            float order_score, float graph_score);
 
 // --- Precomputation Math ---
 int count_set_bits(unsigned int n) {
@@ -324,6 +344,136 @@ void print_learned_graph(const int* order, int active_count) {
         }
         printf("\n");
     }
+    draw_learned_graph_vga(order, active_count, best_parent_masks, order_score, graph_score);
+}
+
+int init_vga(int fd) {
+    vga_char_virtual_base = mmap(NULL, FPGA_CHAR_SPAN, PROT_READ | PROT_WRITE, MAP_SHARED, fd, FPGA_CHAR_BASE);
+    if (vga_char_virtual_base == MAP_FAILED) {
+        printf("WARNING: VGA char mmap failed; skipping VGA graph\n");
+        vga_char_ptr = NULL;
+        return -1;
+    }
+    vga_char_ptr = (unsigned int*)vga_char_virtual_base;
+
+    vga_pixel_virtual_base = mmap(NULL, FPGA_ONCHIP_SPAN, PROT_READ | PROT_WRITE, MAP_SHARED, fd, SDRAM_BASE);
+    if (vga_pixel_virtual_base == MAP_FAILED) {
+        printf("WARNING: VGA pixel mmap failed; skipping VGA graph\n");
+        vga_pixel_ptr = NULL;
+        return -1;
+    }
+    vga_pixel_ptr = (unsigned int*)vga_pixel_virtual_base;
+    return 0;
+}
+
+void VGA_text(int x, int y, const char* text_ptr) {
+    volatile char* character_buffer = (char*)vga_char_ptr;
+    int offset = (y << 7) + x;
+    if (!vga_char_ptr) return;
+    while (*text_ptr) {
+        *(character_buffer + offset) = *text_ptr;
+        text_ptr++;
+        offset++;
+    }
+}
+
+void VGA_text_clear(void) {
+    volatile char* character_buffer = (char*)vga_char_ptr;
+    if (!vga_char_ptr) return;
+    for (int y = 0; y < 60; y++) {
+        for (int x = 0; x < 80; x++) {
+            *(character_buffer + (y << 7) + x) = ' ';
+        }
+    }
+}
+
+#define CLAMP_COORD(v, lo, hi) do { if ((v) < (lo)) (v) = (lo); if ((v) > (hi)) (v) = (hi); } while (0)
+#define SWAP_INT(a,b) do { int tmp = (a); (a) = (b); (b) = tmp; } while (0)
+
+void VGA_box(int x1, int y1, int x2, int y2, short pixel_color) {
+    if (!vga_pixel_ptr) return;
+    CLAMP_COORD(x1, 0, 639); CLAMP_COORD(x2, 0, 639);
+    CLAMP_COORD(y1, 0, 479); CLAMP_COORD(y2, 0, 479);
+    if (x1 > x2) SWAP_INT(x1, x2);
+    if (y1 > y2) SWAP_INT(y1, y2);
+    for (int y = y1; y <= y2; y++) {
+        for (int x = x1; x <= x2; x++) {
+            *((char*)vga_pixel_ptr + (y << 10) + x) = pixel_color;
+        }
+    }
+}
+
+void VGA_disc(int x, int y, int r, short pixel_color) {
+    if (!vga_pixel_ptr) return;
+    int rr = r * r;
+    for (int dy = -r; dy <= r; dy++) {
+        for (int dx = -r; dx <= r; dx++) {
+            if (dx * dx + dy * dy <= rr + r) {
+                int px = x + dx, py = y + dy;
+                CLAMP_COORD(px, 0, 639); CLAMP_COORD(py, 0, 479);
+                *((char*)vga_pixel_ptr + (py << 10) + px) = pixel_color;
+            }
+        }
+    }
+}
+
+void VGA_line(int x1, int y1, int x2, int y2, short c) {
+    if (!vga_pixel_ptr) return;
+    CLAMP_COORD(x1, 0, 639); CLAMP_COORD(x2, 0, 639);
+    CLAMP_COORD(y1, 0, 479); CLAMP_COORD(y2, 0, 479);
+    int dx = abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
+    int dy = -abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
+    int err = dx + dy;
+    while (1) {
+        *((char*)vga_pixel_ptr + (y1 << 10) + x1) = c;
+        if (x1 == x2 && y1 == y2) break;
+        int e2 = err << 1;
+        if (e2 >= dy) { err += dy; x1 += sx; }
+        if (e2 <= dx) { err += dx; y1 += sy; }
+    }
+}
+
+void VGA_arrow(int x1, int y1, int x2, int y2, short c) {
+    float angle = atan2f((float)(y2 - y1), (float)(x2 - x1));
+    int ax1 = x2 - (int)(10.0f * cosf(angle - 0.55f));
+    int ay1 = y2 - (int)(10.0f * sinf(angle - 0.55f));
+    int ax2 = x2 - (int)(10.0f * cosf(angle + 0.55f));
+    int ay2 = y2 - (int)(10.0f * sinf(angle + 0.55f));
+    VGA_line(x1, y1, x2, y2, c);
+    VGA_line(x2, y2, ax1, ay1, c);
+    VGA_line(x2, y2, ax2, ay2, c);
+}
+
+void draw_learned_graph_vga(const int* order, int active_count, const unsigned int* parent_masks,
+                            float order_score, float graph_score) {
+    if (!vga_pixel_ptr || !vga_char_ptr) return;
+
+    int x[NUM_NODES] = {70, 190, 335, 500, 190, 500, 70, 190};
+    int y[NUM_NODES] = {80, 390, 195, 115, 120, 310, 340, 270};
+    char line[80];
+
+    VGA_box(0, 0, 639, 479, VGA_BLACK);
+    VGA_text_clear();
+    VGA_text(1, 1, "Bayesian Network Learned DAG");
+    snprintf(line, sizeof(line), "order %.2f  graph %.2f", order_score, graph_score);
+    VGA_text(1, 2, line);
+
+    for (int order_pos = 0; order_pos < active_count; order_pos++) {
+        int child = order[order_pos];
+        unsigned int parent_mask = parent_masks[child];
+        for (int parent = 0; parent < active_count; parent++) {
+            if (parent_mask & (1U << parent)) {
+                VGA_arrow(x[parent], y[parent], x[child], y[child], VGA_WHITE);
+            }
+        }
+    }
+
+    for (int i = 0; i < active_count; i++) {
+        int node = order[i];
+        VGA_disc(x[node], y[node], 21, VGA_BLUE);
+        VGA_disc(x[node], y[node], 17, VGA_GREEN);
+        VGA_text((x[node] / 8) - 4, y[node] / 8, node_names[node]);
+    }
 }
 
 int main(void)
@@ -346,6 +496,8 @@ int main(void)
     pio_node_mask     = (unsigned int *)(h2p_lw_virtual_base + PIO_NODE_MASK);
     pio_reset         = (unsigned int *)(h2p_lw_virtual_base + PIO_RESET_OFFSET);
     pio_clock_count   = (unsigned int *)(h2p_lw_virtual_base + PIO_CLK_COUNT_OFFSET);
+
+    init_vga(fd);
     
     fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); 
     if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
