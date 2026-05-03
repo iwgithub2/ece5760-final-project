@@ -76,6 +76,7 @@ void VGA_box(int x1, int y1, int x2, int y2, short pixel_color);
 void VGA_line(int x1, int y1, int x2, int y2, short c);
 void VGA_disc(int x, int y, int r, short pixel_color);
 void VGA_arrow(int x1, int y1, int x2, int y2, short c);
+void VGA_label_centered(int x, int y, const char* label);
 int init_vga(int fd);
 void draw_learned_graph_vga(const int* order, int active_count, const unsigned int* parent_masks,
                             float order_score, float graph_score);
@@ -471,23 +472,103 @@ void VGA_line(int x1, int y1, int x2, int y2, short c) {
 }
 
 void VGA_arrow(int x1, int y1, int x2, int y2, short c) {
+    float dx = (float)(x2 - x1);
+    float dy = (float)(y2 - y1);
+    float len = sqrtf(dx * dx + dy * dy);
+    int radius = 23;
+    int sx, sy, ex, ey;
+    int ax1, ay1, ax2, ay2;
+    int arrow_len = 13;
     float angle = atan2f((float)(y2 - y1), (float)(x2 - x1));
-    int ax1 = x2 - (int)(10.0f * cosf(angle - 0.55f));
-    int ay1 = y2 - (int)(10.0f * sinf(angle - 0.55f));
-    int ax2 = x2 - (int)(10.0f * cosf(angle + 0.55f));
-    int ay2 = y2 - (int)(10.0f * sinf(angle + 0.55f));
-    VGA_line(x1, y1, x2, y2, c);
-    VGA_line(x2, y2, ax1, ay1, c);
-    VGA_line(x2, y2, ax2, ay2, c);
+
+    if (len < 1.0f) return;
+
+    sx = x1 + (int)((dx / len) * (float)radius);
+    sy = y1 + (int)((dy / len) * (float)radius);
+    ex = x2 - (int)((dx / len) * (float)radius);
+    ey = y2 - (int)((dy / len) * (float)radius);
+
+    ax1 = ex - (int)((float)arrow_len * cosf(angle - 0.55f));
+    ay1 = ey - (int)((float)arrow_len * sinf(angle - 0.55f));
+    ax2 = ex - (int)((float)arrow_len * cosf(angle + 0.55f));
+    ay2 = ey - (int)((float)arrow_len * sinf(angle + 0.55f));
+
+    VGA_line(sx, sy, ex, ey, c);
+    VGA_line(ex, ey, ax1, ay1, c);
+    VGA_line(ex, ey, ax2, ay2, c);
+}
+
+void VGA_label_centered(int x, int y, const char* label) {
+    int len = (int)strlen(label);
+    int text_x = (x / 8) - (len / 2) + 1;
+    int text_y = y / 8;
+    CLAMP_COORD(text_x, 0, 79);
+    CLAMP_COORD(text_y, 0, 59);
+    VGA_text(text_x, text_y, label);
 }
 
 void draw_learned_graph_vga(const int* order, int active_count, const unsigned int* parent_masks,
                             float order_score, float graph_score) {
     if (!vga_pixel_ptr || !vga_char_ptr) return;
 
-    int x[NUM_NODES] = {70, 190, 335, 500, 190, 500, 70, 190};
-    int y[NUM_NODES] = {80, 390, 195, 115, 120, 310, 340, 270};
+    int x[NUM_NODES];
+    int y[NUM_NODES];
+    int layer[NUM_NODES];
+    int layer_counts[NUM_NODES + 1];
+    int layer_seen[NUM_NODES + 1];
+    int max_layer = 0;
+    int left = 70;
+    int right = 565;
+    int top = 82;
+    int bottom = 420;
     char line[80];
+
+    for (int i = 0; i < NUM_NODES; i++) {
+        x[i] = 0;
+        y[i] = 0;
+        layer[i] = 0;
+        layer_counts[i] = 0;
+        layer_seen[i] = 0;
+    }
+    layer_counts[NUM_NODES] = 0;
+    layer_seen[NUM_NODES] = 0;
+
+    for (int order_pos = 0; order_pos < active_count; order_pos++) {
+        int child = order[order_pos];
+        unsigned int parent_mask = parent_masks[child];
+        int child_layer = 0;
+
+        for (int prior = 0; prior < order_pos; prior++) {
+            int parent = order[prior];
+            if (parent_mask & (1U << parent)) {
+                int candidate_layer = layer[parent] + 1;
+                if (candidate_layer > child_layer) child_layer = candidate_layer;
+            }
+        }
+
+        if (child_layer > NUM_NODES) child_layer = NUM_NODES;
+        layer[child] = child_layer;
+        if (child_layer > max_layer) max_layer = child_layer;
+    }
+
+    if (max_layer < 1) max_layer = 1;
+
+    for (int i = 0; i < active_count; i++) {
+        int node = order[i];
+        layer_counts[layer[node]]++;
+    }
+
+    for (int i = 0; i < active_count; i++) {
+        int node = order[i];
+        int node_layer = layer[node];
+        int idx_in_layer = layer_seen[node_layer]++;
+        int count_in_layer = layer_counts[node_layer];
+        int x_span = right - left;
+        int y_span = bottom - top;
+
+        x[node] = left + (x_span * node_layer) / max_layer;
+        y[node] = top + (y_span * (idx_in_layer + 1)) / (count_in_layer + 1);
+    }
 
     VGA_box(0, 0, 639, 479, VGA_BLACK);
     VGA_text_clear();
@@ -509,7 +590,7 @@ void draw_learned_graph_vga(const int* order, int active_count, const unsigned i
         int node = order[i];
         VGA_disc(x[node], y[node], 21, VGA_BLUE);
         VGA_disc(x[node], y[node], 17, VGA_GREEN);
-        VGA_text((x[node] / 8) - 4, y[node] / 8, node_names[node]);
+        VGA_label_centered(x[node], y[node], node_names[node]);
     }
 }
 
