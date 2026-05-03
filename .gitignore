@@ -21,3 +21,4 @@ __pycache__/
 # Playground C build artifacts
 playground/fixed_point_experiment
 playground/test_fixed_point_logadd
+playground/candidate_table_results/mcmc_candidate_exp
