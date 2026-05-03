@@ -203,6 +203,129 @@ int32_t float_to_q16(float val) {
     return (int32_t)scaled;
 }
 
+float log_add_float(float a, float b) {
+    if (!isfinite(a)) return b;
+    if (!isfinite(b)) return a;
+    float max_val = (a > b) ? a : b;
+    float min_val = (a < b) ? a : b;
+    return max_val + log1pf(expf(min_val - max_val));
+}
+
+unsigned int allowed_mask_for_order(const int* order, int order_pos) {
+    unsigned int allowed_mask = 0;
+    for (int i = 0; i < order_pos; i++) {
+        allowed_mask |= (1U << order[i]);
+    }
+    return allowed_mask;
+}
+
+bool candidate_compatible(unsigned int parent_mask, unsigned int allowed_mask) {
+    return (parent_mask & allowed_mask) == parent_mask;
+}
+
+float score_order_logsum(const int* order, int active_count) {
+    float total_score = 0.0f;
+    for (int order_pos = 0; order_pos < active_count; order_pos++) {
+        int node = order[order_pos];
+        unsigned int allowed_mask = allowed_mask_for_order(order, order_pos);
+        float node_score = -INFINITY;
+
+        for (int p = 0; p < num_candidates[node]; p++) {
+            unsigned int parent_mask = precomputed_db[node][p].parent_bitmask;
+            if (candidate_compatible(parent_mask, allowed_mask)) {
+                node_score = log_add_float(node_score, precomputed_db[node][p].local_score);
+            }
+        }
+        total_score += node_score;
+    }
+    return total_score;
+}
+
+float choose_best_graph_for_order(const int* order, int active_count, unsigned int* best_parent_masks) {
+    float graph_score = 0.0f;
+
+    for (int i = 0; i < NUM_NODES; i++) {
+        best_parent_masks[i] = 0;
+    }
+
+    for (int order_pos = 0; order_pos < active_count; order_pos++) {
+        int node = order[order_pos];
+        unsigned int allowed_mask = allowed_mask_for_order(order, order_pos);
+        float best_local_score = -INFINITY;
+        unsigned int best_parent_mask = 0;
+
+        for (int p = 0; p < num_candidates[node]; p++) {
+            unsigned int parent_mask = precomputed_db[node][p].parent_bitmask;
+            float local_score = precomputed_db[node][p].local_score;
+            if (candidate_compatible(parent_mask, allowed_mask) && local_score > best_local_score) {
+                best_local_score = local_score;
+                best_parent_mask = parent_mask;
+            }
+        }
+
+        best_parent_masks[node] = best_parent_mask;
+        graph_score += best_local_score;
+    }
+
+    return graph_score;
+}
+
+void print_learned_graph(const int* order, int active_count) {
+    unsigned int best_parent_masks[NUM_NODES];
+    int initial_order[NUM_NODES];
+    float graph_score = choose_best_graph_for_order(order, active_count, best_parent_masks);
+    float order_score = score_order_logsum(order, active_count);
+    float initial_order_score;
+    bool printed_edge = false;
+
+    for (int i = 0; i < active_count; i++) {
+        initial_order[i] = i;
+    }
+    initial_order_score = score_order_logsum(initial_order, active_count);
+
+    printf("Order log-sum score: %.6f\n", order_score);
+    printf("Initial-order log-sum score: %.6f\n", initial_order_score);
+    if (order_score + 0.001f < initial_order_score) {
+        printf("WARNING: returned order scores below initial order in the C model.\n");
+    }
+    printf("Best compatible graph score: %.6f\n", graph_score);
+    printf("Learned DAG edges:\n");
+
+    for (int order_pos = 0; order_pos < active_count; order_pos++) {
+        int child = order[order_pos];
+        unsigned int parent_mask = best_parent_masks[child];
+        for (int parent = 0; parent < active_count; parent++) {
+            if (parent_mask & (1U << parent)) {
+                printf("  %s -> %s\n", node_names[parent], node_names[child]);
+                printed_edge = true;
+            }
+        }
+    }
+
+    if (!printed_edge) {
+        printf("  (none)\n");
+    }
+
+    printf("Parent sets by node:\n");
+    for (int order_pos = 0; order_pos < active_count; order_pos++) {
+        int child = order[order_pos];
+        unsigned int parent_mask = best_parent_masks[child];
+        bool first_parent = true;
+        printf("  %s <- ", node_names[child]);
+        if (parent_mask == 0) {
+            printf("(none)");
+        } else {
+            for (int parent = 0; parent < active_count; parent++) {
+                if (parent_mask & (1U << parent)) {
+                    printf("%s%s", first_parent ? "" : ", ", node_names[parent]);
+                    first_parent = false;
+                }
+            }
+        }
+        printf("\n");
+    }
+}
+
 int main(void)
 {
     // === Get FPGA addresses ===
@@ -239,7 +362,6 @@ int main(void)
 
     // Transfer Data to FPGA
     printf("Writing databases to FPGA Broadcast Memory...\n");
-    uint32_t num_cands_packed = 0;
 
     for (int i = 0; i < NUM_NODES; i++) {
         for (int p = 0; p < num_candidates[i]; p++) {
@@ -299,7 +421,8 @@ int main(void)
     // Extract the Best Order directly from the Heavyweight Memory Bus
     
     int best_order[32];
-    for (int i = 0; i < *pio_active_nodes; i++) {
+    int active_count = (int)(*pio_active_nodes);
+    for (int i = 0; i < active_count; i++) {
         // Read the 32-bit chunk containing this node (starts at address 2048)
         uint32_t word = *(mcmc_system_base + 2048 + (i / 4));
         
@@ -307,9 +430,10 @@ int main(void)
         best_order[i] = (word >> ((i % 4) * 5)) & 0x1F;
         
         printf("%s ", node_names[best_order[i]]);
-        if (i < *pio_active_nodes - 1) printf("-> ");
+        if (i < active_count - 1) printf("-> ");
     }
     printf("\n");
+    print_learned_graph(best_order, active_count);
 
     return 0;
 }

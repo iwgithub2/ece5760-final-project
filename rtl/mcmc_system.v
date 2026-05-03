@@ -27,8 +27,24 @@ module mcmc_system #(
     output wire [31:0] best_score,
 	 output reg  [31:0] clk_count
 );
-	 wire global_reset_n;
-	 assign global_reset_n = reset_n & (~pio_reset);
+    wire async_reset_n;
+    reg  [1:0] reset_sync;
+    wire global_reset_n;
+
+    assign async_reset_n = reset_n & (~pio_reset);
+
+    // PIO reset can be released at an arbitrary time relative to clk. Assert
+    // reset immediately, but release it synchronously so controller/scorer
+    // state cannot split across cycles after a software reset.
+    always @(posedge clk or negedge async_reset_n) begin
+        if (!async_reset_n) begin
+            reset_sync <= 2'b00;
+        end else begin
+            reset_sync <= {reset_sync[0], 1'b1};
+        end
+    end
+
+    assign global_reset_n = reset_sync[1];
 	 
     // Clock Counter Logic
     always @(posedge clk or negedge global_reset_n) begin
