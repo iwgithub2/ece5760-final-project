@@ -1,4 +1,4 @@
-// gcc -std=gnu99 mcmc_test.c -o mcmc_test -pg -lm
+// gcc -std=gnu99 mcmc_test.c -o mcmc_test -pg -lm -pthread
 
 #include <stdio.h>
 #include <string.h>
@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include <ctype.h>
+#include <pthread.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -32,13 +34,16 @@
 #define SEED 0xDEADBEEF
 #define MAX_PARENTS_PER_NODE 64 
 #define DONE_TIMEOUT_US 10000000
-#define DEBUG_BUILD_TAG "mcmc_test debug-reset-readback-v1"
+#define DEBUG_BUILD_TAG "mcmc_test debug-reset-readback-v2-inference"
 #define VGA_BLACK 0x00
 #define VGA_WHITE 0xFF
 #define VGA_BLUE  0x03
 #define VGA_GREEN 0x1C
 #define VGA_RED   0xE0
 #define VGA_YELL  0xFC
+#define INFERENCE_THREADS 4
+#define INFERENCE_SAMPLES 200000
+#define INFERENCE_ALPHA 1.0f
 
 char node_names[NUM_NODES][64];
 
@@ -47,6 +52,25 @@ typedef struct {
     unsigned int parent_bitmask;
     float local_score;           
 } ParentSet;
+
+typedef struct {
+    unsigned int parent_mask;
+    int parent_count;
+    int parent_state_count;
+    float *p_one;
+} LearnedCPT;
+
+typedef struct {
+    const LearnedCPT *cpts;
+    const int *order;
+    int active_count;
+    int target_node;
+    int evidence[NUM_NODES];
+    int samples;
+    uint32_t rng_state;
+    double total_weight;
+    double target_one_weight;
+} InferenceWorkerArgs;
 
 ParentSet precomputed_db[NUM_NODES][MAX_PARENTS_PER_NODE];
 int num_candidates[NUM_NODES]; 
@@ -83,6 +107,11 @@ void draw_learned_graph_vga(const int* order, int active_count, const unsigned i
 void print_fpga_debug_status(const char* label);
 int wait_for_done_or_timeout(unsigned int timeout_us);
 void print_known_order_score_check(void);
+void build_learned_cpts(int** dataset, int num_samples,
+                        const unsigned int* parent_masks, LearnedCPT* cpts);
+void free_learned_cpts(LearnedCPT* cpts);
+void run_inference_console(int** dataset, int num_samples, const int* order, int active_count,
+                           const unsigned int* parent_masks);
 
 // --- Precomputation Math ---
 int count_set_bits(unsigned int n) {
@@ -326,6 +355,319 @@ float choose_best_graph_for_order(const int* order, int active_count, unsigned i
     }
 
     return graph_score;
+}
+
+int parent_state_from_values(unsigned int parent_mask, const int* values) {
+    int state = 0;
+    int packed_bit = 0;
+
+    for (int node = 0; node < NUM_NODES; node++) {
+        if (parent_mask & (1U << node)) {
+            if (values[node]) state |= (1 << packed_bit);
+            packed_bit++;
+        }
+    }
+
+    return state;
+}
+
+void build_learned_cpts(int** dataset, int num_samples,
+                        const unsigned int* parent_masks, LearnedCPT* cpts) {
+    for (int node = 0; node < NUM_NODES; node++) {
+        unsigned int parent_mask = parent_masks[node];
+        int parent_count = count_set_bits(parent_mask);
+        int parent_state_count = 1 << parent_count;
+        int *zeros = (int*)calloc(parent_state_count, sizeof(int));
+        int *ones = (int*)calloc(parent_state_count, sizeof(int));
+        float alpha_ijk;
+
+        if (!zeros || !ones) {
+            printf("ERROR: failed to allocate CPT counts\n");
+            exit(1);
+        }
+
+        cpts[node].parent_mask = parent_mask;
+        cpts[node].parent_count = parent_count;
+        cpts[node].parent_state_count = parent_state_count;
+        cpts[node].p_one = (float*)calloc(parent_state_count, sizeof(float));
+        if (!cpts[node].p_one) {
+            printf("ERROR: failed to allocate CPT probabilities\n");
+            exit(1);
+        }
+
+        for (int row = 0; row < num_samples; row++) {
+            int state = parent_state_from_values(parent_mask, dataset[row]);
+            if (dataset[row][node]) ones[state]++;
+            else zeros[state]++;
+        }
+
+        alpha_ijk = INFERENCE_ALPHA / (float)(2 * parent_state_count);
+        for (int state = 0; state < parent_state_count; state++) {
+            float n0 = (float)zeros[state];
+            float n1 = (float)ones[state];
+            cpts[node].p_one[state] = (n1 + alpha_ijk) / (n0 + n1 + 2.0f * alpha_ijk);
+        }
+
+        free(zeros);
+        free(ones);
+    }
+}
+
+void free_learned_cpts(LearnedCPT* cpts) {
+    for (int node = 0; node < NUM_NODES; node++) {
+        free(cpts[node].p_one);
+        cpts[node].p_one = NULL;
+    }
+}
+
+uint32_t xorshift32(uint32_t *state) {
+    uint32_t x = *state;
+    if (x == 0) x = 0x6D2B79F5u;
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    *state = x;
+    return x;
+}
+
+float random_unit_float(uint32_t *state) {
+    return (float)(xorshift32(state) & 0x00FFFFFFu) / 16777216.0f;
+}
+
+void* inference_worker(void* arg_ptr) {
+    InferenceWorkerArgs *args = (InferenceWorkerArgs*)arg_ptr;
+    int values[NUM_NODES];
+    double total_weight = 0.0;
+    double target_one_weight = 0.0;
+    uint32_t rng_state = args->rng_state;
+
+    for (int sample = 0; sample < args->samples; sample++) {
+        double weight = 1.0;
+
+        for (int node = 0; node < NUM_NODES; node++) values[node] = 0;
+
+        for (int order_pos = 0; order_pos < args->active_count; order_pos++) {
+            int node = args->order[order_pos];
+            int parent_state = parent_state_from_values(args->cpts[node].parent_mask, values);
+            float p_one = args->cpts[node].p_one[parent_state];
+            int observed = args->evidence[node];
+
+            if (observed >= 0) {
+                values[node] = observed;
+                weight *= observed ? (double)p_one : (double)(1.0f - p_one);
+            } else {
+                values[node] = random_unit_float(&rng_state) < p_one ? 1 : 0;
+            }
+        }
+
+        total_weight += weight;
+        if (values[args->target_node]) target_one_weight += weight;
+    }
+
+    args->rng_state = rng_state;
+    args->total_weight = total_weight;
+    args->target_one_weight = target_one_weight;
+    return NULL;
+}
+
+double infer_probability_threaded(const LearnedCPT* cpts, const int* order, int active_count,
+                                  int target_node, const int* evidence, int samples,
+                                  int thread_count) {
+    pthread_t threads[INFERENCE_THREADS];
+    InferenceWorkerArgs args[INFERENCE_THREADS];
+    bool thread_started[INFERENCE_THREADS];
+    double total_weight = 0.0;
+    double target_one_weight = 0.0;
+
+    if (thread_count > INFERENCE_THREADS) thread_count = INFERENCE_THREADS;
+    if (thread_count < 1) thread_count = 1;
+
+    for (int t = 0; t < thread_count; t++) {
+        int thread_samples = samples / thread_count;
+        if (t < (samples % thread_count)) thread_samples++;
+
+        args[t].cpts = cpts;
+        args[t].order = order;
+        args[t].active_count = active_count;
+        args[t].target_node = target_node;
+        args[t].samples = thread_samples;
+        args[t].rng_state = 0xA5A50000u ^ (uint32_t)(SEED + 0x9E3779B9u * (t + 1));
+        args[t].total_weight = 0.0;
+        args[t].target_one_weight = 0.0;
+        thread_started[t] = false;
+        for (int node = 0; node < NUM_NODES; node++) args[t].evidence[node] = evidence[node];
+
+        if (pthread_create(&threads[t], NULL, inference_worker, &args[t]) == 0) {
+            thread_started[t] = true;
+        } else {
+            inference_worker(&args[t]);
+        }
+    }
+
+    for (int t = 0; t < thread_count; t++) {
+        if (thread_started[t]) pthread_join(threads[t], NULL);
+    }
+
+    for (int t = 0; t < thread_count; t++) {
+        total_weight += args[t].total_weight;
+        target_one_weight += args[t].target_one_weight;
+    }
+
+    if (total_weight <= 0.0) return NAN;
+    return target_one_weight / total_weight;
+}
+
+void print_inference_nodes(void) {
+    printf("\nQueryable binary nodes:\n");
+    for (int node = 0; node < NUM_NODES; node++) {
+        printf("  %d: %s\n", node, node_names[node]);
+    }
+}
+
+void strip_newline(char* line) {
+    size_t len = strlen(line);
+    while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
+        line[len - 1] = '\0';
+        len--;
+    }
+}
+
+int parse_node_token(const char* token) {
+    char *end_ptr;
+    long numeric_id;
+
+    if (!token || token[0] == '\0') return -1;
+
+    numeric_id = strtol(token, &end_ptr, 10);
+    if (*end_ptr == '\0' && numeric_id >= 0 && numeric_id < NUM_NODES) {
+        return (int)numeric_id;
+    }
+
+    return node_index_by_name(token);
+}
+
+int parse_binary_value(const char* token) {
+    char lower[16];
+    int i;
+
+    if (!token || token[0] == '\0') return -1;
+    if (strcmp(token, "0") == 0) return 0;
+    if (strcmp(token, "1") == 0) return 1;
+
+    for (i = 0; token[i] && i < (int)sizeof(lower) - 1; i++) {
+        lower[i] = (char)tolower((unsigned char)token[i]);
+    }
+    lower[i] = '\0';
+
+    if (strcmp(lower, "false") == 0 || strcmp(lower, "no") == 0) return 0;
+    if (strcmp(lower, "true") == 0 || strcmp(lower, "yes") == 0) return 1;
+    return -1;
+}
+
+bool parse_evidence_line(char* line, int* evidence) {
+    char *token;
+
+    for (int node = 0; node < NUM_NODES; node++) evidence[node] = -1;
+    strip_newline(line);
+
+    if (line[0] == '\0' || strcmp(line, "none") == 0 || strcmp(line, "n") == 0) {
+        return true;
+    }
+    if (strcmp(line, "q") == 0 || strcmp(line, "quit") == 0) {
+        return false;
+    }
+
+    token = strtok(line, " ,\t");
+    while (token) {
+        char *equals = strchr(token, '=');
+        int node;
+        int value;
+
+        if (!equals) {
+            printf("Ignoring evidence token '%s' (use name=0 or name=1)\n", token);
+            token = strtok(NULL, " ,\t");
+            continue;
+        }
+
+        *equals = '\0';
+        node = parse_node_token(token);
+        value = parse_binary_value(equals + 1);
+        if (node < 0 || value < 0) {
+            printf("Ignoring evidence token '%s=%s'\n", token, equals + 1);
+        } else {
+            evidence[node] = value;
+        }
+
+        token = strtok(NULL, " ,\t");
+    }
+
+    return true;
+}
+
+void print_evidence_summary(const int* evidence) {
+    bool first = true;
+
+    for (int node = 0; node < NUM_NODES; node++) {
+        if (evidence[node] >= 0) {
+            printf("%s%s=%d", first ? "" : ", ", node_names[node], evidence[node]);
+            first = false;
+        }
+    }
+
+    if (first) printf("none");
+}
+
+void run_inference_console(int** dataset, int num_samples, const int* order, int active_count,
+                           const unsigned int* parent_masks) {
+    LearnedCPT cpts[NUM_NODES];
+    char line[256];
+
+    for (int node = 0; node < NUM_NODES; node++) cpts[node].p_one = NULL;
+    build_learned_cpts(dataset, num_samples, parent_masks, cpts);
+
+    printf("\n=== Interactive Probability Demo ===\n");
+    printf("Model: learned DAG + dataset-estimated binary CPTs\n");
+    printf("Inference: %d-sample likelihood weighting across %d pthread workers\n",
+           INFERENCE_SAMPLES, INFERENCE_THREADS);
+    printf("Enter q at the target prompt to exit.\n");
+    print_inference_nodes();
+
+    while (1) {
+        int target_node;
+        int evidence[NUM_NODES];
+        double probability;
+
+        printf("\nTarget node for P(target=1 | evidence): ");
+        fflush(stdout);
+        if (!fgets(line, sizeof(line), stdin)) break;
+        strip_newline(line);
+        if (strcmp(line, "q") == 0 || strcmp(line, "quit") == 0) break;
+
+        target_node = parse_node_token(line);
+        if (target_node < 0) {
+            printf("Unknown node '%s'. Use a node number or name.\n", line);
+            continue;
+        }
+
+        printf("Evidence pairs, e.g. smoke=1 asia=0; blank/none for no evidence: ");
+        fflush(stdout);
+        if (!fgets(line, sizeof(line), stdin)) break;
+        if (!parse_evidence_line(line, evidence)) break;
+
+        probability = infer_probability_threaded(cpts, order, active_count, target_node,
+                                                 evidence, INFERENCE_SAMPLES,
+                                                 INFERENCE_THREADS);
+
+        printf("P(%s=1 | ", node_names[target_node]);
+        print_evidence_summary(evidence);
+        if (isnan(probability)) {
+            printf(") could not be estimated; evidence has near-zero support.\n");
+        } else {
+            printf(") = %.4f\n", probability);
+        }
+    }
+
+    free_learned_cpts(cpts);
 }
 
 void print_learned_graph(const int* order, int active_count) {
@@ -804,6 +1146,9 @@ int main(void)
     }
     printf("\n");
     print_learned_graph(best_order, active_count);
+    unsigned int learned_parent_masks[NUM_NODES];
+    choose_best_graph_for_order(best_order, active_count, learned_parent_masks);
+    run_inference_console(dataset, num_samples, best_order, active_count, learned_parent_masks);
 
     return 0;
 }
