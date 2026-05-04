@@ -602,8 +602,9 @@ module Computer_System (
 		.vga_pll_ref_reset_reset              (vga_pll_ref_reset_reset)                                               //         vga_pll_ref_reset.reset
 	);
 
-	mcmc_system #(
-		.N_NODES (32)
+	mcmc_system_parallel #(
+		.N_NODES  (32),
+		.N_CHAINS (2)
 	) mcmc_system_0 (
 		.clk           (system_pll_sys_clk_clk),                                   //          clock.clk
 		.reset_n       (~rst_controller_reset_out_reset),                          //          reset.reset_n
