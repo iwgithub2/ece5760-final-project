@@ -1,76 +1,76 @@
-Build ID: mcmc_test debug-reset-readback-v1 | Jan  1 1970 00:08:46
+Build ID: mcmc_test debug-reset-readback-v1 | Jan  1 1970 01:55:35
 [FPGA DEBUG] after mmap before table load
-  start=0 reset=0 done=1 clk_count=12097309
-  iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0x7aac3d60 best_score_q16=31404.240234 raw_order_words=0x00018820 0x000398a4
-  decoded_order_first8=0,1,2,3,4,5,6,7
+  start=0 reset=0 done=1 clk_count=6200064
+  iterations=100000 active_nodes=5 node_mask=0x00000004 seed=0xdeadbeef
+  best_score_raw=0xfdbdfeaa best_score_q16=-578.005249 raw_order_words=0x00009003 0x000398a2
+  decoded_order_first8=3,0,4,1,2,5,6,7
 Loading dataset and precomputing...
 DEBUG score self-check: pasted-order=-1362.718506 initial-order=-1362.718506
 Writing databases to FPGA Broadcast Memory...
 Reset FPGA
 [FPGA DEBUG] before reset assert
-  start=0 reset=0 done=1 clk_count=12097309
-  iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0x7aac3d60 best_score_q16=31404.240234 raw_order_words=0x00018820 0x000398a4
-  decoded_order_first8=0,1,2,3,4,5,6,7
+  start=0 reset=0 done=1 clk_count=6200064
+  iterations=100000 active_nodes=5 node_mask=0x00000004 seed=0xdeadbeef
+  best_score_raw=0xfdbdfeaa best_score_q16=-578.005249 raw_order_words=0x00009003 0x000398a2
+  decoded_order_first8=3,0,4,1,2,5,6,7
 [FPGA DEBUG] during reset assert
   start=0 reset=1 done=0 clk_count=0
-  iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0x80000000 best_score_q16=-32768.000000 raw_order_words=0x00018820 0x000398a4
-  decoded_order_first8=0,1,2,3,4,5,6,7
+  iterations=100000 active_nodes=5 node_mask=0x00000004 seed=0xdeadbeef
+  best_score_raw=0x80000000 best_score_q16=-32768.000000 raw_order_words=0x00009003 0x000398a2
+  decoded_order_first8=3,0,4,1,2,5,6,7
 [FPGA DEBUG] after reset deassert before config
   start=0 reset=0 done=0 clk_count=0
-  iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0x80000000 best_score_q16=-32768.000000 raw_order_words=0x00018820 0x000398a4
-  decoded_order_first8=0,1,2,3,4,5,6,7
+  iterations=100000 active_nodes=5 node_mask=0x00000004 seed=0xdeadbeef
+  best_score_raw=0x80000000 best_score_q16=-32768.000000 raw_order_words=0x00009003 0x000398a2
+  decoded_order_first8=3,0,4,1,2,5,6,7
 [FPGA DEBUG] after config before start
   start=0 reset=0 done=0 clk_count=0
   iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0x80000000 best_score_q16=-32768.000000 raw_order_words=0x00018820 0x000398a4
-  decoded_order_first8=0,1,2,3,4,5,6,7
+  best_score_raw=0x80000000 best_score_q16=-32768.000000 raw_order_words=0x00009003 0x000398a2
+  decoded_order_first8=3,0,4,1,2,5,6,7
 Starting 32-Node Engine...
 [FPGA DEBUG] after start assert
-  start=1 reset=0 done=0 clk_count=10076
+  start=1 reset=0 done=0 clk_count=10149
   iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0x7aac3d60 best_score_q16=31404.240234 raw_order_words=0x00018820 0x000398a4
-  decoded_order_first8=0,1,2,3,4,5,6,7
+  best_score_raw=0xfb25c05e best_score_q16=-1242.248535 raw_order_words=0x00028c80 0x00038826
+  decoded_order_first8=0,4,3,5,6,1,2,7
 [FPGA DEBUG] done observed before start clear
-  start=1 reset=0 done=1 clk_count=12096453
+  start=1 reset=0 done=1 clk_count=14000142
   iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0x7aac3d60 best_score_q16=31404.240234 raw_order_words=0x00018820 0x000398a4
-  decoded_order_first8=0,1,2,3,4,5,6,7
+  best_score_raw=0xfb2704f2 best_score_q16=-1240.980713 raw_order_words=0x000090c0 0x00011467
+  decoded_order_first8=0,6,4,1,7,3,5,2
 [FPGA DEBUG] after start clear
-  start=0 reset=0 done=1 clk_count=12096453
+  start=0 reset=0 done=1 clk_count=14000142
   iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0x7aac3d60 best_score_q16=31404.240234 raw_order_words=0x00018820 0x000398a4
-  decoded_order_first8=0,1,2,3,4,5,6,7
+  best_score_raw=0xfb2704f2 best_score_q16=-1240.980713 raw_order_words=0x000090c0 0x00011467
+  decoded_order_first8=0,6,4,1,7,3,5,2
 
 === MCMC Hardware Complete ===
 Hardware Iterations: 100000
-Cycle Count:         12096453 clocks
-Execution Time:      0.241929 seconds
+Cycle Count:         14000142 clocks
+Execution Time:      0.280003 seconds
 
-Raw HW best_score:   0x7aac3d60 (31404.240234 Q16.16)
-Raw best-order words: 0x00018820 0x000398a4
-either -> xray -> dysp -> bronc -> lung -> smoke -> tub -> asia
-Order log-sum score: -1362.718506
+Raw HW best_score:   0xfb2704f2 (-1240.980713 Q16.16)
+Raw best-order words: 0x000090c0 0x00011467
+either -> tub -> lung -> xray -> asia -> bronc -> smoke -> dysp
+Order log-sum score: -1240.993652
 Initial-order log-sum score: -1362.718506
-Best compatible graph score: -1365.384766
+Best compatible graph score: -1244.862671
 Learned DAG edges:
-  either -> xray
-  either -> bronc
-  dysp -> bronc
+  either -> tub
   either -> lung
+  tub -> lung
+  either -> xray
   bronc -> smoke
   lung -> smoke
-  either -> tub
-  lung -> tub
+  either -> dysp
+  bronc -> dysp
 Parent sets by node:
   either <- (none)
+  tub <- either
+  lung <- either, tub
   xray <- either
-  dysp <- (none)
-  bronc <- either, dysp
-  lung <- either
-  smoke <- bronc, lung
-  tub <- either, lung
   asia <- (none)
+  bronc <- (none)
+  smoke <- bronc, lung
+  dysp <- either, bronc
