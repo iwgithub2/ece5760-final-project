@@ -136,29 +136,40 @@ state.ACC_IDLE 0 0 0
 state.ACC_LOAD 1 0 1 
 state.ACC_ADD 1 1 0 
 
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|score_accumulator:score_sum_inst|state
-Name state.ACC_IDLE state.ACC_ADD state.ACC_LOAD 
-state.ACC_IDLE 0 0 0 
-state.ACC_LOAD 1 0 1 
-state.ACC_ADD 1 1 0 
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_SDRAM:sdram|i_state
+Name i_state.111 i_state.101 i_state.011 i_state.010 i_state.001 i_state.000 
+i_state.000 0 0 0 0 0 0 
+i_state.001 0 0 0 0 1 1 
+i_state.010 0 0 0 1 0 1 
+i_state.011 0 0 1 0 0 1 
+i_state.101 0 1 0 0 0 1 
+i_state.111 1 0 0 0 0 1 
 
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[31].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_SDRAM:sdram|i_next
+Name i_next.111 i_next.101 i_next.010 i_next.000 
+i_next.000 0 0 0 0 
+i_next.010 0 0 1 1 
+i_next.101 0 1 0 1 
+i_next.111 1 0 0 1 
 
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[30].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_SDRAM:sdram|m_state
+Name m_state.100000000 m_state.010000000 m_state.001000000 m_state.000100000 m_state.000010000 m_state.000001000 m_state.000000100 m_state.000000010 m_state.000000001 
+m_state.000000001 0 0 0 0 0 0 0 0 0 
+m_state.000000010 0 0 0 0 0 0 0 1 1 
+m_state.000000100 0 0 0 0 0 0 1 0 1 
+m_state.000001000 0 0 0 0 0 1 0 0 1 
+m_state.000010000 0 0 0 0 1 0 0 0 1 
+m_state.000100000 0 0 0 1 0 0 0 0 1 
+m_state.001000000 0 0 1 0 0 0 0 0 1 
+m_state.010000000 0 1 0 0 0 0 0 0 1 
+m_state.100000000 1 0 0 0 0 0 0 0 1 
+
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_SDRAM:sdram|m_next
+Name m_next.010000000 m_next.000010000 m_next.000001000 m_next.000000001 
+m_next.000000001 0 0 0 0 
+m_next.000001000 0 0 1 1 
+m_next.000010000 0 1 0 1 
+m_next.010000000 1 0 0 1 
 
 State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|state
 Name state.S_DONE state.S_DECIDE state.S_WAIT_SUM_SCORE state.S_SUM_SCORE state.S_WAIT_SCORE state.S_PROPOSE state.S_WAIT_SUM_INIT_SCORE state.S_SUM_INIT_SCORE state.S_WAIT_INIT_SCORE state.S_INIT_SCORE state.S_IDLE 
@@ -174,7 +185,7 @@ state.S_WAIT_SUM_SCORE 0 0 1 0 0 0 0 0 0 0 1
 state.S_DECIDE 0 1 0 0 0 0 0 0 0 0 1 
 state.S_DONE 1 0 0 0 0 0 0 0 0 0 1 
 
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[31].scorer_inst|state
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[31].scorer_inst|state
 Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
 state.IDLE 0 0 0 0 0 0 
 state.FETCH_ADDR 0 0 0 0 1 1 
@@ -183,7 +194,7 @@ state.WAIT_LOGADD_1 0 0 1 0 0 1
 state.WAIT_LOGADD_2 0 1 0 0 0 1 
 state.DONE 1 0 0 0 0 1 
 
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[30].scorer_inst|state
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[30].scorer_inst|state
 Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
 state.IDLE 0 0 0 0 0 0 
 state.FETCH_ADDR 0 0 0 0 1 1 
@@ -265,33 +276,6 @@ state.WAIT_LOGADD_2 0 1 0 0 0 1
 state.DONE 1 0 0 0 0 1 
 
 State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[21].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[20].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[19].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[18].scorer_inst|state
 Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
 state.IDLE 0 0 0 0 0 0 
 state.FETCH_ADDR 0 0 0 0 1 1 
@@ -462,7 +446,7 @@ state.WAIT_LOGADD_1 0 0 1 0 0 1
 state.WAIT_LOGADD_2 0 1 0 0 0 1 
 state.DONE 1 0 0 0 0 1 
 
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[29].scorer_inst|state
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[20].scorer_inst|state
 Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
 state.IDLE 0 0 0 0 0 0 
 state.FETCH_ADDR 0 0 0 0 1 1 
@@ -471,7 +455,7 @@ state.WAIT_LOGADD_1 0 0 1 0 0 1
 state.WAIT_LOGADD_2 0 1 0 0 0 1 
 state.DONE 1 0 0 0 0 1 
 
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[28].scorer_inst|state
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[19].scorer_inst|state
 Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
 state.IDLE 0 0 0 0 0 0 
 state.FETCH_ADDR 0 0 0 0 1 1 
@@ -480,7 +464,7 @@ state.WAIT_LOGADD_1 0 0 1 0 0 1
 state.WAIT_LOGADD_2 0 1 0 0 0 1 
 state.DONE 1 0 0 0 0 1 
 
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[27].scorer_inst|state
+State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[0].core|node_scorer:gen_scorers[18].scorer_inst|state
 Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
 state.IDLE 0 0 0 0 0 0 
 state.FETCH_ADDR 0 0 0 0 1 1 
@@ -488,295 +472,3 @@ state.FETCH_DATA 0 0 0 1 0 1
 state.WAIT_LOGADD_1 0 0 1 0 0 1 
 state.WAIT_LOGADD_2 0 1 0 0 0 1 
 state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[26].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[25].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[24].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[23].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[22].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[21].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[20].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[19].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[18].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[17].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[16].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[15].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[14].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[13].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[12].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[11].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[10].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[9].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[8].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[7].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[6].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[5].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[4].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[3].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[2].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[1].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|node_scorer:gen_scorers[0].scorer_inst|state
-Name state.DONE state.WAIT_LOGADD_2 state.WAIT_LOGADD_1 state.FETCH_DATA state.FETCH_ADDR state.IDLE 
-state.IDLE 0 0 0 0 0 0 
-state.FETCH_ADDR 0 0 0 0 1 1 
-state.FETCH_DATA 0 0 0 1 0 1 
-state.WAIT_LOGADD_1 0 0 1 0 0 1 
-state.WAIT_LOGADD_2 0 1 0 0 0 1 
-state.DONE 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|mcmc_system_parallel:mcmc_system_0|mcmc_controller:gen_chains[1].core|state
-Name state.S_DONE state.S_DECIDE state.S_WAIT_SUM_SCORE state.S_SUM_SCORE state.S_WAIT_SCORE state.S_PROPOSE state.S_WAIT_SUM_INIT_SCORE state.S_SUM_INIT_SCORE state.S_WAIT_INIT_SCORE state.S_INIT_SCORE state.S_IDLE 
-state.S_IDLE 0 0 0 0 0 0 0 0 0 0 0 
-state.S_INIT_SCORE 0 0 0 0 0 0 0 0 0 1 1 
-state.S_WAIT_INIT_SCORE 0 0 0 0 0 0 0 0 1 0 1 
-state.S_SUM_INIT_SCORE 0 0 0 0 0 0 0 1 0 0 1 
-state.S_WAIT_SUM_INIT_SCORE 0 0 0 0 0 0 1 0 0 0 1 
-state.S_PROPOSE 0 0 0 0 0 1 0 0 0 0 1 
-state.S_WAIT_SCORE 0 0 0 0 1 0 0 0 0 0 1 
-state.S_SUM_SCORE 0 0 0 1 0 0 0 0 0 0 1 
-state.S_WAIT_SUM_SCORE 0 0 1 0 0 0 0 0 0 0 1 
-state.S_DECIDE 0 1 0 0 0 0 0 0 0 0 1 
-state.S_DONE 1 0 0 0 0 0 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_SDRAM:sdram|i_state
-Name i_state.111 i_state.101 i_state.011 i_state.010 i_state.001 i_state.000 
-i_state.000 0 0 0 0 0 0 
-i_state.001 0 0 0 0 1 1 
-i_state.010 0 0 0 1 0 1 
-i_state.011 0 0 1 0 0 1 
-i_state.101 0 1 0 0 0 1 
-i_state.111 1 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_SDRAM:sdram|i_next
-Name i_next.111 i_next.101 i_next.010 i_next.000 
-i_next.000 0 0 0 0 
-i_next.010 0 0 1 1 
-i_next.101 0 1 0 1 
-i_next.111 1 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_SDRAM:sdram|m_state
-Name m_state.100000000 m_state.010000000 m_state.001000000 m_state.000100000 m_state.000010000 m_state.000001000 m_state.000000100 m_state.000000010 m_state.000000001 
-m_state.000000001 0 0 0 0 0 0 0 0 0 
-m_state.000000010 0 0 0 0 0 0 0 1 1 
-m_state.000000100 0 0 0 0 0 0 1 0 1 
-m_state.000001000 0 0 0 0 0 1 0 0 1 
-m_state.000010000 0 0 0 0 1 0 0 0 1 
-m_state.000100000 0 0 0 1 0 0 0 0 1 
-m_state.001000000 0 0 1 0 0 0 0 0 1 
-m_state.010000000 0 1 0 0 0 0 0 0 1 
-m_state.100000000 1 0 0 0 0 0 0 0 1 
-
-State Machine - |DE1_SoC_Computer|Computer_System:The_System|Computer_System_SDRAM:sdram|m_next
-Name m_next.010000000 m_next.000010000 m_next.000001000 m_next.000000001 
-m_next.000000001 0 0 0 0 
-m_next.000001000 0 0 1 1 
-m_next.000010000 0 1 0 1 
-m_next.010000000 1 0 0 1 

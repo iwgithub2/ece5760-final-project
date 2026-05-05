@@ -338,9 +338,11 @@ module mcmc_controller #(
     wire [4:0] rand_i = active_count_power2 ?
         (lfsr_out[4:0] & power2_idx_mask) :
         bounded_random_index(lfsr_out[4:0], clamped_active_nodes);
-    wire [4:0] rand_j = active_count_power2 ?
-        (lfsr_out[9:5] & power2_idx_mask) :
-        bounded_random_index(lfsr_out[9:5], clamped_active_nodes);
+
+    // ADJACENT SWAP
+    // add 1 and wrap around to 0 if it exceeds the active node count.
+    wire [5:0] next_j = {1'b0, rand_i} + 6'd1;
+    wire [4:0] rand_j = (next_j >= clamped_active_nodes) ? 5'd0 : next_j[4:0];
     wire [15:0] rand_u = lfsr_out[31:16];
 
     // Order Matrix Management
@@ -430,15 +432,29 @@ module mcmc_controller #(
     // ==============================================================
     // Metropolis-Hastings Acceptance Logic
     // ==============================================================
+	 // ==============================================================
+    // SIMULATED ANNEALING TEMPERATURE SCHEDULE
+    // ==============================================================
+    // Phase 1 (0% - 25%): Boiling hot. Accepts almost anything. 
+    //                     Completely shuffles the hardcoded initial order.
+    // Phase 2 (25% - 50%): Warm. Begins to favor better moves.
+    // Phase 3 (50% - 75%): Cool. Actively climbs the hill.
+    // Phase 4 (75% - 100%): Freezing. Greedy search to lock onto the exact peak.
+    
+    wire [4:0] TEMP_SHIFT = (iter_count < (iterations >> 2)) ? 5'd4 :
+                            (iter_count < (iterations >> 1)) ? 5'd2 :
+                            (iter_count < (iterations - (iterations >> 2))) ? 5'd1 : 
+                            5'd0;
+
     wire [31:0] abs_diff = -score_diff;
     
-    // Approximate P = exp(-abs_diff) using a bit-shift.
-    // We shift right by the Integer part (bits 20:16), plus the 
-    // 0.5 fractional bit (bit 15) to round to the nearest power of 2.
-    wire [4:0] shift_amt = abs_diff[20:16] + {4'd0, abs_diff[15]};
+    // Calculate raw shift, then subtract the temperature shift (clamped at 0 to prevent underflow)
+    wire [4:0] raw_shift_amt = abs_diff[20:16] + {4'd0, abs_diff[15]};
+    wire [4:0] shift_amt = (raw_shift_amt > TEMP_SHIFT) ? (raw_shift_amt - TEMP_SHIFT) : 5'd0;
     
     // If the move is worse by more than 15.0 log-likelihood, probability is 0%
-    wire [15:0] dynamic_prob = (abs_diff >= 32'h000F_0000) ? 16'd0 : (16'hFFFF >> shift_amt);
+    wire [15:0] dynamic_prob = (abs_diff >= 32'h000F_0000) ?
+        16'd0 : (16'hFFFF >> shift_amt);
 
     // Accept if better, OR randomly accept based on how bad the move is
     assign accept_move = (score_diff >= 0) ? 1'b1 : (saved_rand_u < dynamic_prob);

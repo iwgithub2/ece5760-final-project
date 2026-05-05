@@ -1074,6 +1074,7 @@
   <parameter name="NUM_CLOCK_OUTPUTS" value="1" />
  </module>
  <module name="mcmc_system_0" kind="mcmc_system" version="1.0" enabled="1">
+  <parameter name="N_CHAINS" value="1" />
   <parameter name="N_NODES" value="32" />
  </module>
  <module

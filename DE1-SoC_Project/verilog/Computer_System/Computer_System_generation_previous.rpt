@@ -1,5 +1,5 @@
 Info: Starting: Create block symbol file (.bsf)
-Info: qsys-generate C:\Users\iw87\Documents\ece5760-final-project\DE1-SoC_Project\verilog\Computer_System.qsys --block-symbol-file --output-directory=C:\Users\iw87\Documents\ece5760-final-project\DE1-SoC_Project\verilog\Computer_System --family="Cyclone V" --part=5CSEMA5F31C6
+Info: qsys-generate C:\Users\jgw227\Documents\ece5760-final-project\DE1-SoC_Project\verilog\Computer_System.qsys --block-symbol-file --output-directory=C:\Users\jgw227\Documents\ece5760-final-project\DE1-SoC_Project\verilog\Computer_System --family="Cyclone V" --part=5CSEMA5F31C6
 Progress: Loading verilog/Computer_System.qsys
 Progress: Reading input file
 Progress: Adding ARM_A9_HPS [altera_hps 18.1]
@@ -61,7 +61,7 @@ Info: qsys-generate succeeded.
 Info: Finished: Create block symbol file (.bsf)
 Info: 
 Info: Starting: Create HDL design files for synthesis
-Info: qsys-generate C:\Users\iw87\Documents\ece5760-final-project\DE1-SoC_Project\verilog\Computer_System.qsys --synthesis=VERILOG --output-directory=C:\Users\iw87\Documents\ece5760-final-project\DE1-SoC_Project\verilog\Computer_System\synthesis --family="Cyclone V" --part=5CSEMA5F31C6
+Info: qsys-generate C:\Users\jgw227\Documents\ece5760-final-project\DE1-SoC_Project\verilog\Computer_System.qsys --synthesis=VERILOG --output-directory=C:\Users\jgw227\Documents\ece5760-final-project\DE1-SoC_Project\verilog\Computer_System\synthesis --family="Cyclone V" --part=5CSEMA5F31C6
 Progress: Loading verilog/Computer_System.qsys
 Progress: Reading input file
 Progress: Adding ARM_A9_HPS [altera_hps 18.1]
@@ -136,18 +136,18 @@ Info: AV_Config: Starting Generation of Audio and Video Config
 Info: AV_Config: "Computer_System" instantiated altera_up_avalon_audio_and_video_config "AV_Config"
 Info: Pixel_DMA_Addr_Translation: "Computer_System" instantiated altera_up_avalon_video_dma_ctrl_addr_trans "Pixel_DMA_Addr_Translation"
 Info: SDRAM: Starting RTL generation for module 'Computer_System_SDRAM'
-Info: SDRAM:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_new_sdram_controller -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_new_sdram_controller/generate_rtl.pl --name=Computer_System_SDRAM --dir=C:/Users/iw87/AppData/Local/Temp/alt0576_1048970076386116101.dir/0005_SDRAM_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/iw87/AppData/Local/Temp/alt0576_1048970076386116101.dir/0005_SDRAM_gen//Computer_System_SDRAM_component_configuration.pl  --do_build_sim=0  ]
+Info: SDRAM:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_new_sdram_controller -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_new_sdram_controller/generate_rtl.pl --name=Computer_System_SDRAM --dir=C:/Users/jgw227/AppData/Local/Temp/alt0578_1908845470202208540.dir/0006_SDRAM_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/jgw227/AppData/Local/Temp/alt0578_1908845470202208540.dir/0006_SDRAM_gen//Computer_System_SDRAM_component_configuration.pl  --do_build_sim=0  ]
 Info: SDRAM: Done RTL generation for module 'Computer_System_SDRAM'
 Info: SDRAM: "Computer_System" instantiated altera_avalon_new_sdram_controller "SDRAM"
 Info: System_PLL: "Computer_System" instantiated altera_up_avalon_sys_sdram_pll "System_PLL"
 Info: VGA_Subsystem: "Computer_System" instantiated VGA_Subsystem "VGA_Subsystem"
 Info: mcmc_system_0: "Computer_System" instantiated mcmc_system "mcmc_system_0"
 Info: pio_active_nodes: Starting RTL generation for module 'Computer_System_pio_active_nodes'
-Info: pio_active_nodes:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=Computer_System_pio_active_nodes --dir=C:/Users/iw87/AppData/Local/Temp/alt0576_1048970076386116101.dir/0007_pio_active_nodes_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/iw87/AppData/Local/Temp/alt0576_1048970076386116101.dir/0007_pio_active_nodes_gen//Computer_System_pio_active_nodes_component_configuration.pl  --do_build_sim=0  ]
+Info: pio_active_nodes:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=Computer_System_pio_active_nodes --dir=C:/Users/jgw227/AppData/Local/Temp/alt0578_1908845470202208540.dir/0008_pio_active_nodes_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/jgw227/AppData/Local/Temp/alt0578_1908845470202208540.dir/0008_pio_active_nodes_gen//Computer_System_pio_active_nodes_component_configuration.pl  --do_build_sim=0  ]
 Info: pio_active_nodes: Done RTL generation for module 'Computer_System_pio_active_nodes'
 Info: pio_active_nodes: "Computer_System" instantiated altera_avalon_pio "pio_active_nodes"
 Info: pio_best_score: Starting RTL generation for module 'Computer_System_pio_best_score'
-Info: pio_best_score:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=Computer_System_pio_best_score --dir=C:/Users/iw87/AppData/Local/Temp/alt0576_1048970076386116101.dir/0008_pio_best_score_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/iw87/AppData/Local/Temp/alt0576_1048970076386116101.dir/0008_pio_best_score_gen//Computer_System_pio_best_score_component_configuration.pl  --do_build_sim=0  ]
+Info: pio_best_score:   Generation command is [exec C:/programs/intelfpga/18.1/quartus/bin64/perl/bin/perl.exe -I C:/programs/intelfpga/18.1/quartus/bin64/perl/lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/europa -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin/perl_lib -I C:/programs/intelfpga/18.1/quartus/sopc_builder/bin -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/programs/intelfpga/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=Computer_System_pio_best_score --dir=C:/Users/jgw227/AppData/Local/Temp/alt0578_1908845470202208540.dir/0009_pio_best_score_gen/ --quartus_dir=C:/programs/intelfpga/18.1/quartus --verilog --config=C:/Users/jgw227/AppData/Local/Temp/alt0578_1908845470202208540.dir/0009_pio_best_score_gen//Computer_System_pio_best_score_component_configuration.pl  --do_build_sim=0  ]
 Info: pio_best_score: Done RTL generation for module 'Computer_System_pio_best_score'
 Info: pio_best_score: "Computer_System" instantiated altera_avalon_pio "pio_best_score"
 Info: avalon_st_adapter: Inserting error_adapter: error_adapter_0
@@ -201,27 +201,27 @@ Info: router_003: "mm_interconnect_0" instantiated altera_merlin_router "router_
 Info: router_004: "mm_interconnect_0" instantiated altera_merlin_router "router_004"
 Info: router_005: "mm_interconnect_0" instantiated altera_merlin_router "router_005"
 Info: ARM_A9_HPS_h2f_axi_master_wr_limiter: "mm_interconnect_0" instantiated altera_merlin_traffic_limiter "ARM_A9_HPS_h2f_axi_master_wr_limiter"
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_avalon_sc_fifo.v
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_avalon_sc_fifo.v
 Info: mcmc_system_0_avalon_slave_0_burst_adapter: "mm_interconnect_0" instantiated altera_merlin_burst_adapter "mcmc_system_0_avalon_slave_0_burst_adapter"
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_address_alignment.sv
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_avalon_st_pipeline_base.v
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_address_alignment.sv
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_avalon_st_pipeline_base.v
 Info: cmd_demux: "mm_interconnect_0" instantiated altera_merlin_demultiplexer "cmd_demux"
 Info: cmd_demux_002: "mm_interconnect_0" instantiated altera_merlin_demultiplexer "cmd_demux_002"
 Info: cmd_mux: "mm_interconnect_0" instantiated altera_merlin_multiplexer "cmd_mux"
 Info: cmd_mux_001: "mm_interconnect_0" instantiated altera_merlin_multiplexer "cmd_mux_001"
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
 Info: cmd_mux_002: "mm_interconnect_0" instantiated altera_merlin_multiplexer "cmd_mux_002"
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
 Info: rsp_demux: "mm_interconnect_0" instantiated altera_merlin_demultiplexer "rsp_demux"
 Info: rsp_demux_001: "mm_interconnect_0" instantiated altera_merlin_demultiplexer "rsp_demux_001"
 Info: rsp_demux_002: "mm_interconnect_0" instantiated altera_merlin_demultiplexer "rsp_demux_002"
 Info: rsp_mux: "mm_interconnect_0" instantiated altera_merlin_multiplexer "rsp_mux"
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
 Info: rsp_mux_002: "mm_interconnect_0" instantiated altera_merlin_multiplexer "rsp_mux_002"
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
 Info: ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter: "mm_interconnect_0" instantiated altera_merlin_width_adapter "ARM_A9_HPS_h2f_axi_master_wr_to_mcmc_system_0_avalon_slave_0_cmd_width_adapter"
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_address_alignment.sv
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_burst_uncompressor.sv
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_address_alignment.sv
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_burst_uncompressor.sv
 Info: avalon_st_adapter: "mm_interconnect_0" instantiated altera_avalon_st_adapter "avalon_st_adapter"
 Info: avalon_st_adapter_001: "mm_interconnect_0" instantiated altera_avalon_st_adapter "avalon_st_adapter_001"
 Info: avalon_st_adapter_002: "mm_interconnect_0" instantiated altera_avalon_st_adapter "avalon_st_adapter_002"
@@ -229,10 +229,10 @@ Info: router: "mm_interconnect_1" instantiated altera_merlin_router "router"
 Info: router_002: "mm_interconnect_1" instantiated altera_merlin_router "router_002"
 Info: cmd_demux: "mm_interconnect_1" instantiated altera_merlin_demultiplexer "cmd_demux"
 Info: cmd_mux: "mm_interconnect_1" instantiated altera_merlin_multiplexer "cmd_mux"
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
 Info: rsp_demux: "mm_interconnect_1" instantiated altera_merlin_demultiplexer "rsp_demux"
 Info: rsp_mux: "mm_interconnect_1" instantiated altera_merlin_multiplexer "rsp_mux"
-Info: Reusing file C:/Users/iw87/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
+Info: Reusing file C:/Users/jgw227/Documents/ece5760-final-project/DE1-SoC_Project/verilog/Computer_System/synthesis/submodules/altera_merlin_arbitrator.sv
 Info: border: "hps_io" instantiated altera_interface_generator "border"
 Info: video_pll: "VGA_PLL" instantiated altera_pll "video_pll"
 Info: error_adapter_0: "avalon_st_adapter" instantiated error_adapter "error_adapter_0"

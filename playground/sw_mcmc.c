@@ -139,6 +139,23 @@ void precompute_fixed_k(int** dataset, int num_samples) {
         
         num_candidates[i] = candidate_count;
     }
+    // --- ADD THIS BLOCK ---
+    // Normalization to exactly match the FPGA Q16.16 scaling
+    for (int i = 0; i < NUM_NODES; i++) {
+        float max_score = -1e30f;
+        for (int p = 0; p < num_candidates[i]; p++) {
+            if (precomputed_db[i][p].local_score > max_score) {
+                max_score = precomputed_db[i][p].local_score;
+            }
+        }
+        
+        for (int p = 0; p < num_candidates[i]; p++) {
+            precomputed_db[i][p].local_score -= max_score;
+            if (precomputed_db[i][p].local_score < -500.0f) {
+                precomputed_db[i][p].local_score = -500.0f;
+            }
+        }
+    }
 }
 
 // --- Scoring Logic ---
@@ -253,8 +270,8 @@ int main() {
 
     // Construct dynamic file paths based on DATASET_NAME
     char samples_path[256], edges_path[256];
-    sprintf(samples_path, "../cleaned-datasets/%s_samples.csv", DATASET_NAME);
-    sprintf(edges_path, "../cleaned-datasets/%s_edges.csv", DATASET_NAME);
+    sprintf(samples_path, "cleaned-datasets/%s_samples.csv", DATASET_NAME);
+    sprintf(edges_path, "cleaned-datasets/%s_edges.csv", DATASET_NAME);
 
     int num_samples;
     int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
@@ -351,6 +368,7 @@ int main() {
 
     // 2. Extract Learned Edges and Compare
     int true_positives = 0, false_positives = 0, total_ground_truth = 0;
+    float best_dag_score = 0.0f; // Track the absolute DAG score
     
     for (int i = 0; i < NUM_NODES; i++) {
         for (int j = 0; j < NUM_NODES; j++) if (ground_truth[i][j]) total_ground_truth++;
@@ -369,6 +387,8 @@ int main() {
             }
         }
 
+        best_dag_score += best_score; // Accumulate the score for the final graph
+
         for (int p_idx = 0; p_idx < NUM_NODES; p_idx++) {
             if (best_mask & (1 << p_idx)) {
                 if (ground_truth[p_idx][current_node]) {
@@ -382,12 +402,16 @@ int main() {
         }
     }
 
-    // 3. Print Metrics
+    // 3. Print Metrics and BDeu Scores
     float precision = (float)true_positives / (true_positives + false_positives);
     float recall = (float)true_positives / total_ground_truth;
     float f1 = 2 * (precision * recall) / (precision + recall);
 
-    printf("\nFinal Metrics:\n");
+    printf("\n=== Final Scores ===\n");
+    printf("Order log-sum BDeu score:       %f\n", current_score);
+    printf("Best compatible DAG BDeu score: %f\n", best_dag_score);
+
+    printf("\n=== Final Metrics ===\n");
     printf("Precision: %.2f (How many learned edges were real?)\n", precision);
     printf("Recall:    %.2f (How many real edges did we find?)\n", recall);
     printf("F1 Score:  %.2f\n", f1);

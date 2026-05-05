@@ -30,7 +30,7 @@
 
 #define DATASET_NAME "asia"
 #define NUM_NODES 8
-#define ITERATIONS 100000
+#define ITERATIONS 1000000
 #define SEED 0xDEADBEEF
 #define MAX_PARENTS_PER_NODE 64 
 #define DONE_TIMEOUT_US 10000000
@@ -161,6 +161,15 @@ float calculate_bde_score(int** dataset, int num_samples, int target_node, unsig
     return final_log_score;
 }
 
+// Comparison function for qsort (descending order)
+int cmp_candidates(const void* a, const void* b) {
+    float score_a = ((ParentSet*)a)->local_score;
+    float score_b = ((ParentSet*)b)->local_score;
+    if (score_a < score_b) return 1;
+    if (score_a > score_b) return -1;
+    return 0;
+}
+
 void precompute_fixed_k(int** dataset, int num_samples) {
     for (int i = 0; i < NUM_NODES; i++) {
         int candidate_count = 0;
@@ -190,27 +199,27 @@ void precompute_fixed_k(int** dataset, int num_samples) {
         num_candidates[i] = candidate_count;
     }
 
-    // Normalization to prevent Q16.16 FPGA Overflow
-    for (int i = 0; i < NUM_NODES; i++) {
-        // Find the maximum score for this specific node
-        float max_score = -1e30f;
-        for (int p = 0; p < num_candidates[i]; p++) {
-            if (precomputed_db[i][p].local_score > max_score) {
-                max_score = precomputed_db[i][p].local_score;
-            }
-        }
+    // // Normalization to prevent Q16.16 FPGA Overflow
+    // for (int i = 0; i < NUM_NODES; i++) {
+    //     // Find the maximum score for this specific node
+    //     float max_score = -1e30f;
+    //     for (int p = 0; p < num_candidates[i]; p++) {
+    //         if (precomputed_db[i][p].local_score > max_score) {
+    //             max_score = precomputed_db[i][p].local_score;
+    //         }
+    //     }
         
-        // Shift scores and CLAMP them to prevent signed underflow
-        for (int p = 0; p < num_candidates[i]; p++) {
-            precomputed_db[i][p].local_score -= max_score;
+    //     // Shift scores and CLAMP them to prevent signed underflow
+    //     for (int p = 0; p < num_candidates[i]; p++) {
+    //         precomputed_db[i][p].local_score -= max_score;
             
-            // Clamp terrible scores to -500.0f
-            // -500 * 65536 * 32 nodes = -1,048,576,000 (Safely inside 32-bit limit)
-            if (precomputed_db[i][p].local_score < -500.0f) {
-                precomputed_db[i][p].local_score = -500.0f;
-            }
-        }
-    }
+    //         // Clamp terrible scores to -500.0f
+    //         // -500 * 65536 * 32 nodes = -1,048,576,000 (Safely inside 32-bit limit)
+    //         if (precomputed_db[i][p].local_score < -500.0f) {
+    //             precomputed_db[i][p].local_score = -500.0f;
+    //         }
+    //     }
+    // }
 }
 
 int** load_csv(const char* filename, int* out_num_samples, int num_nodes) {
@@ -975,37 +984,29 @@ void print_fpga_debug_status(const char* label) {
 
 int wait_for_done_or_timeout(unsigned int timeout_us) {
     struct timeval start_time, now;
-    unsigned int last_report_us = 0;
-
+    
     gettimeofday(&start_time, NULL);
     while (*pio_done == 0) {
         unsigned int elapsed_us;
-        usleep(1000);
+        usleep(1000); 
         gettimeofday(&now, NULL);
         elapsed_us = (unsigned int)((now.tv_sec - start_time.tv_sec) * 1000000u +
                                     (now.tv_usec - start_time.tv_usec));
 
-        if (elapsed_us - last_report_us >= 250000u) {
-            print_fpga_debug_status("waiting for done");
-            last_report_us = elapsed_us;
-        }
-
         if (elapsed_us >= timeout_us) {
-            printf("ERROR: timed out waiting for FPGA done after %.3f seconds\n",
+            printf("\n[ERROR] FPGA hardware timed out after %.3f seconds.\n", 
                    (double)elapsed_us / 1000000.0);
-            print_fpga_debug_status("timeout");
             return -1;
         }
     }
-
     return 0;
 }
 
 int main(void)
 {
-    printf("Build ID: %s | %s %s\n", DEBUG_BUILD_TAG, __DATE__, __TIME__);
+    printf("=== MCMC Bayesian Network Learner ===\n");
+    printf("Build: %s | %s %s\n", DEBUG_BUILD_TAG, __DATE__, __TIME__);
 
-    // === Get FPGA addresses ===
     int fd;
     if( ( fd = open( "/dev/mem", ( O_RDWR | O_SYNC ) ) ) == -1 ) {
         printf( "ERROR: could not open \"/dev/mem\"...\n" ); return( 1 );
@@ -1028,127 +1029,80 @@ int main(void)
     
     fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); 
     if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
-    
     mcmc_system_base = (unsigned int *)fpga_ram_virtual_base;
-    print_fpga_debug_status("after mmap before table load");
 
-    // Load Dataset & Precompute (ARM)
-    printf("Loading dataset and precomputing...\n");
+    printf("Loading dataset and precomputing scores...\n");
     char samples_path[256];
     sprintf(samples_path, "cleaned-datasets/%s_samples.csv", DATASET_NAME);
     int num_samples;
     int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
     precompute_fixed_k(dataset, num_samples);
-    print_known_order_score_check();
 
-    // Transfer Data to FPGA
-    printf("Writing databases to FPGA Broadcast Memory...\n");
-
+    printf("Writing precomputed scores to FPGA broadcast memory...\n");
     for (int i = 0; i < NUM_NODES; i++) {
         for (int p = 0; p < num_candidates[i]; p++) {
             uint32_t mask = precomputed_db[i][p].parent_bitmask;
             int32_t q16_score = float_to_q16(precomputed_db[i][p].local_score);
-            
-            // Node is [11:7], Candidate is [6:1].
             int base_offset = (i << 7) | (p << 1); 
             
             *(mcmc_system_base + base_offset)     = (uint32_t)q16_score; 
             *(mcmc_system_base + base_offset + 1) = mask; 
         }
         
-        // (Don't forget to update your sentinel write offsets the exact same way)
         int sentinel_offset = (i << 7) | (num_candidates[i] << 1); 
         *(mcmc_system_base + sentinel_offset)     = 0x00000000;
         *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF;
     }
     
-    // Write Sentinel at index 0 for all UNUSED hardware nodes
-    // The hardware instantiates 32 nodes. We must satisfy all of them so &score_done == 1
     for (int i = NUM_NODES; i < 32; i++) {
-        // Address logic for node i, candidate 0
         int sentinel_offset = (i << 7) | (0 << 1); 
-        
-        // Write the two 32-bit halves natively
-        *(mcmc_system_base + sentinel_offset)     = 0x00000000; // local_score
-        *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF; // parent_mask
+        *(mcmc_system_base + sentinel_offset)     = 0x00000000; 
+        *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF; 
     }
 
-    printf("Reset FPGA\n");
-    *pio_start = 0;       // Ensure start is low
+    *pio_start = 0;
+    *pio_reset = 1;      
+    usleep(10);           
+    *pio_reset = 0;      
     usleep(10);
-    print_fpga_debug_status("before reset assert");
-    *pio_reset = 1;       // Assert soft reset
-    usleep(10);           // Wait 10 microseconds (plenty of time for 50MHz clock)
-    print_fpga_debug_status("during reset assert");
-    *pio_reset = 0;       // De-assert soft reset
-    usleep(10);
-    print_fpga_debug_status("after reset deassert before config");
 
     *pio_iterations = ITERATIONS;
     *pio_active_nodes = NUM_NODES;
     *pio_node_mask = NUM_NODES - 1;
     *pio_seed = SEED;
-    print_fpga_debug_status("after config before start");
 
     printf("Starting 32-Node Engine...\n");
     
-    uint32_t clk_before_start = *pio_clock_count;
-    uint32_t done_before_start = *pio_done;
-    if (done_before_start != 0) {
-        printf("WARNING: done was already high before start; readback may be stale unless reset clears it.\n");
-    }
-
     *pio_start = 1;
     usleep(10);
-    print_fpga_debug_status("after start assert");
-    if (*pio_clock_count == clk_before_start && *pio_done == 0) {
-        printf("DEBUG: clk_count has not advanced yet immediately after start; continuing to poll.\n");
-    }
 
     if (wait_for_done_or_timeout(DONE_TIMEOUT_US) != 0) {
         *pio_start = 0;
-        print_fpga_debug_status("after timeout start cleared");
         return 1;
     }
-    print_fpga_debug_status("done observed before start clear");
-    *pio_start = 0;            // Clean up
-    usleep(10);
-    print_fpga_debug_status("after start clear");
-
-    // Performance Metrics
+    
+    *pio_start = 0;            
+    
     uint32_t clocks = *pio_clock_count;
-    float time_seconds = (float)clocks / 50000000.0f; // 50 MHz clock
+    float time_seconds = (float)clocks / 50000000.0f; 
     
     printf("\n=== MCMC Hardware Complete ===\n");
     printf("Hardware Iterations: %d\n", *pio_iterations);
     printf("Cycle Count:         %u clocks\n", clocks);
     printf("Execution Time:      %f seconds\n\n", time_seconds);
-    printf("Raw HW best_score:   0x%08x (%.6f Q16.16)\n",
-           *pio_best_score,
-           q16_to_float(*pio_best_score));
-    
-    // Extract the Best Order directly from the Heavyweight Memory Bus
     
     int best_order[32];
     int active_count = (int)(*pio_active_nodes);
-    uint32_t raw_order_word0 = *(mcmc_system_base + 2048);
-    uint32_t raw_order_word1 = *(mcmc_system_base + 2049);
-    printf("Raw best-order words: 0x%08x 0x%08x\n", raw_order_word0, raw_order_word1);
+    
     for (int i = 0; i < active_count; i++) {
-        // Read the 32-bit chunk containing this node (starts at address 2048)
         uint32_t word = *(mcmc_system_base + 2048 + (i / 4));
-        
-        // Shift by 0, 5, 10, or 15 bits and mask
         best_order[i] = (word >> ((i % 4) * 5)) & 0x1F;
-        
-        printf("%s ", node_names[best_order[i]]);
-        if (i < active_count - 1) printf("-> ");
     }
-    printf("\n");
+    
     print_learned_graph(best_order, active_count);
     unsigned int learned_parent_masks[NUM_NODES];
     choose_best_graph_for_order(best_order, active_count, learned_parent_masks);
-    run_inference_console(dataset, num_samples, best_order, active_count, learned_parent_masks);
+    // run_inference_console(dataset, num_samples, best_order, active_count, learned_parent_masks);
 
     return 0;
 }

@@ -5,11 +5,11 @@
  version="1.0"
  fabric="QSYS">
  <!-- Format version 18.1 625 (Future versions may contain additional information.) -->
- <!-- 2026.05.03.21:59:13 -->
+ <!-- 2026.05.04.23:23:10 -->
  <!-- A collection of modules and connections -->
  <parameter name="AUTO_GENERATION_ID">
   <type>java.lang.Integer</type>
-  <value>1777859952</value>
+  <value>1777951389</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -76826,7 +76826,7 @@ parameters are a RESULT of the module parameters. -->
 the requested settings for a module instance. -->
   <parameter name="AUTO_GENERATION_ID">
    <type>java.lang.Integer</type>
-   <value>1777859952</value>
+   <value>1777951389</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -84788,7 +84788,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="N_CHAINS">
    <type>int</type>
-   <value>2</value>
+   <value>1</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>

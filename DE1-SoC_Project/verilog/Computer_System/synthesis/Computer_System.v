@@ -604,7 +604,7 @@ module Computer_System (
 
 	mcmc_system_parallel #(
 		.N_NODES  (32),
-		.N_CHAINS (2)
+		.N_CHAINS (1)
 	) mcmc_system_0 (
 		.clk           (system_pll_sys_clk_clk),                                   //          clock.clk
 		.reset_n       (~rst_controller_reset_out_reset),                          //          reset.reset_n
