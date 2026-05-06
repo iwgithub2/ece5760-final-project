@@ -33,8 +33,12 @@
 #define ITERATIONS 1000000
 #define SEED 0xDEADBEEF
 #define MAX_PARENTS_PER_NODE 64 
+#define HW_CANDIDATE_SLOTS_PER_NODE 64
+#define HW_MAX_CANDIDATES_PER_NODE (HW_CANDIDATE_SLOTS_PER_NODE - 1)
+#define DEFAULT_ML_TABLE_DIR "ml"
+#define ML_DEBUG_CSV_NAME "readable_debug.csv"
 #define DONE_TIMEOUT_US 10000000
-#define DEBUG_BUILD_TAG "mcmc_test debug-reset-readback-v2-inference"
+#define DEBUG_BUILD_TAG "mcmc_test debug-reset-readback-v3-ml-candidates"
 #define VGA_BLACK 0x00
 #define VGA_WHITE 0xFF
 #define VGA_BLUE  0x03
@@ -52,6 +56,17 @@ typedef struct {
     unsigned int parent_bitmask;
     float local_score;           
 } ParentSet;
+
+typedef enum {
+    CANDIDATE_SOURCE_FIXED,
+    CANDIDATE_SOURCE_ML
+} CandidateSource;
+
+typedef struct {
+    CandidateSource source;
+    char ml_dir[256];
+    bool dry_run_candidates;
+} CandidateLoadConfig;
 
 typedef struct {
     unsigned int parent_mask;
@@ -107,11 +122,17 @@ void draw_learned_graph_vga(const int* order, int active_count, const unsigned i
 void print_fpga_debug_status(const char* label);
 int wait_for_done_or_timeout(unsigned int timeout_us);
 void print_known_order_score_check(void);
+void parse_candidate_args(int argc, char** argv, CandidateLoadConfig* config);
+void precompute_fixed_k(int** dataset, int num_samples);
+void load_ml_candidate_table(const char* ml_dir);
+void normalize_candidate_scores(void);
+void validate_candidate_capacity_or_die(const char* source_name);
 void build_learned_cpts(int** dataset, int num_samples,
                         const unsigned int* parent_masks, LearnedCPT* cpts);
 void free_learned_cpts(LearnedCPT* cpts);
 void run_inference_console(int** dataset, int num_samples, const int* order, int active_count,
                            const unsigned int* parent_masks);
+void strip_newline(char* line);
 
 // --- Precomputation Math ---
 int count_set_bits(unsigned int n) {
@@ -121,6 +142,234 @@ int count_set_bits(unsigned int n) {
         n >>= 1;
     }
     return count;
+}
+
+void print_usage(const char* program_name) {
+    printf("Usage:\n");
+    printf("  %s                 # fixed-k parent-set precompute\n", program_name);
+    printf("  %s fixed           # same as default\n", program_name);
+    printf("  %s ml              # load ML candidates from ./%s\n", program_name, DEFAULT_ML_TABLE_DIR);
+    printf("  %s ml --ml-dir DIR # load ML candidates from DIR/%s\n",
+           program_name, ML_DEBUG_CSV_NAME);
+    printf("  %s ml --ml-dir DIR --dry-run-candidates\n", program_name);
+    printf("\n");
+    printf("Current bitstream table capacity: %d candidates/node plus one sentinel.\n",
+           HW_MAX_CANDIDATES_PER_NODE);
+}
+
+void parse_candidate_args(int argc, char** argv, CandidateLoadConfig* config) {
+    config->source = CANDIDATE_SOURCE_FIXED;
+    config->dry_run_candidates = false;
+    strncpy(config->ml_dir, DEFAULT_ML_TABLE_DIR, sizeof(config->ml_dir) - 1);
+    config->ml_dir[sizeof(config->ml_dir) - 1] = '\0';
+
+    for (int arg = 1; arg < argc; arg++) {
+        if (strcmp(argv[arg], "fixed") == 0 || strcmp(argv[arg], "--fixed") == 0) {
+            config->source = CANDIDATE_SOURCE_FIXED;
+        } else if (strcmp(argv[arg], "ml") == 0 || strcmp(argv[arg], "--ml") == 0) {
+            config->source = CANDIDATE_SOURCE_ML;
+        } else if (strcmp(argv[arg], "--candidate-source") == 0 && arg + 1 < argc) {
+            arg++;
+            if (strcmp(argv[arg], "fixed") == 0) {
+                config->source = CANDIDATE_SOURCE_FIXED;
+            } else if (strcmp(argv[arg], "ml") == 0) {
+                config->source = CANDIDATE_SOURCE_ML;
+            } else {
+                printf("ERROR: unknown candidate source '%s'\n", argv[arg]);
+                print_usage(argv[0]);
+                exit(1);
+            }
+        } else if (strcmp(argv[arg], "--ml-dir") == 0 && arg + 1 < argc) {
+            arg++;
+            strncpy(config->ml_dir, argv[arg], sizeof(config->ml_dir) - 1);
+            config->ml_dir[sizeof(config->ml_dir) - 1] = '\0';
+        } else if (strcmp(argv[arg], "--dry-run-candidates") == 0 ||
+                   strcmp(argv[arg], "--validate-candidates") == 0) {
+            config->dry_run_candidates = true;
+        } else if (strcmp(argv[arg], "--help") == 0 || strcmp(argv[arg], "-h") == 0) {
+            print_usage(argv[0]);
+            exit(0);
+        } else {
+            printf("ERROR: unknown argument '%s'\n", argv[arg]);
+            print_usage(argv[0]);
+            exit(1);
+        }
+    }
+}
+
+void add_candidate_or_die(int node, int* candidate_count, unsigned int parent_mask,
+                          float local_score, const char* source_name) {
+    if (*candidate_count >= HW_MAX_CANDIDATES_PER_NODE ||
+        *candidate_count >= MAX_PARENTS_PER_NODE) {
+        printf("ERROR: %s produced too many candidate parent sets for node %d (%s).\n",
+               source_name, node, node_names[node]);
+        printf("       C array capacity is %d; current RTL usable capacity is %d candidates plus sentinel.\n",
+               MAX_PARENTS_PER_NODE, HW_MAX_CANDIDATES_PER_NODE);
+        printf("       Reduce ML pruning params or use a bitstream compiled with deeper per-node RAM.\n");
+        exit(1);
+    }
+
+    precomputed_db[node][*candidate_count].parent_bitmask = parent_mask;
+    precomputed_db[node][*candidate_count].local_score = local_score;
+    (*candidate_count)++;
+}
+
+void normalize_candidate_scores(void) {
+    for (int i = 0; i < NUM_NODES; i++) {
+        float max_score = -1e30f;
+        for (int p = 0; p < num_candidates[i]; p++) {
+            if (precomputed_db[i][p].local_score > max_score) {
+                max_score = precomputed_db[i][p].local_score;
+            }
+        }
+
+        for (int p = 0; p < num_candidates[i]; p++) {
+            precomputed_db[i][p].local_score -= max_score;
+            if (precomputed_db[i][p].local_score < -500.0f) {
+                precomputed_db[i][p].local_score = -500.0f;
+            }
+        }
+    }
+}
+
+void validate_candidate_capacity_or_die(const char* source_name) {
+    bool failed = false;
+
+    for (int node = 0; node < NUM_NODES; node++) {
+        if (num_candidates[node] <= 0) {
+            printf("ERROR: %s produced no candidate parent sets for node %d (%s).\n",
+                   source_name, node, node_names[node]);
+            failed = true;
+        }
+
+        if (num_candidates[node] > HW_MAX_CANDIDATES_PER_NODE) {
+            printf("ERROR: %s candidate table for node %d (%s) has %d entries; "
+                   "current RTL supports %d plus sentinel.\n",
+                   source_name, node, node_names[node],
+                   num_candidates[node], HW_MAX_CANDIDATES_PER_NODE);
+            failed = true;
+        }
+    }
+
+    if (failed) {
+        printf("Hardware note: mcmc_system.v currently partitions Avalon address bits "
+               "[11:7] by node and [6:1] by candidate word-pair.\n");
+        printf("               That gives 64 pair slots per node, so only 63 usable "
+               "candidates if one sentinel is kept.\n");
+        printf("               Reduce ML --max-candidates-per-node/--max-parent-size, "
+               "or change RTL RAM/address widths and recompile the FPGA bitstream.\n");
+        exit(1);
+    }
+}
+
+int split_csv_simple(char* line, char** fields, int max_fields) {
+    int count = 0;
+    char *cursor = line;
+
+    if (max_fields <= 0) return 0;
+    fields[count++] = cursor;
+    while (*cursor) {
+        if (*cursor == ',') {
+            *cursor = '\0';
+            if (count < max_fields) fields[count++] = cursor + 1;
+        }
+        cursor++;
+    }
+    return count;
+}
+
+unsigned int parse_ml_parent_mask_or_die(const char* raw_mask, int line_number) {
+    char *end_ptr;
+    unsigned long long mask64;
+
+    mask64 = strtoull(raw_mask, &end_ptr, 16);
+    while (*end_ptr && isspace((unsigned char)*end_ptr)) end_ptr++;
+    if (*end_ptr != '\0') {
+        printf("ERROR: ML table line %d has multiple parent-mask chunks; "
+               "current hardware/C path supports <=32 nodes only.\n", line_number);
+        exit(1);
+    }
+    if (mask64 > 0xFFFFFFFFULL) {
+        printf("ERROR: ML table line %d parent mask 0x%llx exceeds 32 hardware nodes.\n",
+               line_number, mask64);
+        exit(1);
+    }
+    return (unsigned int)mask64;
+}
+
+void load_ml_candidate_table(const char* ml_dir) {
+    char path[512];
+    char line[4096];
+    FILE* file;
+    int line_number = 0;
+
+    snprintf(path, sizeof(path), "%s/%s", ml_dir, ML_DEBUG_CSV_NAME);
+    file = fopen(path, "r");
+    if (!file) {
+        printf("ERROR: failed to open ML candidate table %s\n", path);
+        printf("       Generate it with preprocess_bn.py --output-dir %s --emit-hex\n", ml_dir);
+        exit(1);
+    }
+
+    for (int node = 0; node < NUM_NODES; node++) num_candidates[node] = 0;
+
+    if (!fgets(line, sizeof(line), file)) {
+        printf("ERROR: ML candidate table %s is empty\n", path);
+        fclose(file);
+        exit(1);
+    }
+    line_number++;
+
+    while (fgets(line, sizeof(line), file)) {
+        char* fields[16];
+        int field_count;
+        int node;
+        unsigned int parent_mask;
+        float log_score;
+
+        line_number++;
+        strip_newline(line);
+        field_count = split_csv_simple(line, fields, 16);
+        if (field_count < 8) {
+            printf("ERROR: malformed ML candidate CSV line %d in %s\n", line_number, path);
+            fclose(file);
+            exit(1);
+        }
+
+        node = atoi(fields[0]);
+        if (node < 0 || node >= NUM_NODES) {
+            printf("ERROR: ML candidate CSV line %d has node_id=%d, but C NUM_NODES=%d\n",
+                   line_number, node, NUM_NODES);
+            fclose(file);
+            exit(1);
+        }
+        if (strcmp(fields[1], node_names[node]) != 0) {
+            printf("ERROR: ML candidate CSV line %d node name mismatch: table has '%s', "
+                   "dataset column %d is '%s'.\n",
+                   line_number, fields[1], node, node_names[node]);
+            fclose(file);
+            exit(1);
+        }
+
+        parent_mask = parse_ml_parent_mask_or_die(fields[6], line_number);
+        if (parent_mask & (1U << node)) {
+            printf("ERROR: ML candidate CSV line %d has node %s as its own parent.\n",
+                   line_number, node_names[node]);
+            fclose(file);
+            exit(1);
+        }
+        log_score = strtof(fields[7], NULL);
+        add_candidate_or_die(node, &num_candidates[node], parent_mask, log_score, "ML");
+    }
+
+    fclose(file);
+    normalize_candidate_scores();
+    validate_candidate_capacity_or_die("ML");
+
+    printf("Loaded ML candidate table from %s\n", path);
+    for (int node = 0; node < NUM_NODES; node++) {
+        printf("  node %d %-12s candidates=%d\n", node, node_names[node], num_candidates[node]);
+    }
 }
 
 float calculate_bde_score(int** dataset, int num_samples, int target_node, unsigned int parent_mask) {
@@ -174,16 +423,16 @@ void precompute_fixed_k(int** dataset, int num_samples) {
     for (int i = 0; i < NUM_NODES; i++) {
         int candidate_count = 0;
         unsigned int mask_k0 = 0;
-        precomputed_db[i][candidate_count].parent_bitmask = mask_k0;
-        precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k0);
-        candidate_count++;
+        add_candidate_or_die(i, &candidate_count, mask_k0,
+                             calculate_bde_score(dataset, num_samples, i, mask_k0),
+                             "fixed-k");
 
         for (int p1 = 0; p1 < NUM_NODES; p1++) {
             if (p1 == i) continue;
             unsigned int mask_k1 = (1 << p1);
-            precomputed_db[i][candidate_count].parent_bitmask = mask_k1;
-            precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k1);
-            candidate_count++;
+            add_candidate_or_die(i, &candidate_count, mask_k1,
+                                 calculate_bde_score(dataset, num_samples, i, mask_k1),
+                                 "fixed-k");
         }
 
         for (int p1 = 0; p1 < NUM_NODES; p1++) {
@@ -191,35 +440,16 @@ void precompute_fixed_k(int** dataset, int num_samples) {
             for (int p2 = p1 + 1; p2 < NUM_NODES; p2++) {
                 if (p2 == i) continue;
                 unsigned int mask_k2 = (1 << p1) | (1 << p2);
-                precomputed_db[i][candidate_count].parent_bitmask = mask_k2;
-                precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k2);
-                candidate_count++;
+                add_candidate_or_die(i, &candidate_count, mask_k2,
+                                     calculate_bde_score(dataset, num_samples, i, mask_k2),
+                                     "fixed-k");
             }
         }
         num_candidates[i] = candidate_count;
     }
 
-    // // Normalization to prevent Q16.16 FPGA Overflow
-    // for (int i = 0; i < NUM_NODES; i++) {
-    //     // Find the maximum score for this specific node
-    //     float max_score = -1e30f;
-    //     for (int p = 0; p < num_candidates[i]; p++) {
-    //         if (precomputed_db[i][p].local_score > max_score) {
-    //             max_score = precomputed_db[i][p].local_score;
-    //         }
-    //     }
-        
-    //     // Shift scores and CLAMP them to prevent signed underflow
-    //     for (int p = 0; p < num_candidates[i]; p++) {
-    //         precomputed_db[i][p].local_score -= max_score;
-            
-    //         // Clamp terrible scores to -500.0f
-    //         // -500 * 65536 * 32 nodes = -1,048,576,000 (Safely inside 32-bit limit)
-    //         if (precomputed_db[i][p].local_score < -500.0f) {
-    //             precomputed_db[i][p].local_score = -500.0f;
-    //         }
-    //     }
-    // }
+    normalize_candidate_scores();
+    validate_candidate_capacity_or_die("fixed-k");
 }
 
 int** load_csv(const char* filename, int* out_num_samples, int num_nodes) {
@@ -1002,10 +1232,34 @@ int wait_for_done_or_timeout(unsigned int timeout_us) {
     return 0;
 }
 
-int main(void)
+int main(int argc, char** argv)
 {
-    printf("=== MCMC Bayesian Network Learner ===\n");
-    printf("Build: %s | %s %s\n", DEBUG_BUILD_TAG, __DATE__, __TIME__);
+    CandidateLoadConfig candidate_config;
+    parse_candidate_args(argc, argv, &candidate_config);
+
+    printf("Build ID: %s | %s %s\n", DEBUG_BUILD_TAG, __DATE__, __TIME__);
+    printf("Candidate source: %s%s%s\n",
+           candidate_config.source == CANDIDATE_SOURCE_FIXED ? "fixed-k" : "ML table",
+           candidate_config.source == CANDIDATE_SOURCE_ML ? " from " : "",
+           candidate_config.source == CANDIDATE_SOURCE_ML ? candidate_config.ml_dir : "");
+
+    // Load Dataset & Precompute/Load candidate tables (ARM)
+    printf("Loading dataset and candidate tables...\n");
+    char samples_path[256];
+    sprintf(samples_path, "cleaned-datasets/%s_samples.csv", DATASET_NAME);
+    int num_samples;
+    int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
+    if (candidate_config.source == CANDIDATE_SOURCE_ML) {
+        load_ml_candidate_table(candidate_config.ml_dir);
+    } else {
+        precompute_fixed_k(dataset, num_samples);
+    }
+    print_known_order_score_check();
+
+    if (candidate_config.dry_run_candidates) {
+        printf("Dry run complete: candidate tables fit this C build and current RTL capacity.\n");
+        return 0;
+    }
 
     int fd;
     if( ( fd = open( "/dev/mem", ( O_RDWR | O_SYNC ) ) ) == -1 ) {
@@ -1030,13 +1284,7 @@ int main(void)
     fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); 
     if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
     mcmc_system_base = (unsigned int *)fpga_ram_virtual_base;
-
-    printf("Loading dataset and precomputing scores...\n");
-    char samples_path[256];
-    sprintf(samples_path, "cleaned-datasets/%s_samples.csv", DATASET_NAME);
-    int num_samples;
-    int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
-    precompute_fixed_k(dataset, num_samples);
+    print_fpga_debug_status("after mmap before table write");
 
     printf("Writing precomputed scores to FPGA broadcast memory...\n");
     for (int i = 0; i < NUM_NODES; i++) {

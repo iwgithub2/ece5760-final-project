@@ -48,7 +48,14 @@ cd playground
 Candidate-table vs fixed-k experiments:
 
 ```sh
-uv run python playground/run_candidate_table_experiments.py
+uv run python ml_experiments/run_candidate_table_experiments.py
 ```
 
-Results are written to `playground/candidate_table_results/candidate_table_summary.csv`.
+Results are written to `ml_experiments/candidate_table_results/candidate_table_summary.csv`.
+
+Multi-dataset ML-pruning experiments and PNG plots live under `ml_experiments/`:
+
+```sh
+uv run python ml_experiments/run_multi_dataset_candidate_experiments.py
+uv run python ml_experiments/plot_multi_dataset_pngs.py
+```
