@@ -446,15 +446,19 @@ module mcmc_controller #(
                             (iter_count < (iterations - (iterations >> 2))) ? 5'd1 : 
                             5'd0;
 
-    wire [31:0] abs_diff = -score_diff;
+	 wire [31:0] abs_diff = -score_diff;
     
-    // Calculate raw shift, then subtract the temperature shift (clamped at 0 to prevent underflow)
-    wire [4:0] raw_shift_amt = abs_diff[20:16] + {4'd0, abs_diff[15]};
+    // DIVIDE PENALTY BY 128 (shift right 7) FOR ACCEPTANCE ONLY
+    // This flattens the landscape for the MCMC without breaking log_add math.
+    // A log-likelihood drop of 1800 becomes ~14.0 to the simulated annealing logic.
+    wire [31:0] scaled_abs_diff = abs_diff >> 7; 
+    
+    // Calculate raw shift using the SCALED difference
+    wire [4:0] raw_shift_amt = scaled_abs_diff[20:16] + {4'd0, scaled_abs_diff[15]};
     wire [4:0] shift_amt = (raw_shift_amt > TEMP_SHIFT) ? (raw_shift_amt - TEMP_SHIFT) : 5'd0;
-    
-    // If the move is worse by more than 15.0 log-likelihood, probability is 0%
-    wire [15:0] dynamic_prob = (abs_diff >= 32'h000F_0000) ?
-        16'd0 : (16'hFFFF >> shift_amt);
+
+    // If the SCALED move is worse by more than 15.0, probability is 0%
+    wire [15:0] dynamic_prob = (scaled_abs_diff >= 32'h000F_0000) ? 16'd0 : (16'hFFFF >> shift_amt);
 
     // Accept if better, OR randomly accept based on how bad the move is
     assign accept_move = (score_diff >= 0) ? 1'b1 : (saved_rand_u < dynamic_prob);

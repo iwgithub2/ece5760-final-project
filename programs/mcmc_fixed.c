@@ -707,8 +707,8 @@ void run_inference_console(int** dataset, int num_samples, const int* order, int
 void print_learned_graph(const int* order, int active_count) {
     unsigned int best_parent_masks[NUM_NODES];
     int initial_order[NUM_NODES];
-    float graph_score = choose_best_graph_for_order(order, active_count, best_parent_masks) * 200.0f;
-    float order_score = score_order_logsum(order, active_count) * 200.0f;
+    float graph_score = choose_best_graph_for_order(order, active_count, best_parent_masks);
+    float order_score = score_order_logsum(order, active_count);
     float initial_order_score;
     bool printed_edge = false;
 

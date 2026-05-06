@@ -13,6 +13,7 @@
 #define DATASET_NAME "asia"
 #define NUM_NODES 8 // Example: 8 nodes for the Asia network, cancer: 5, earthquake: 5, sachs: 11, survey: 6
 #define MAX_PARENTS_PER_NODE 64 // Depends on your pre-computation
+#define ITERATIONS 100000
 
 char node_names[NUM_NODES][64]; // Stores up to 8 names, 63 chars each
 
@@ -139,23 +140,7 @@ void precompute_fixed_k(int** dataset, int num_samples) {
         
         num_candidates[i] = candidate_count;
     }
-    // --- ADD THIS BLOCK ---
-    // Normalization to exactly match the FPGA Q16.16 scaling
-    for (int i = 0; i < NUM_NODES; i++) {
-        float max_score = -1e30f;
-        for (int p = 0; p < num_candidates[i]; p++) {
-            if (precomputed_db[i][p].local_score > max_score) {
-                max_score = precomputed_db[i][p].local_score;
-            }
-        }
-        
-        for (int p = 0; p < num_candidates[i]; p++) {
-            precomputed_db[i][p].local_score -= max_score;
-            if (precomputed_db[i][p].local_score < -500.0f) {
-                precomputed_db[i][p].local_score = -500.0f;
-            }
-        }
-    }
+
 }
 
 // --- Scoring Logic ---
@@ -304,7 +289,7 @@ int main() {
     float current_score = score_order(current_order);
     
     // Simple Metropolis-Hastings Loop
-    for (int step = 0; step < 100000; step++) {
+    for (int step = 0; step < ITERATIONS; step++) {
         int proposed_order[NUM_NODES];
         
         // 1. Copy current to proposed

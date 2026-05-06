@@ -208,15 +208,6 @@ int main(void) {
     printf("2. Precomputing scores (k=3)... This will take a few moments.\n");
     precompute_fixed_k(dataset, num_samples);
 
-    // Flatten the score landscape for the FPGA's fixed-point simulated annealing
-    // A gap of 1800 becomes 9.0, allowing the FPGA to jump out of local optima!
-    float temperature_scaler = 200.0f; 
-    
-    for (int i = 0; i < NUM_NODES; i++) {
-        for (int j = 0; j < num_candidates[i]; j++) {
-            precomputed_db[i][j].local_score /= temperature_scaler;
-        }
-    }
     
     char out_path[256];
     sprintf(out_path, "%s_precomputed.bin", DATASET_NAME);
