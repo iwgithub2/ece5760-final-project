@@ -116,10 +116,7 @@ void draw_learned_graph_vga(const int* order, int active_count, const unsigned i
                             float order_score, float graph_score);
 void print_fpga_debug_status(const char* label);
 int wait_for_done_or_timeout(unsigned int timeout_us);
-void print_known_order_score_check(void);
-void parse_candidate_args(int argc, char** argv, CandidateLoadConfig* config);
-void precompute_fixed_k(int** dataset, int num_samples);
-void load_ml_candidate_table(const char* ml_dir);
+
 void normalize_candidate_scores(void);
 void validate_candidate_capacity_or_die(const char* source_name);
 void build_learned_cpts(int** dataset, int num_samples,
@@ -145,11 +142,20 @@ void load_precomputed_data(const char* filename) {
         printf("ERROR: Could not open %s for reading.\n", filename);
         exit(1);
     }
-    // Read the number of candidates per node
-    fread(num_candidates, sizeof(int), NUM_NODES, f);
-    // Read the actual precomputed database
-    fread(precomputed_db, sizeof(ParentSet), NUM_NODES * MAX_PARENTS_PER_NODE, f);
+    
+    size_t r1 = fread(node_names, sizeof(char), NUM_NODES * 64, f);
+    size_t r2 = fread(num_candidates, sizeof(int), NUM_NODES, f);
+    size_t r3 = fread(precomputed_db, sizeof(ParentSet), NUM_NODES * MAX_PARENTS_PER_NODE, f);
+    
     fclose(f);
+
+    // Strict check to ensure the file wasn't empty or partially transferred
+    if (r1 != NUM_NODES * 64 || r2 != NUM_NODES || r3 != NUM_NODES * MAX_PARENTS_PER_NODE) {
+        printf("ERROR: %s is empty or corrupted! (Read counts: %zu, %zu, %zu)\n", filename, r1, r2, r3);
+        printf("Please re-transfer the binary file from your PC to the DE1-SoC.\n");
+        exit(1);
+    }
+
     printf("Successfully loaded precomputed data from %s\n", filename);
 }
 
@@ -203,71 +209,6 @@ float calculate_bde_score(int** dataset, int num_samples, int target_node, unsig
     }
     
     return final_log_score;
-}
-
-// Comparison function for qsort (descending order)
-int cmp_candidates(const void* a, const void* b) {
-    float score_a = ((ParentSet*)a)->local_score;
-    float score_b = ((ParentSet*)b)->local_score;
-    if (score_a < score_b) return 1;
-    if (score_a > score_b) return -1;
-    return 0;
-}
-
-void prune_candidates_top_k(int k_limit) {
-    for (int i = 0; i < NUM_NODES; i++) {
-        if (num_candidates[i] > k_limit) {
-            // Sort candidates for node 'i' in descending order of local_score
-            qsort(precomputed_db[i], num_candidates[i], sizeof(ParentSet), cmp_candidates);
-            
-            // Truncate the list
-            num_candidates[i] = k_limit;
-        }
-    }
-}
-
-void precompute_fixed_k(int** dataset, int num_samples) {
-    for (int i = 0; i < NUM_NODES; i++) {
-        int candidate_count = 0;
-        unsigned int mask_k0 = 0;
-        add_candidate_or_die(i, &candidate_count, mask_k0,
-                             calculate_bde_score(dataset, num_samples, i, mask_k0),
-                             "fixed-k");
-
-        for (int p1 = 0; p1 < NUM_NODES; p1++) {
-            if (p1 == i) continue;
-            unsigned int mask_k1 = (1 << p1);
-            add_candidate_or_die(i, &candidate_count, mask_k1,
-                                 calculate_bde_score(dataset, num_samples, i, mask_k1),
-                                 "fixed-k");
-        }
-
-        for (int p1 = 0; p1 < NUM_NODES; p1++) {
-            if (p1 == i) continue;
-            for (int p2 = p1 + 1; p2 < NUM_NODES; p2++) {
-                if (p2 == i) continue;
-                unsigned int mask_k2 = (1 << p1) | (1 << p2);
-                add_candidate_or_die(i, &candidate_count, mask_k2,
-                                     calculate_bde_score(dataset, num_samples, i, mask_k2),
-                                     "fixed-k");
-            }
-        }
-
-        for (int p1 = 0; p1 < NUM_NODES; p1++) {
-            if (p1 == i) continue;
-            for (int p2 = p1 + 1; p2 < NUM_NODES; p2++) {
-                if (p2 == i) continue;
-                for (int p3 = p2 + 1; p3 < NUM_NODES; p3++) {
-                    if (p3 == i) continue;
-                    unsigned int mask_k3 = (1 << p1) | (1 << p2) | (1 << p3);
-                    precomputed_db[i][candidate_count].parent_bitmask = mask_k3;
-                    precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k3);
-                    candidate_count++;
-                }
-            }
-        }
-        num_candidates[i] = candidate_count;
-    }
 }
 
 int** load_csv(const char* filename, int* out_num_samples, int num_nodes) {
@@ -1088,32 +1029,6 @@ int wait_for_done_or_timeout(unsigned int timeout_us) {
 
 int main(int argc, char** argv)
 {
-    CandidateLoadConfig candidate_config;
-    parse_candidate_args(argc, argv, &candidate_config);
-
-    printf("Build ID: %s | %s %s\n", DEBUG_BUILD_TAG, __DATE__, __TIME__);
-    printf("Candidate source: %s%s%s\n",
-           candidate_config.source == CANDIDATE_SOURCE_FIXED ? "fixed-k" : "ML table",
-           candidate_config.source == CANDIDATE_SOURCE_ML ? " from " : "",
-           candidate_config.source == CANDIDATE_SOURCE_ML ? candidate_config.ml_dir : "");
-
-    // Load Dataset & Precompute/Load candidate tables (ARM)
-    printf("Loading dataset and candidate tables...\n");
-    char samples_path[256];
-    sprintf(samples_path, "cleaned-datasets/%s_samples.csv", DATASET_NAME);
-    int num_samples;
-    int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
-    if (candidate_config.source == CANDIDATE_SOURCE_ML) {
-        load_ml_candidate_table(candidate_config.ml_dir);
-    } else {
-        precompute_fixed_k(dataset, num_samples);
-    }
-    print_known_order_score_check();
-
-    if (candidate_config.dry_run_candidates) {
-        printf("Dry run complete: candidate tables fit this C build and current RTL capacity.\n");
-        return 0;
-    }
 
     int fd;
     if( ( fd = open( "/dev/mem", ( O_RDWR | O_SYNC ) ) ) == -1 ) {
@@ -1158,8 +1073,9 @@ int main(int argc, char** argv)
         *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF;
     }
     
+    // Cap unused nodes with a sentinel at index 0
     for (int i = NUM_NODES; i < 32; i++) {
-        int sentinel_offset = (i << 9) | (num_candidates[i] << 1); 
+        int sentinel_offset = (i << 9) | (0 << 1);
         *(mcmc_system_base + sentinel_offset)     = 0x00000000; 
         *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF; 
     }

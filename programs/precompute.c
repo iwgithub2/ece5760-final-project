@@ -196,7 +196,8 @@ void save_precomputed_data(const char* filename) {
         exit(1);
     }
     
-    // Write metadata/arrays
+    // Write the string names, then metadata, then the database
+    fwrite(node_names, sizeof(char), NUM_NODES * 64, f);
     fwrite(num_candidates, sizeof(int), NUM_NODES, f);
     fwrite(precomputed_db, sizeof(ParentSet), NUM_NODES * MAX_PARENTS_PER_NODE, f);
     
