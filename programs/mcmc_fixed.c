@@ -30,7 +30,7 @@
 
 #define DATASET_NAME "insurance"
 #define NUM_NODES 27
-#define ITERATIONS 5000000
+#define ITERATIONS 1000000
 #define SEED 0xDEADBEEF
 #define MAX_PARENTS_PER_NODE 256 
 #define DONE_TIMEOUT_US 100000000
@@ -1123,7 +1123,28 @@ int main(int argc, char** argv)
     unsigned int learned_parent_masks[NUM_NODES];
     choose_best_graph_for_order(best_order, active_count, learned_parent_masks);
     evaluate_learned_graph(best_order, active_count, learned_parent_masks);
-    // run_inference_console(dataset, num_samples, best_order, active_count, learned_parent_masks);
+    
+    // --- UPDATED INFERENCE DEMO ---
+    char samples_path[256];
+    // Assuming the dataset is in the same relative path as the edges file
+    sprintf(samples_path, "cleaned-datasets/%s_samples.csv", DATASET_NAME); 
+    
+    int num_samples;
+    int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
+
+    if (dataset) {
+        // Run the interactive probability console
+        run_inference_console(dataset, num_samples, best_order, active_count, learned_parent_masks);
+        
+        // Cleanup dataset memory
+        for (int i = 0; i < num_samples; i++) {
+            free(dataset[i]);
+        }
+        free(dataset);
+    }
+    // ------------------------------
+
+    return 0;
 
     return 0;
 }
