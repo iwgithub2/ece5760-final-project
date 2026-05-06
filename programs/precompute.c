@@ -207,15 +207,50 @@ int main(void) {
     
     printf("2. Precomputing scores (k=3)... This will take a few moments.\n");
     precompute_fixed_k(dataset, num_samples);
+
+    // Flatten the score landscape for the FPGA's fixed-point simulated annealing
+    // A gap of 1800 becomes 9.0, allowing the FPGA to jump out of local optima!
+    float temperature_scaler = 200.0f; 
+    
+    for (int i = 0; i < NUM_NODES; i++) {
+        for (int j = 0; j < num_candidates[i]; j++) {
+            precomputed_db[i][j].local_score /= temperature_scaler;
+        }
+    }
     
     char out_path[256];
     sprintf(out_path, "%s_precomputed.bin", DATASET_NAME);
     printf("3. Saving binary dump...\n");
+    
     save_precomputed_data(out_path);
     
     // Cleanup
     for (int i = 0; i < num_samples; i++) free(dataset[i]);
     free(dataset);
+
+    // // --- SCORE DEBUGGING ---
+    // float max_score = -INFINITY;
+    // float min_score = INFINITY;
+    
+    // for (int i = 0; i < NUM_NODES; i++) {
+    //     for (int j = 0; j < num_candidates[i]; j++) {
+    //         float s = precomputed_db[i][j].local_score;
+    //         if (s > max_score) max_score = s;
+    //         if (s < min_score) min_score = s;
+    //     }
+    // }
+    
+    // printf("\n--- BDeu Score Diagnostics ---\n");
+    // printf("Global Max Score: %f\n", max_score);
+    // printf("Global Min Score: %f\n", min_score);
+    
+    // // Look at the score landscape for the first node to see the "gaps"
+    // printf("Top 10 candidates for Node 0 (%s):\n", node_names[0]);
+    // for(int j = 0; j < 10 && j < num_candidates[0]; j++) {
+    //     printf("  Rank %d: Score = %f, Mask = 0x%08x\n", 
+    //            j, precomputed_db[0][j].local_score, precomputed_db[0][j].parent_bitmask);
+    // }
+    // printf("------------------------------\n\n");
     
     printf("Done.\n");
     return 0;
