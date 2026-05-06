@@ -555,6 +555,64 @@ int parse_node_token(const char* token) {
     return node_index_by_name(token);
 }
 
+void evaluate_learned_graph(const int* order, int active_count, const unsigned int* parent_masks) {
+    char edges_path[256];
+    sprintf(edges_path, "cleaned-datasets/%s_edges.csv", DATASET_NAME);
+    
+    bool ground_truth[NUM_NODES][NUM_NODES] = {false};
+    FILE* edge_file = fopen(edges_path, "r");
+    if (edge_file) {
+        char line[128];
+        fgets(line, sizeof(line), edge_file); // Skip header
+        while (fgets(line, sizeof(line), edge_file)) {
+            char src_name[64], dst_name[64];
+            // Split by comma
+            if (sscanf(line, "%[^,],%s", src_name, dst_name) == 2) {
+                int u = node_index_by_name(src_name);
+                int v = node_index_by_name(dst_name);
+                if (u != -1 && v != -1) ground_truth[u][v] = true;
+            }
+        }
+        fclose(edge_file);
+    } else {
+        printf("[WARNING] Could not open %s to evaluate edges.\n", edges_path);
+        return;
+    }
+
+    int true_positives = 0, false_positives = 0, total_ground_truth = 0;
+    for (int i = 0; i < NUM_NODES; i++) {
+        for (int j = 0; j < NUM_NODES; j++) {
+            if (ground_truth[i][j]) total_ground_truth++;
+        }
+    }
+
+    printf("\n=== Edge Evaluation against Ground Truth ===\n");
+    for (int order_pos = 0; order_pos < active_count; order_pos++) {
+        int current_node = order[order_pos];
+        unsigned int best_mask = parent_masks[current_node];
+
+        for (int p_idx = 0; p_idx < NUM_NODES; p_idx++) {
+            if (best_mask & (1 << p_idx)) {
+                if (ground_truth[p_idx][current_node]) {
+                    printf("[CORRECT] %s -> %s\n", node_names[p_idx], node_names[current_node]);
+                    true_positives++;
+                } else {
+                    printf("[EXTRA  ] %s -> %s\n", node_names[p_idx], node_names[current_node]);
+                    false_positives++;
+                }
+            }
+        }
+    }
+    
+    float precision = (true_positives + false_positives > 0) ? (float)true_positives / (true_positives + false_positives) : 0.0f;
+    float recall = (total_ground_truth > 0) ? (float)true_positives / total_ground_truth : 0.0f;
+    float f1 = (precision + recall > 0) ? 2 * (precision * recall) / (precision + recall) : 0.0f;
+
+    printf("\nPrecision: %.2f\n", precision);
+    printf("Recall:    %.2f\n", recall);
+    printf("F1 Score:  %.2f\n", f1);
+}
+
 int parse_binary_value(const char* token) {
     char lower[16];
     int i;
@@ -1099,7 +1157,7 @@ int main(void)
         best_order[i] = (word >> ((i % 4) * 5)) & 0x1F;
     }
     
-    print_learned_graph(best_order, active_count);
+    evaluate_learned_graph(best_order, active_count);
     unsigned int learned_parent_masks[NUM_NODES];
     choose_best_graph_for_order(best_order, active_count, learned_parent_masks);
     // run_inference_console(dataset, num_samples, best_order, active_count, learned_parent_masks);
