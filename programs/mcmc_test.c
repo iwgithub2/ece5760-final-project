@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <ctype.h>
+#include <limits.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -28,8 +29,12 @@
 #define PIO_RESET_OFFSET        0x70 
 #define PIO_CLK_COUNT_OFFSET    0x80 
 
+#ifndef DATASET_NAME
 #define DATASET_NAME "asia"
+#endif
+#ifndef NUM_NODES
 #define NUM_NODES 8
+#endif
 #define ITERATIONS 1000000
 #define SEED 0xDEADBEEF
 #define MAX_PARENTS_PER_NODE 64 
@@ -50,6 +55,7 @@
 #define INFERENCE_ALPHA 1.0f
 
 char node_names[NUM_NODES][64];
+int node_cardinalities[NUM_NODES];
 
 // --- Database Data Structures ---
 typedef struct {
@@ -72,7 +78,8 @@ typedef struct {
     unsigned int parent_mask;
     int parent_count;
     int parent_state_count;
-    float *p_one;
+    int node_cardinality;
+    float *probabilities;
 } LearnedCPT;
 
 typedef struct {
@@ -80,11 +87,12 @@ typedef struct {
     const int *order;
     int active_count;
     int target_node;
+    int target_value;
     int evidence[NUM_NODES];
     int samples;
     uint32_t rng_state;
     double total_weight;
-    double target_one_weight;
+    double target_value_weight;
 } InferenceWorkerArgs;
 
 ParentSet precomputed_db[NUM_NODES][MAX_PARENTS_PER_NODE];
@@ -372,42 +380,99 @@ void load_ml_candidate_table(const char* ml_dir) {
     }
 }
 
-float calculate_bde_score(int** dataset, int num_samples, int target_node, unsigned int parent_mask) {
-    float alpha = 1.0f; 
-    int num_parents = count_set_bits(parent_mask);
-    int parent_indices[32]; 
-    int p_idx = 0;
-    for (int i = 0; i < NUM_NODES; i++) {
-        if (parent_mask & (1 << i)) parent_indices[p_idx++] = i;
-    }
-    int q = 1 << num_parents; 
-    float alpha_ij = alpha / (float)q;
-    float alpha_ijk = alpha_ij / 2.0f; 
-    float final_log_score = 0.0f;
+size_t checked_parent_config_count(unsigned int parent_mask, const char* context) {
+    size_t config_count = 1;
 
-    for (int state = 0; state < q; state++) {
-        int N_ijk[2] = {0, 0}; 
-        for (int row = 0; row < num_samples; row++) {
-            bool parents_match_state = true;
-            for (int p = 0; p < num_parents; p++) {
-                int p_node = parent_indices[p];
-                int expected_val = (state >> p) & 1; 
-                if (dataset[row][p_node] != expected_val) {
-                    parents_match_state = false;
-                    break;
-                }
+    for (int node = 0; node < NUM_NODES; node++) {
+        if (parent_mask & (1U << node)) {
+            int cardinality = node_cardinalities[node];
+            if (cardinality <= 0) {
+                printf("ERROR: node %d (%s) has invalid cardinality %d while %s.\n",
+                       node, node_names[node], cardinality, context);
+                exit(1);
             }
-            if (parents_match_state) {
-                int target_val = dataset[row][target_node];
-                N_ijk[target_val]++;
+            if (config_count > SIZE_MAX / (size_t)cardinality) {
+                printf("ERROR: parent-state count overflow while %s.\n", context);
+                exit(1);
             }
+            config_count *= (size_t)cardinality;
         }
-        int N_ij = N_ijk[0] + N_ijk[1]; 
-        final_log_score += lgammaf(alpha_ij) - lgammaf(alpha_ij + N_ij);
-        final_log_score += lgammaf(alpha_ijk + N_ijk[0]) - lgammaf(alpha_ijk);
-        final_log_score += lgammaf(alpha_ijk + N_ijk[1]) - lgammaf(alpha_ijk);
     }
-    return final_log_score;
+
+    return config_count;
+}
+
+size_t checked_cpt_entry_count(size_t parent_config_count, int node_cardinality,
+                               const char* context) {
+    if (node_cardinality <= 0) {
+        printf("ERROR: invalid target cardinality %d while %s.\n",
+               node_cardinality, context);
+        exit(1);
+    }
+    if (parent_config_count > SIZE_MAX / (size_t)node_cardinality) {
+        printf("ERROR: CPT table size overflow while %s.\n", context);
+        exit(1);
+    }
+    return parent_config_count * (size_t)node_cardinality;
+}
+
+float calculate_bde_score(int** dataset, int num_samples, int target_node, unsigned int parent_mask) {
+    double alpha = 1.0;
+    int num_parents = count_set_bits(parent_mask);
+    int parent_indices[NUM_NODES];
+    int p_idx = 0;
+    int r = node_cardinalities[target_node];
+    size_t q;
+    size_t entry_count;
+    int *counts;
+    double alpha_ij;
+    double alpha_ijk;
+    double final_log_score = 0.0;
+
+    for (int i = 0; i < NUM_NODES; i++) {
+        if (parent_mask & (1U << i)) parent_indices[p_idx++] = i;
+    }
+
+    q = checked_parent_config_count(parent_mask, "scoring a parent set");
+    entry_count = checked_cpt_entry_count(q, r, "scoring a parent set");
+    counts = (int*)calloc(entry_count, sizeof(int));
+    if (!counts) {
+        printf("ERROR: failed to allocate %zu score-count entries for node %s.\n",
+               entry_count, node_names[target_node]);
+        exit(1);
+    }
+
+    for (int row = 0; row < num_samples; row++) {
+        size_t cfg = 0;
+        int target_val = dataset[row][target_node];
+
+        for (int p = 0; p < num_parents; p++) {
+            int p_node = parent_indices[p];
+            cfg = cfg * (size_t)node_cardinalities[p_node] + (size_t)dataset[row][p_node];
+        }
+
+        counts[cfg * (size_t)r + (size_t)target_val]++;
+    }
+
+    alpha_ij = alpha / (double)q;
+    alpha_ijk = alpha_ij / (double)r;
+
+    for (size_t state = 0; state < q; state++) {
+        int N_ij = 0;
+
+        for (int target_state = 0; target_state < r; target_state++) {
+            N_ij += counts[state * (size_t)r + (size_t)target_state];
+        }
+
+        final_log_score += lgamma(alpha_ij) - lgamma(alpha_ij + (double)N_ij);
+        for (int target_state = 0; target_state < r; target_state++) {
+            int count = counts[state * (size_t)r + (size_t)target_state];
+            final_log_score += lgamma(alpha_ijk + (double)count) - lgamma(alpha_ijk);
+        }
+    }
+
+    free(counts);
+    return (float)final_log_score;
 }
 
 // Comparison function for qsort (descending order)
@@ -452,6 +517,27 @@ void precompute_fixed_k(int** dataset, int num_samples) {
     validate_candidate_capacity_or_die("fixed-k");
 }
 
+int parse_csv_state_or_die(const char* token, const char* filename, int row_number, int col) {
+    char *end_ptr;
+    long value;
+
+    if (!token || token[0] == '\0') {
+        printf("ERROR: missing value in %s row %d column %d (%s).\n",
+               filename, row_number, col, node_names[col]);
+        exit(1);
+    }
+
+    value = strtol(token, &end_ptr, 10);
+    while (*end_ptr && isspace((unsigned char)*end_ptr)) end_ptr++;
+    if (*end_ptr != '\0' || value < 0 || value >= INT_MAX) {
+        printf("ERROR: expected nonnegative integer state in %s row %d column %d (%s), got '%s'.\n",
+               filename, row_number, col, node_names[col], token);
+        exit(1);
+    }
+
+    return (int)value;
+}
+
 int** load_csv(const char* filename, int* out_num_samples, int num_nodes) {
     FILE* file = fopen(filename, "r");
     if (!file) { printf("Failed to open %s\n", filename); exit(1); }
@@ -459,34 +545,84 @@ int** load_csv(const char* filename, int* out_num_samples, int num_nodes) {
     if (fgets(buffer, sizeof(buffer), file)) {
         char* token = strtok(buffer, ",\n\r");
         int i = 0;
-        while (token && i < num_nodes) {
-            strncpy(node_names[i], token, 63);
-            node_names[i][63] = '\0'; 
+        while (token) {
+            if (i < num_nodes) {
+                strncpy(node_names[i], token, 63);
+                node_names[i][63] = '\0';
+            }
             token = strtok(NULL, ",\n\r");
             i++;
         }
+        if (i != num_nodes) {
+            printf("ERROR: %s has %d columns, but NUM_NODES=%d.\n",
+                   filename, i, num_nodes);
+            exit(1);
+        }
+    } else {
+        printf("ERROR: %s is empty.\n", filename);
+        exit(1);
     }
     int lines = 0;
     long data_start_pos = ftell(file); 
     while (fgets(buffer, sizeof(buffer), file)) lines++;
+    if (lines <= 0) {
+        printf("ERROR: %s has no data rows.\n", filename);
+        exit(1);
+    }
     *out_num_samples = lines; 
 
     int** dataset = (int**)malloc((*out_num_samples) * sizeof(int*));
-    for (int i = 0; i < *out_num_samples; i++) dataset[i] = (int*)malloc(num_nodes * sizeof(int));
+    if (!dataset) {
+        printf("ERROR: failed to allocate dataset rows.\n");
+        exit(1);
+    }
+    for (int i = 0; i < *out_num_samples; i++) {
+        dataset[i] = (int*)malloc((size_t)num_nodes * sizeof(int));
+        if (!dataset[i]) {
+            printf("ERROR: failed to allocate dataset row %d.\n", i);
+            exit(1);
+        }
+    }
+    for (int col = 0; col < num_nodes; col++) node_cardinalities[col] = 0;
     fseek(file, data_start_pos, SEEK_SET);
 
     int row = 0;
     while (fgets(buffer, sizeof(buffer), file) && row < *out_num_samples) {
-        char* token = strtok(buffer, ",");
+        char* token = strtok(buffer, ",\n\r");
         int col = 0;
-        while (token && col < num_nodes) {
-            dataset[row][col] = atoi(token);
-            token = strtok(NULL, ",");
+        while (token) {
+            int value;
+            if (col >= num_nodes) {
+                printf("ERROR: %s row %d has more than %d columns.\n",
+                       filename, row + 2, num_nodes);
+                exit(1);
+            }
+            value = parse_csv_state_or_die(token, filename, row + 2, col);
+            dataset[row][col] = value;
+            if (value + 1 > node_cardinalities[col]) {
+                node_cardinalities[col] = value + 1;
+            }
+            token = strtok(NULL, ",\n\r");
             col++;
+        }
+        if (col != num_nodes) {
+            printf("ERROR: %s row %d has %d columns, expected %d.\n",
+                   filename, row + 2, col, num_nodes);
+            exit(1);
         }
         row++;
     }
     fclose(file);
+
+    printf("Loaded %d samples with node cardinalities:\n", *out_num_samples);
+    for (int col = 0; col < num_nodes; col++) {
+        if (node_cardinalities[col] <= 0) {
+            printf("ERROR: node %d (%s) has no observed states.\n", col, node_names[col]);
+            exit(1);
+        }
+        printf("  node %d %-12s states=%d\n", col, node_names[col], node_cardinalities[col]);
+    }
+
     return dataset;
 }
 
@@ -547,11 +683,18 @@ int node_index_by_name(const char* name) {
 }
 
 void print_known_order_score_check(void) {
-    const char* pasted_names[NUM_NODES] = {
+    const char* pasted_names[] = {
         "either", "xray", "dysp", "bronc", "lung", "smoke", "tub", "asia"
     };
     int pasted_order[NUM_NODES];
     int initial_order[NUM_NODES];
+    int pasted_count = (int)(sizeof(pasted_names) / sizeof(pasted_names[0]));
+
+    if (NUM_NODES != pasted_count) {
+        printf("DEBUG score self-check skipped: Asia reference order has %d nodes, dataset has %d\n",
+               pasted_count, NUM_NODES);
+        return;
+    }
 
     for (int i = 0; i < NUM_NODES; i++) {
         pasted_order[i] = node_index_by_name(pasted_names[i]);
@@ -597,17 +740,26 @@ float choose_best_graph_for_order(const int* order, int active_count, unsigned i
 }
 
 int parent_state_from_values(unsigned int parent_mask, const int* values) {
-    int state = 0;
-    int packed_bit = 0;
+    size_t state = 0;
 
     for (int node = 0; node < NUM_NODES; node++) {
         if (parent_mask & (1U << node)) {
-            if (values[node]) state |= (1 << packed_bit);
-            packed_bit++;
+            int value = values[node];
+            int cardinality = node_cardinalities[node];
+            if (value < 0 || value >= cardinality) {
+                printf("ERROR: value %d for node %s outside state range 0..%d.\n",
+                       value, node_names[node], cardinality - 1);
+                exit(1);
+            }
+            state = state * (size_t)cardinality + (size_t)value;
+            if (state > (size_t)INT_MAX) {
+                printf("ERROR: parent-state index overflow.\n");
+                exit(1);
+            }
         }
     }
 
-    return state;
+    return (int)state;
 }
 
 void build_learned_cpts(int** dataset, int num_samples,
@@ -615,47 +767,62 @@ void build_learned_cpts(int** dataset, int num_samples,
     for (int node = 0; node < NUM_NODES; node++) {
         unsigned int parent_mask = parent_masks[node];
         int parent_count = count_set_bits(parent_mask);
-        int parent_state_count = 1 << parent_count;
-        int *zeros = (int*)calloc(parent_state_count, sizeof(int));
-        int *ones = (int*)calloc(parent_state_count, sizeof(int));
+        size_t parent_state_count = checked_parent_config_count(parent_mask, "building learned CPTs");
+        int node_cardinality = node_cardinalities[node];
+        size_t entry_count = checked_cpt_entry_count(parent_state_count, node_cardinality,
+                                                     "building learned CPTs");
+        int *counts = (int*)calloc(entry_count, sizeof(int));
         float alpha_ijk;
 
-        if (!zeros || !ones) {
+        if (parent_state_count > (size_t)INT_MAX) {
+            printf("ERROR: parent-state count too large for node %s.\n", node_names[node]);
+            exit(1);
+        }
+        if (!counts) {
             printf("ERROR: failed to allocate CPT counts\n");
             exit(1);
         }
 
         cpts[node].parent_mask = parent_mask;
         cpts[node].parent_count = parent_count;
-        cpts[node].parent_state_count = parent_state_count;
-        cpts[node].p_one = (float*)calloc(parent_state_count, sizeof(float));
-        if (!cpts[node].p_one) {
+        cpts[node].parent_state_count = (int)parent_state_count;
+        cpts[node].node_cardinality = node_cardinality;
+        cpts[node].probabilities = (float*)calloc(entry_count, sizeof(float));
+        if (!cpts[node].probabilities) {
             printf("ERROR: failed to allocate CPT probabilities\n");
             exit(1);
         }
 
         for (int row = 0; row < num_samples; row++) {
             int state = parent_state_from_values(parent_mask, dataset[row]);
-            if (dataset[row][node]) ones[state]++;
-            else zeros[state]++;
+            int value = dataset[row][node];
+            counts[(size_t)state * (size_t)node_cardinality + (size_t)value]++;
         }
 
-        alpha_ijk = INFERENCE_ALPHA / (float)(2 * parent_state_count);
-        for (int state = 0; state < parent_state_count; state++) {
-            float n0 = (float)zeros[state];
-            float n1 = (float)ones[state];
-            cpts[node].p_one[state] = (n1 + alpha_ijk) / (n0 + n1 + 2.0f * alpha_ijk);
+        alpha_ijk = INFERENCE_ALPHA / (float)entry_count;
+        for (size_t state = 0; state < parent_state_count; state++) {
+            float total = 0.0f;
+
+            for (int value = 0; value < node_cardinality; value++) {
+                total += (float)counts[state * (size_t)node_cardinality + (size_t)value];
+            }
+
+            for (int value = 0; value < node_cardinality; value++) {
+                size_t idx = state * (size_t)node_cardinality + (size_t)value;
+                cpts[node].probabilities[idx] =
+                    ((float)counts[idx] + alpha_ijk) /
+                    (total + (float)node_cardinality * alpha_ijk);
+            }
         }
 
-        free(zeros);
-        free(ones);
+        free(counts);
     }
 }
 
 void free_learned_cpts(LearnedCPT* cpts) {
     for (int node = 0; node < NUM_NODES; node++) {
-        free(cpts[node].p_one);
-        cpts[node].p_one = NULL;
+        free(cpts[node].probabilities);
+        cpts[node].probabilities = NULL;
     }
 }
 
@@ -673,11 +840,23 @@ float random_unit_float(uint32_t *state) {
     return (float)(xorshift32(state) & 0x00FFFFFFu) / 16777216.0f;
 }
 
+int sample_categorical(const float* probabilities, int cardinality, uint32_t *rng_state) {
+    float u = random_unit_float(rng_state);
+    float cumulative = 0.0f;
+
+    for (int value = 0; value < cardinality - 1; value++) {
+        cumulative += probabilities[value];
+        if (u < cumulative) return value;
+    }
+
+    return cardinality - 1;
+}
+
 void* inference_worker(void* arg_ptr) {
     InferenceWorkerArgs *args = (InferenceWorkerArgs*)arg_ptr;
     int values[NUM_NODES];
     double total_weight = 0.0;
-    double target_one_weight = 0.0;
+    double target_value_weight = 0.0;
     uint32_t rng_state = args->rng_state;
 
     for (int sample = 0; sample < args->samples; sample++) {
@@ -688,35 +867,39 @@ void* inference_worker(void* arg_ptr) {
         for (int order_pos = 0; order_pos < args->active_count; order_pos++) {
             int node = args->order[order_pos];
             int parent_state = parent_state_from_values(args->cpts[node].parent_mask, values);
-            float p_one = args->cpts[node].p_one[parent_state];
+            int cardinality = args->cpts[node].node_cardinality;
+            const float *probabilities =
+                &args->cpts[node].probabilities[(size_t)parent_state * (size_t)cardinality];
             int observed = args->evidence[node];
 
             if (observed >= 0) {
                 values[node] = observed;
-                weight *= observed ? (double)p_one : (double)(1.0f - p_one);
+                weight *= (double)probabilities[observed];
             } else {
-                values[node] = random_unit_float(&rng_state) < p_one ? 1 : 0;
+                values[node] = sample_categorical(probabilities, cardinality, &rng_state);
             }
         }
 
         total_weight += weight;
-        if (values[args->target_node]) target_one_weight += weight;
+        if (values[args->target_node] == args->target_value) {
+            target_value_weight += weight;
+        }
     }
 
     args->rng_state = rng_state;
     args->total_weight = total_weight;
-    args->target_one_weight = target_one_weight;
+    args->target_value_weight = target_value_weight;
     return NULL;
 }
 
 double infer_probability_threaded(const LearnedCPT* cpts, const int* order, int active_count,
-                                  int target_node, const int* evidence, int samples,
-                                  int thread_count) {
+                                  int target_node, int target_value, const int* evidence,
+                                  int samples, int thread_count) {
     pthread_t threads[INFERENCE_THREADS];
     InferenceWorkerArgs args[INFERENCE_THREADS];
     bool thread_started[INFERENCE_THREADS];
     double total_weight = 0.0;
-    double target_one_weight = 0.0;
+    double target_value_weight = 0.0;
 
     if (thread_count > INFERENCE_THREADS) thread_count = INFERENCE_THREADS;
     if (thread_count < 1) thread_count = 1;
@@ -729,10 +912,11 @@ double infer_probability_threaded(const LearnedCPT* cpts, const int* order, int 
         args[t].order = order;
         args[t].active_count = active_count;
         args[t].target_node = target_node;
+        args[t].target_value = target_value;
         args[t].samples = thread_samples;
         args[t].rng_state = 0xA5A50000u ^ (uint32_t)(SEED + 0x9E3779B9u * (t + 1));
         args[t].total_weight = 0.0;
-        args[t].target_one_weight = 0.0;
+        args[t].target_value_weight = 0.0;
         thread_started[t] = false;
         for (int node = 0; node < NUM_NODES; node++) args[t].evidence[node] = evidence[node];
 
@@ -749,17 +933,18 @@ double infer_probability_threaded(const LearnedCPT* cpts, const int* order, int 
 
     for (int t = 0; t < thread_count; t++) {
         total_weight += args[t].total_weight;
-        target_one_weight += args[t].target_one_weight;
+        target_value_weight += args[t].target_value_weight;
     }
 
     if (total_weight <= 0.0) return NAN;
-    return target_one_weight / total_weight;
+    return target_value_weight / total_weight;
 }
 
 void print_inference_nodes(void) {
-    printf("\nQueryable binary nodes:\n");
+    printf("\nQueryable discrete nodes:\n");
     for (int node = 0; node < NUM_NODES; node++) {
-        printf("  %d: %s\n", node, node_names[node]);
+        printf("  %d: %s states=0..%d\n",
+               node, node_names[node], node_cardinalities[node] - 1);
     }
 }
 
@@ -785,21 +970,33 @@ int parse_node_token(const char* token) {
     return node_index_by_name(token);
 }
 
-int parse_binary_value(const char* token) {
+int parse_state_value(int node, const char* token) {
     char lower[16];
+    char *end_ptr;
+    long numeric_value;
     int i;
 
     if (!token || token[0] == '\0') return -1;
-    if (strcmp(token, "0") == 0) return 0;
-    if (strcmp(token, "1") == 0) return 1;
+
+    numeric_value = strtol(token, &end_ptr, 10);
+    while (*end_ptr && isspace((unsigned char)*end_ptr)) end_ptr++;
+    if (*end_ptr == '\0') {
+        if (numeric_value >= 0 && numeric_value < node_cardinalities[node]) {
+            return (int)numeric_value;
+        }
+        return -1;
+    }
 
     for (i = 0; token[i] && i < (int)sizeof(lower) - 1; i++) {
         lower[i] = (char)tolower((unsigned char)token[i]);
     }
     lower[i] = '\0';
 
-    if (strcmp(lower, "false") == 0 || strcmp(lower, "no") == 0) return 0;
-    if (strcmp(lower, "true") == 0 || strcmp(lower, "yes") == 0) return 1;
+    if (node_cardinalities[node] == 2) {
+        if (strcmp(lower, "false") == 0 || strcmp(lower, "no") == 0) return 0;
+        if (strcmp(lower, "true") == 0 || strcmp(lower, "yes") == 0) return 1;
+    }
+
     return -1;
 }
 
@@ -823,24 +1020,38 @@ bool parse_evidence_line(char* line, int* evidence) {
         int value;
 
         if (!equals) {
-            printf("Ignoring evidence token '%s' (use name=0 or name=1)\n", token);
+            printf("Ignoring evidence token '%s' (use name=value)\n", token);
             token = strtok(NULL, " ,\t");
             continue;
         }
 
         *equals = '\0';
         node = parse_node_token(token);
-        value = parse_binary_value(equals + 1);
-        if (node < 0 || value < 0) {
-            printf("Ignoring evidence token '%s=%s'\n", token, equals + 1);
+        if (node < 0) {
+            printf("Ignoring evidence token '%s=%s' (unknown node)\n", token, equals + 1);
         } else {
-            evidence[node] = value;
+            value = parse_state_value(node, equals + 1);
+            if (value < 0) {
+                printf("Ignoring evidence token '%s=%s' (value must be 0..%d)\n",
+                       token, equals + 1, node_cardinalities[node] - 1);
+            } else {
+                evidence[node] = value;
+            }
         }
 
         token = strtok(NULL, " ,\t");
     }
 
     return true;
+}
+
+int prompt_for_state_value(int node, const char* line) {
+    int value = parse_state_value(node, line);
+    if (value < 0) {
+        printf("Unknown state '%s' for %s. Use 0..%d.\n",
+               line, node_names[node], node_cardinalities[node] - 1);
+    }
+    return value;
 }
 
 void print_evidence_summary(const int* evidence) {
@@ -861,11 +1072,11 @@ void run_inference_console(int** dataset, int num_samples, const int* order, int
     LearnedCPT cpts[NUM_NODES];
     char line[256];
 
-    for (int node = 0; node < NUM_NODES; node++) cpts[node].p_one = NULL;
+    for (int node = 0; node < NUM_NODES; node++) cpts[node].probabilities = NULL;
     build_learned_cpts(dataset, num_samples, parent_masks, cpts);
 
     printf("\n=== Interactive Probability Demo ===\n");
-    printf("Model: learned DAG + dataset-estimated binary CPTs\n");
+    printf("Model: learned DAG + dataset-estimated discrete CPTs\n");
     printf("Inference: %d-sample likelihood weighting across %d pthread workers\n",
            INFERENCE_SAMPLES, INFERENCE_THREADS);
     printf("Enter q at the target prompt to exit.\n");
@@ -873,10 +1084,11 @@ void run_inference_console(int** dataset, int num_samples, const int* order, int
 
     while (1) {
         int target_node;
+        int target_value;
         int evidence[NUM_NODES];
         double probability;
 
-        printf("\nTarget node for P(target=1 | evidence): ");
+        printf("\nTarget node for P(node=value | evidence): ");
         fflush(stdout);
         if (!fgets(line, sizeof(line), stdin)) break;
         strip_newline(line);
@@ -888,16 +1100,24 @@ void run_inference_console(int** dataset, int num_samples, const int* order, int
             continue;
         }
 
-        printf("Evidence pairs, e.g. smoke=1 asia=0; blank/none for no evidence: ");
+        printf("Target value for %s (0..%d): ",
+               node_names[target_node], node_cardinalities[target_node] - 1);
+        fflush(stdout);
+        if (!fgets(line, sizeof(line), stdin)) break;
+        strip_newline(line);
+        target_value = prompt_for_state_value(target_node, line);
+        if (target_value < 0) continue;
+
+        printf("Evidence pairs, e.g. smoke=1 age=2; blank/none for no evidence: ");
         fflush(stdout);
         if (!fgets(line, sizeof(line), stdin)) break;
         if (!parse_evidence_line(line, evidence)) break;
 
         probability = infer_probability_threaded(cpts, order, active_count, target_node,
-                                                 evidence, INFERENCE_SAMPLES,
+                                                 target_value, evidence, INFERENCE_SAMPLES,
                                                  INFERENCE_THREADS);
 
-        printf("P(%s=1 | ", node_names[target_node]);
+        printf("P(%s=%d | ", node_names[target_node], target_value);
         print_evidence_summary(evidence);
         if (isnan(probability)) {
             printf(") could not be estimated; evidence has near-zero support.\n");
