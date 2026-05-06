@@ -86,68 +86,57 @@ int cmp_candidates(const void* a, const void* b) {
     return 0;
 }
 
-// We no longer need a separate prune function, we will do it inline.
-
 void precompute_fixed_k(int** dataset, int num_samples) {
-    // Temporary buffer to hold all possible combinations before pruning.
-    // 27 nodes max k=3 is 2952 combinations. 3500 is a safe buffer.
-    ParentSet temp_candidates[3500]; 
-
     for (int i = 0; i < NUM_NODES; i++) {
-        int candidate_count = 0;
-        unsigned int mask_k0 = 0;
-        
-        // k = 0
-        temp_candidates[candidate_count].parent_bitmask = mask_k0;
-        temp_candidates[candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k0);
-        candidate_count++;
+        ParentSet k0[1], k1[32], k2[400], k3[3000];
+        int c0 = 0, c1 = 0, c2 = 0, c3 = 0;
 
-        // k = 1
+        // Generate k = 0
+        k0[c0++] = (ParentSet){0, calculate_bde_score(dataset, num_samples, i, 0)};
+
+        // Generate k = 1, 2, 3
         for (int p1 = 0; p1 < NUM_NODES; p1++) {
             if (p1 == i) continue;
-            unsigned int mask_k1 = (1 << p1);
-            temp_candidates[candidate_count].parent_bitmask = mask_k1;
-            temp_candidates[candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k1);
-            candidate_count++;
-        }
+            k1[c1++] = (ParentSet){1<<p1, calculate_bde_score(dataset, num_samples, i, 1<<p1)};
 
-        // k = 2
-        for (int p1 = 0; p1 < NUM_NODES; p1++) {
-            if (p1 == i) continue;
             for (int p2 = p1 + 1; p2 < NUM_NODES; p2++) {
                 if (p2 == i) continue;
-                unsigned int mask_k2 = (1 << p1) | (1 << p2);
-                temp_candidates[candidate_count].parent_bitmask = mask_k2;
-                temp_candidates[candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k2);
-                candidate_count++;
-            }
-        }
+                k2[c2++] = (ParentSet){(1<<p1)|(1<<p2), calculate_bde_score(dataset, num_samples, i, (1<<p1)|(1<<p2))};
 
-        // k = 3
-        for (int p1 = 0; p1 < NUM_NODES; p1++) {
-            if (p1 == i) continue;
-            for (int p2 = p1 + 1; p2 < NUM_NODES; p2++) {
-                if (p2 == i) continue;
                 for (int p3 = p2 + 1; p3 < NUM_NODES; p3++) {
                     if (p3 == i) continue;
-                    unsigned int mask_k3 = (1 << p1) | (1 << p2) | (1 << p3);
-                    temp_candidates[candidate_count].parent_bitmask = mask_k3;
-                    temp_candidates[candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k3);
-                    candidate_count++;
+                    k3[c3++] = (ParentSet){(1<<p1)|(1<<p2)|(1<<p3), calculate_bde_score(dataset, num_samples, i, (1<<p1)|(1<<p2)|(1<<p3))};
                 }
             }
         }
 
-        // Sort the temporary array in descending order of local_score
-        qsort(temp_candidates, candidate_count, sizeof(ParentSet), cmp_candidates);
+        // Sort k-sets individually by local score descending
+        qsort(k1, c1, sizeof(ParentSet), cmp_candidates);
+        qsort(k2, c2, sizeof(ParentSet), cmp_candidates);
+        qsort(k3, c3, sizeof(ParentSet), cmp_candidates);
 
-        // Take only the top K (up to our max of 255) to fit in the hardware array
-        int keep_count = (candidate_count > 255) ? 255 : candidate_count;
+        // --- Stratified Selection (Max 255) ---
+        int out_idx = 0;
         
-        for (int j = 0; j < keep_count; j++) {
-            precomputed_db[i][j] = temp_candidates[j];
+        // 1. ALWAYS keep k=0 (Crucial for nodes at the start of the ordering)
+        precomputed_db[i][out_idx++] = k0[0];
+
+        // 2. Keep ALL k=1 candidates (Max 26)
+        for (int j = 0; j < c1 && out_idx < 255; j++) {
+            precomputed_db[i][out_idx++] = k1[j];
         }
-        num_candidates[i] = keep_count;
+
+        // 3. Keep the top 100 k=2 candidates
+        for (int j = 0; j < c2 && j < 100 && out_idx < 255; j++) {
+            precomputed_db[i][out_idx++] = k2[j];
+        }
+
+        // 4. Fill the remaining slots with the best k=3 candidates
+        for (int j = 0; j < c3 && out_idx < 255; j++) {
+            precomputed_db[i][out_idx++] = k3[j];
+        }
+
+        num_candidates[i] = out_idx;
     }
 }
 
