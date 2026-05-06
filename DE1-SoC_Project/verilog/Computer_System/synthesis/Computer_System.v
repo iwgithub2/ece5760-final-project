@@ -165,7 +165,7 @@ module Computer_System (
 	wire          vga_subsystem_pixel_dma_master_readdatavalid;                         // mm_interconnect_0:VGA_Subsystem_pixel_dma_master_readdatavalid -> VGA_Subsystem:pixel_dma_master_readdatavalid
 	wire          vga_subsystem_pixel_dma_master_lock;                                  // VGA_Subsystem:pixel_dma_master_lock -> mm_interconnect_0:VGA_Subsystem_pixel_dma_master_lock
 	wire   [31:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_readdata;              // mcmc_system_0:avs_readdata -> mm_interconnect_0:mcmc_system_0_avalon_slave_0_readdata
-	wire   [11:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_address;               // mm_interconnect_0:mcmc_system_0_avalon_slave_0_address -> mcmc_system_0:avs_address
+	wire   [13:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_address;               // mm_interconnect_0:mcmc_system_0_avalon_slave_0_address -> mcmc_system_0:avs_address
 	wire          mm_interconnect_0_mcmc_system_0_avalon_slave_0_read;                  // mm_interconnect_0:mcmc_system_0_avalon_slave_0_read -> mcmc_system_0:avs_read
 	wire          mm_interconnect_0_mcmc_system_0_avalon_slave_0_write;                 // mm_interconnect_0:mcmc_system_0_avalon_slave_0_write -> mcmc_system_0:avs_write
 	wire   [31:0] mm_interconnect_0_mcmc_system_0_avalon_slave_0_writedata;             // mm_interconnect_0:mcmc_system_0_avalon_slave_0_writedata -> mcmc_system_0:avs_writedata

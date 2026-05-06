@@ -28,11 +28,11 @@
 #define PIO_RESET_OFFSET        0x70 
 #define PIO_CLK_COUNT_OFFSET    0x80 
 
-#define DATASET_NAME "asia"
-#define NUM_NODES 8
-#define ITERATIONS 1000000
+#define DATASET_NAME "insurance"
+#define NUM_NODES 27
+#define ITERATIONS 100000
 #define SEED 0xDEADBEEF
-#define MAX_PARENTS_PER_NODE 64 
+#define MAX_PARENTS_PER_NODE 256 
 #define DONE_TIMEOUT_US 10000000
 #define DEBUG_BUILD_TAG "mcmc_test debug-reset-readback-v2-inference"
 #define VGA_BLACK 0x00
@@ -123,41 +123,69 @@ int count_set_bits(unsigned int n) {
     return count;
 }
 
+void load_precomputed_data(const char* filename) {
+    FILE* f = fopen(filename, "rb");
+    if (!f) {
+        printf("ERROR: Could not open %s for reading.\n", filename);
+        exit(1);
+    }
+    // Read the number of candidates per node
+    fread(num_candidates, sizeof(int), NUM_NODES, f);
+    // Read the actual precomputed database
+    fread(precomputed_db, sizeof(ParentSet), NUM_NODES * MAX_PARENTS_PER_NODE, f);
+    fclose(f);
+    printf("Successfully loaded precomputed data from %s\n", filename);
+}
+
 float calculate_bde_score(int** dataset, int num_samples, int target_node, unsigned int parent_mask) {
     float alpha = 1.0f; 
     int num_parents = count_set_bits(parent_mask);
+    
+    // Pre-extract parent indices for faster lookup
     int parent_indices[32]; 
     int p_idx = 0;
     for (int i = 0; i < NUM_NODES; i++) {
         if (parent_mask & (1 << i)) parent_indices[p_idx++] = i;
     }
+    
     int q = 1 << num_parents; 
     float alpha_ij = alpha / (float)q;
     float alpha_ijk = alpha_ij / 2.0f; 
     float final_log_score = 0.0f;
 
-    for (int state = 0; state < q; state++) {
-        int N_ijk[2] = {0, 0}; 
-        for (int row = 0; row < num_samples; row++) {
-            bool parents_match_state = true;
-            for (int p = 0; p < num_parents; p++) {
-                int p_node = parent_indices[p];
-                int expected_val = (state >> p) & 1; 
-                if (dataset[row][p_node] != expected_val) {
-                    parents_match_state = false;
-                    break;
-                }
-            }
-            if (parents_match_state) {
-                int target_val = dataset[row][target_node];
-                N_ijk[target_val]++;
+    // Use a Variable Length Array (VLA) to allocate tally arrays on the stack.
+    // Safe because k is small (max k=3 means q=8). Valid in C99/GNU99.
+    int N_ijk[q][2];
+    memset(N_ijk, 0, sizeof(N_ijk)); // Requires <string.h>, which you already included
+
+    // SINGLE PASS BOTTLE-NECK FIX:
+    // Iterate over the dataset exactly once, calculate the state, and tally.
+    for (int row = 0; row < num_samples; row++) {
+        int state = 0;
+        // Build the state integer from the parent values
+        for (int p = 0; p < num_parents; p++) {
+            int p_node = parent_indices[p];
+            if (dataset[row][p_node]) {
+                state |= (1 << p);
             }
         }
-        int N_ij = N_ijk[0] + N_ijk[1]; 
-        final_log_score += lgammaf(alpha_ij) - lgammaf(alpha_ij + N_ij);
-        final_log_score += lgammaf(alpha_ijk + N_ijk[0]) - lgammaf(alpha_ijk);
-        final_log_score += lgammaf(alpha_ijk + N_ijk[1]) - lgammaf(alpha_ijk);
+        
+        // Tally the occurrence
+        int target_val = dataset[row][target_node];
+        N_ijk[state][target_val]++;
     }
+
+    // Now calculate the BDeu score using the pre-tallied arrays
+    for (int state = 0; state < q; state++) {
+        int n0 = N_ijk[state][0];
+        int n1 = N_ijk[state][1];
+        int N_ij = n0 + n1; 
+        
+        final_log_score += lgammaf(alpha_ij) - lgammaf(alpha_ij + N_ij);
+        final_log_score += lgammaf(alpha_ijk + n0) - lgammaf(alpha_ijk);
+        final_log_score += lgammaf(alpha_ijk + n1) - lgammaf(alpha_ijk);
+    }
+    
     return final_log_score;
 }
 
@@ -168,6 +196,18 @@ int cmp_candidates(const void* a, const void* b) {
     if (score_a < score_b) return 1;
     if (score_a > score_b) return -1;
     return 0;
+}
+
+void prune_candidates_top_k(int k_limit) {
+    for (int i = 0; i < NUM_NODES; i++) {
+        if (num_candidates[i] > k_limit) {
+            // Sort candidates for node 'i' in descending order of local_score
+            qsort(precomputed_db[i], num_candidates[i], sizeof(ParentSet), cmp_candidates);
+            
+            // Truncate the list
+            num_candidates[i] = k_limit;
+        }
+    }
 }
 
 void precompute_fixed_k(int** dataset, int num_samples) {
@@ -196,30 +236,24 @@ void precompute_fixed_k(int** dataset, int num_samples) {
                 candidate_count++;
             }
         }
+
+        for (int p1 = 0; p1 < NUM_NODES; p1++) {
+            if (p1 == i) continue;
+            for (int p2 = p1 + 1; p2 < NUM_NODES; p2++) {
+                if (p2 == i) continue;
+                for (int p3 = p2 + 1; p3 < NUM_NODES; p3++) {
+                    if (p3 == i) continue;
+                    unsigned int mask_k3 = (1 << p1) | (1 << p2) | (1 << p3);
+                    precomputed_db[i][candidate_count].parent_bitmask = mask_k3;
+                    precomputed_db[i][candidate_count].local_score = calculate_bde_score(dataset, num_samples, i, mask_k3);
+                    candidate_count++;
+                }
+            }
+        }
         num_candidates[i] = candidate_count;
     }
 
-    // // Normalization to prevent Q16.16 FPGA Overflow
-    // for (int i = 0; i < NUM_NODES; i++) {
-    //     // Find the maximum score for this specific node
-    //     float max_score = -1e30f;
-    //     for (int p = 0; p < num_candidates[i]; p++) {
-    //         if (precomputed_db[i][p].local_score > max_score) {
-    //             max_score = precomputed_db[i][p].local_score;
-    //         }
-    //     }
-        
-    //     // Shift scores and CLAMP them to prevent signed underflow
-    //     for (int p = 0; p < num_candidates[i]; p++) {
-    //         precomputed_db[i][p].local_score -= max_score;
-            
-    //         // Clamp terrible scores to -500.0f
-    //         // -500 * 65536 * 32 nodes = -1,048,576,000 (Safely inside 32-bit limit)
-    //         if (precomputed_db[i][p].local_score < -500.0f) {
-    //             precomputed_db[i][p].local_score = -500.0f;
-    //         }
-    //     }
-    // }
+    prune_candidates_top_k(255);
 }
 
 int** load_csv(const char* filename, int* out_num_samples, int num_nodes) {
@@ -316,27 +350,63 @@ int node_index_by_name(const char* name) {
     return -1;
 }
 
-void print_known_order_score_check(void) {
-    const char* pasted_names[NUM_NODES] = {
-        "either", "xray", "dysp", "bronc", "lung", "smoke", "tub", "asia"
-    };
-    int pasted_order[NUM_NODES];
-    int initial_order[NUM_NODES];
+void evaluate_learned_graph(const int* order, int active_count, const unsigned int* parent_masks) {
+    char edges_path[256];
+    sprintf(edges_path, "cleaned-datasets/%s_edges.csv", DATASET_NAME);
+    
+    bool ground_truth[NUM_NODES][NUM_NODES] = {false};
+    FILE* edge_file = fopen(edges_path, "r");
+    if (edge_file) {
+        char line[128];
+        fgets(line, sizeof(line), edge_file); // Skip header
+        while (fgets(line, sizeof(line), edge_file)) {
+            char src_name[64], dst_name[64];
+            // Split by comma
+            if (sscanf(line, "%[^,],%s", src_name, dst_name) == 2) {
+                int u = node_index_by_name(src_name);
+                int v = node_index_by_name(dst_name);
+                if (u != -1 && v != -1) ground_truth[u][v] = true;
+            }
+        }
+        fclose(edge_file);
+    } else {
+        printf("[WARNING] Could not open %s to evaluate edges.\n", edges_path);
+        return;
+    }
 
+    int true_positives = 0, false_positives = 0, total_ground_truth = 0;
     for (int i = 0; i < NUM_NODES; i++) {
-        pasted_order[i] = node_index_by_name(pasted_names[i]);
-        initial_order[i] = i;
-        if (pasted_order[i] < 0) {
-            printf("DEBUG score self-check skipped: node name '%s' not found\n", pasted_names[i]);
-            return;
+        for (int j = 0; j < NUM_NODES; j++) {
+            if (ground_truth[i][j]) total_ground_truth++;
         }
     }
 
-    printf("DEBUG score self-check: pasted-order=%.6f initial-order=%.6f\n",
-           score_order_logsum(pasted_order, NUM_NODES),
-           score_order_logsum(initial_order, NUM_NODES));
-}
+    printf("\n=== Edge Evaluation against Ground Truth ===\n");
+    for (int order_pos = 0; order_pos < active_count; order_pos++) {
+        int current_node = order[order_pos];
+        unsigned int best_mask = parent_masks[current_node];
 
+        for (int p_idx = 0; p_idx < NUM_NODES; p_idx++) {
+            if (best_mask & (1 << p_idx)) {
+                if (ground_truth[p_idx][current_node]) {
+                    printf("[CORRECT] %s -> %s\n", node_names[p_idx], node_names[current_node]);
+                    true_positives++;
+                } else {
+                    printf("[EXTRA  ] %s -> %s\n", node_names[p_idx], node_names[current_node]);
+                    false_positives++;
+                }
+            }
+        }
+    }
+    
+    float precision = (true_positives + false_positives > 0) ? (float)true_positives / (true_positives + false_positives) : 0.0f;
+    float recall = (total_ground_truth > 0) ? (float)true_positives / total_ground_truth : 0.0f;
+    float f1 = (precision + recall > 0) ? 2 * (precision * recall) / (precision + recall) : 0.0f;
+
+    printf("\nPrecision: %.2f\n", precision);
+    printf("Recall:    %.2f\n", recall);
+    printf("F1 Score:  %.2f\n", f1);
+}
 float choose_best_graph_for_order(const int* order, int active_count, unsigned int* best_parent_masks) {
     float graph_score = 0.0f;
 
@@ -1031,31 +1101,27 @@ int main(void)
     if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
     mcmc_system_base = (unsigned int *)fpga_ram_virtual_base;
 
-    printf("Loading dataset and precomputing scores...\n");
-    char samples_path[256];
-    sprintf(samples_path, "cleaned-datasets/%s_samples.csv", DATASET_NAME);
-    int num_samples;
-    int** dataset = load_csv(samples_path, &num_samples, NUM_NODES);
-    precompute_fixed_k(dataset, num_samples);
+    printf("Loading precomputed scores from binary file...\n");
+    load_precomputed_data("insurance_precomputed.bin");
 
     printf("Writing precomputed scores to FPGA broadcast memory...\n");
     for (int i = 0; i < NUM_NODES; i++) {
         for (int p = 0; p < num_candidates[i]; p++) {
             uint32_t mask = precomputed_db[i][p].parent_bitmask;
             int32_t q16_score = float_to_q16(precomputed_db[i][p].local_score);
-            int base_offset = (i << 7) | (p << 1); 
+            int base_offset = (i << 9) | (p << 1); 
             
             *(mcmc_system_base + base_offset)     = (uint32_t)q16_score; 
             *(mcmc_system_base + base_offset + 1) = mask; 
         }
         
-        int sentinel_offset = (i << 7) | (num_candidates[i] << 1); 
+        int sentinel_offset = (i << 9) | (num_candidates[i] << 1); 
         *(mcmc_system_base + sentinel_offset)     = 0x00000000;
         *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF;
     }
     
     for (int i = NUM_NODES; i < 32; i++) {
-        int sentinel_offset = (i << 7) | (0 << 1); 
+        int sentinel_offset = (i << 9) | (num_candidates[i] << 1); 
         *(mcmc_system_base + sentinel_offset)     = 0x00000000; 
         *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF; 
     }
@@ -1102,6 +1168,7 @@ int main(void)
     print_learned_graph(best_order, active_count);
     unsigned int learned_parent_masks[NUM_NODES];
     choose_best_graph_for_order(best_order, active_count, learned_parent_masks);
+    evaluate_learned_graph(best_order, active_count, learned_parent_masks);
     // run_inference_console(dataset, num_samples, best_order, active_count, learned_parent_masks);
 
     return 0;

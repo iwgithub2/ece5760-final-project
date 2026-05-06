@@ -53,7 +53,7 @@ module Computer_System_mm_interconnect_0 (
 		output wire [7:0]   VGA_Subsystem_pixel_dma_master_readdata,                               //                                                                .readdata
 		output wire         VGA_Subsystem_pixel_dma_master_readdatavalid,                          //                                                                .readdatavalid
 		input  wire         VGA_Subsystem_pixel_dma_master_lock,                                   //                                                                .lock
-		output wire [11:0]  mcmc_system_0_avalon_slave_0_address,                                  //                                    mcmc_system_0_avalon_slave_0.address
+		output wire [13:0]  mcmc_system_0_avalon_slave_0_address,                                  //                                    mcmc_system_0_avalon_slave_0.address
 		output wire         mcmc_system_0_avalon_slave_0_write,                                    //                                                                .write
 		output wire         mcmc_system_0_avalon_slave_0_read,                                     //                                                                .read
 		input  wire [31:0]  mcmc_system_0_avalon_slave_0_readdata,                                 //                                                                .readdata
@@ -555,7 +555,7 @@ module Computer_System_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_translator #(
-		.AV_ADDRESS_W                   (12),
+		.AV_ADDRESS_W                   (14),
 		.AV_DATA_W                      (32),
 		.UAV_DATA_W                     (32),
 		.AV_BURSTCOUNT_W                (1),

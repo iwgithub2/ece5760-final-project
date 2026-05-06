@@ -18,7 +18,7 @@ module mcmc_system_parallel #(
     input  wire        reset_n,
 
     // Avalon-MM Slave Interface
-    input  wire [11:0] avs_address,
+    input  wire [13:0] avs_address,
     input  wire        avs_write,
     input  wire [31:0] avs_writedata,
     input  wire        avs_read,
@@ -106,14 +106,14 @@ module mcmc_system_parallel #(
             assign chain_scores_packed[(c*32)+:32] = chain_score;
 
             for (n = 0; n < N_NODES; n = n + 1) begin : gen_rams
-                wire local_we = avs_write && (avs_address[11:7] == n);
-                wire [5:0] read_addr = chain_addrs[(n*10)+:6];
+                wire local_we = avs_write && (avs_address[13:9] == n);
+                wire [7:0] read_addr = chain_addrs[(n*10)+:8];
                 wire [63:0] read_data;
 
                 mcmc_node_ram ram_inst (
                     .clk(clk),
                     .we(local_we),
-                    .write_addr(avs_address[6:0]),
+                    .write_addr(avs_address[8:0]),
                     .write_data(avs_writedata),
                     .read_addr(read_addr),
                     .read_data(read_data)
@@ -227,9 +227,9 @@ module mcmc_system #(
             mcmc_node_ram ram_inst (
                 .clk(clk),
                 .we(local_we),
-                .write_addr(avs_address[6:0]), // Pass [6:0] to handle the word split
+                .write_addr(avs_address[8:0]), // Pass [6:0] to handle the word split
                 .write_data(avs_writedata),
-                .read_addr(read_addr[5:0]),
+                .read_addr(read_addr[7:0]),
                 .read_data(read_data)
             );
             assign packed_datas[(i*64)+:64] = read_data;
@@ -908,22 +908,22 @@ endmodule
 module mcmc_node_ram (
     input  wire        clk,
     input  wire        we,
-    input  wire [6:0]  write_addr, 
+    input  wire [8:0]  write_addr, 
     input  wire [31:0] write_data,
-    input  wire [5:0]  read_addr,
+    input  wire [7:0]  read_addr,
     output reg  [63:0] read_data
 );
 
     // Splitting into two 32-bit arrays
-    reg [31:0] ram_lower [0:63];
-    reg [31:0] ram_upper [0:63];
+    reg [31:0] ram_lower [0:255];
+    reg [31:0] ram_upper [0:255];
 
     always @(posedge clk) begin
         if (we) begin
             if (write_addr[0] == 1'b0)
-                ram_lower[write_addr[6:1]] <= write_data;
+                ram_lower[write_addr[8:1]] <= write_data;
             else
-                ram_upper[write_addr[6:1]] <= write_data;
+                ram_upper[write_addr[8:1]] <= write_data;
         end
     end
 

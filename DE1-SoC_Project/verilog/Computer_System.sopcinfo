@@ -5,11 +5,11 @@
  version="1.0"
  fabric="QSYS">
  <!-- Format version 18.1 625 (Future versions may contain additional information.) -->
- <!-- 2026.05.04.23:23:10 -->
+ <!-- 2026.05.05.23:36:48 -->
  <!-- A collection of modules and connections -->
  <parameter name="AUTO_GENERATION_ID">
   <type>java.lang.Integer</type>
-  <value>1777951389</value>
+  <value>1778038608</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -15797,7 +15797,7 @@ parameters are a RESULT of the module parameters. -->
     <slaveName>avalon_slave_0</slaveName>
     <name>mcmc_system_0.avalon_slave_0</name>
     <baseAddress>134217728</baseAddress>
-    <span>16384</span>
+    <span>65536</span>
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
@@ -43045,7 +43045,7 @@ parameters are a RESULT of the module parameters. -->
     <slaveName>avalon_slave_0</slaveName>
     <name>mcmc_system_0.avalon_slave_0</name>
     <baseAddress>134217728</baseAddress>
-    <span>16384</span>
+    <span>65536</span>
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
@@ -45032,7 +45032,7 @@ parameters are a RESULT of the module parameters. -->
     <slaveName>avalon_slave_0</slaveName>
     <name>mcmc_system_0.avalon_slave_0</name>
     <baseAddress>3355443200</baseAddress>
-    <span>16384</span>
+    <span>65536</span>
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
@@ -45975,7 +45975,7 @@ parameters are a RESULT of the module parameters. -->
     <slaveName>avalon_slave_0</slaveName>
     <name>mcmc_system_0.avalon_slave_0</name>
     <baseAddress>3355443200</baseAddress>
-    <span>16384</span>
+    <span>65536</span>
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
@@ -76826,7 +76826,7 @@ parameters are a RESULT of the module parameters. -->
 the requested settings for a module instance. -->
   <parameter name="AUTO_GENERATION_ID">
    <type>java.lang.Integer</type>
-   <value>1777951389</value>
+   <value>1778038608</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -84938,7 +84938,7 @@ parameters are a RESULT of the module parameters. -->
    </parameter>
    <parameter name="addressSpan">
     <type>java.math.BigInteger</type>
-    <value>16384</value>
+    <value>65536</value>
     <derived>true</derived>
     <enabled>true</enabled>
     <visible>false</visible>
@@ -85237,7 +85237,7 @@ parameters are a RESULT of the module parameters. -->
    <port>
     <name>avs_address</name>
     <direction>Input</direction>
-    <width>12</width>
+    <width>14</width>
     <role>address</role>
    </port>
    <port>
