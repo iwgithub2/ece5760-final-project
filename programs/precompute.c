@@ -228,29 +228,29 @@ int main(void) {
     for (int i = 0; i < num_samples; i++) free(dataset[i]);
     free(dataset);
 
-    // // --- SCORE DEBUGGING ---
-    // float max_score = -INFINITY;
-    // float min_score = INFINITY;
+    // --- SCORE DEBUGGING ---
+    float max_score = -INFINITY;
+    float min_score = INFINITY;
     
-    // for (int i = 0; i < NUM_NODES; i++) {
-    //     for (int j = 0; j < num_candidates[i]; j++) {
-    //         float s = precomputed_db[i][j].local_score;
-    //         if (s > max_score) max_score = s;
-    //         if (s < min_score) min_score = s;
-    //     }
-    // }
+    for (int i = 0; i < NUM_NODES; i++) {
+        for (int j = 0; j < num_candidates[i]; j++) {
+            float s = precomputed_db[i][j].local_score;
+            if (s > max_score) max_score = s;
+            if (s < min_score) min_score = s;
+        }
+    }
     
-    // printf("\n--- BDeu Score Diagnostics ---\n");
-    // printf("Global Max Score: %f\n", max_score);
-    // printf("Global Min Score: %f\n", min_score);
+    printf("\n--- BDeu Score Diagnostics ---\n");
+    printf("Global Max Score: %f\n", max_score);
+    printf("Global Min Score: %f\n", min_score);
     
-    // // Look at the score landscape for the first node to see the "gaps"
-    // printf("Top 10 candidates for Node 0 (%s):\n", node_names[0]);
-    // for(int j = 0; j < 10 && j < num_candidates[0]; j++) {
-    //     printf("  Rank %d: Score = %f, Mask = 0x%08x\n", 
-    //            j, precomputed_db[0][j].local_score, precomputed_db[0][j].parent_bitmask);
-    // }
-    // printf("------------------------------\n\n");
+    // Look at the score landscape for the first node to see the "gaps"
+    printf("Top 10 candidates for Node 0 (%s):\n", node_names[0]);
+    for(int j = 0; j < 10 && j < num_candidates[0]; j++) {
+        printf("  Rank %d: Score = %f, Mask = 0x%08x\n", 
+               j, precomputed_db[0][j].local_score, precomputed_db[0][j].parent_bitmask);
+    }
+    printf("------------------------------\n\n");
     
     printf("Done.\n");
     return 0;
