@@ -823,10 +823,10 @@ endmodule
 module log_add_rom (
     input wire clk,
     input wire [9:0] addr,
-    output reg [31:0] data_out
+    output reg [15:0] data_out
 );
-    // Declare 1024 words of 32-bit memory
-    reg [31:0] mem [0:1023];
+    // Declare 1024 words of 16-bit memory
+    reg [15:0] mem [0:1023];
 
     // Load the hex file. Both iverilog and Quartus support this.
     initial begin
@@ -856,7 +856,7 @@ module log_add (
 
     // --- Stage 2 Registers ---
     reg signed [31:0] max_val_s2;
-    wire [31:0] lut_val_s2;
+    wire [15:0] lut_val_s2;
     reg force_zero_s2; // Flag if diff is too large for LUT
 
     // Instantiate the ROM
@@ -867,8 +867,8 @@ module log_add (
         .data_out(lut_val_s2)
     );
 
-    assign result = force_zero_s2 ? max_val_s2 : max_val_s2 + lut_val_s2; // If diff is large, log(1+e^-x) ~ 0, so result ~ max_val
-
+    assign result = force_zero_s2 ? max_val_s2 : max_val_s2 + {16'd0, lut_val_s2}; // If diff is large, log(1+e^-x) ~ 0, so result ~ max_val
+    
     // PIPELINE LOGIC
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin

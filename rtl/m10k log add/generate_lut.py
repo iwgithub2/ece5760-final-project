@@ -17,7 +17,7 @@ with open("log_lut.hex", "w") as f:
         # Convert to Q16.16 fixed point integer
         val_fixed = int(round(val * (1 << FRACTIONAL_BITS)))
         
-        # Write as 8-character hex (32 bits)
-        f.write(f"{val_fixed:08X}\n")
+        # Write as 4-character hex (16 bits) instead of 8
+        f.write(f"{val_fixed:04X}\n")
         
-print("Generated log_lut.hex successfully!")
+print("Generated 1024x16 log_lut.hex successfully!")
