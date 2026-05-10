@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EnsembleReport name="Computer_System" kind="system" version="18.1" fabric="QSYS">
  <!-- Format version 18.1 625 (Future versions may contain additional information.) -->
- <!-- 2026.05.10.16:17:01 -->
+ <!-- 2026.05.10.16:43:18 -->
  <!-- A collection of modules and connections -->
  <parameter name="clockCrossingAdapter">
   <type>com.altera.sopcmodel.ensemble.EClockAdapter</type>
@@ -53,7 +53,7 @@
  </parameter>
  <parameter name="generationId">
   <type>int</type>
-  <value>1778444192</value>
+  <value>1778445769</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>true</visible>
@@ -45053,7 +45053,7 @@ parameters are a RESULT of the module parameters. -->
 the requested settings for a module instance. -->
   <parameter name="AUTO_GENERATION_ID">
    <type>java.lang.Integer</type>
-   <value>1778444192</value>
+   <value>1778445769</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -53015,7 +53015,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="N_CHAINS">
    <type>int</type>
-   <value>1</value>
+   <value>2</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -72847,5 +72847,5 @@ parameters are a RESULT of the module parameters. -->
   <version>18.1</version>
  </plugin>
  <reportVersion>18.1 625</reportVersion>
- <uniqueIdentifier>B4E9B83A8C770000019E1388E1D8</uniqueIdentifier>
+ <uniqueIdentifier>B4E9B83A8C770000019E13A0EEBF</uniqueIdentifier>
 </EnsembleReport>
