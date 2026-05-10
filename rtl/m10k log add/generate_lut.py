@@ -2,7 +2,7 @@ import math
 
 # Q16.16 configuration
 FRACTIONAL_BITS = 16
-LUT_DEPTH = 1024
+LUT_DEPTH = 512
 MAX_X = 16.0 # At x=16, log(1+e^-16) is practically 0
 
 # Step size based on mapping 0-16 into 1024 address bins

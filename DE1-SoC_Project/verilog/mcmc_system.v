@@ -822,11 +822,11 @@ endmodule
 // ==========================================
 module log_add_rom (
     input wire clk,
-    input wire [9:0] addr,
+    input wire [8:0] addr,
     output reg [15:0] data_out
 );
-    // Declare 1024 words of 16-bit memory
-    reg [15:0] mem [0:1023];
+    // Declare 512 words of 16-bit memory
+    reg [15:0] mem [0:511];
 
     // Load the hex file. Both iverilog and Quartus support this.
     initial begin
@@ -863,12 +863,12 @@ module log_add (
     // The ROM has a 1-cycle latency. Address goes in at S1, data available at S2.
     log_add_rom lut_inst (
         .clk(clk),
-        .addr(abs_diff_s1[19:10]), // Map diff to 10-bit address (diff / step_size)
+        .addr(abs_diff_s1[20:12]), // Map diff to 10-bit address (diff / step_size)
         .data_out(lut_val_s2)
     );
 
     assign result = force_zero_s2 ? max_val_s2 : max_val_s2 + {16'd0, lut_val_s2}; // If diff is large, log(1+e^-x) ~ 0, so result ~ max_val
-    
+
     // PIPELINE LOGIC
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
