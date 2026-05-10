@@ -81,6 +81,22 @@
          type = "String";
       }
    }
+   element Computer_System
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element Computer_System
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
    element F2H_Mem_Window_00000000
    {
       datum _sortIndex
@@ -1090,8 +1106,8 @@
   <parameter name="NUM_CLOCK_OUTPUTS" value="1" />
  </module>
  <module name="mcmc_system_0" kind="mcmc_system" version="1.0" enabled="1">
-  <parameter name="N_CHAINS" value="1" />
-  <parameter name="N_NODES" value="32" />
+  <parameter name="N_CHAINS" value="3" />
+  <parameter name="N_NODES" value="27" />
  </module>
  <module
    name="pio_active_nodes"
