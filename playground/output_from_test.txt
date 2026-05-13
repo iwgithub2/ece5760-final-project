@@ -1,76 +1,49 @@
-Build ID: mcmc_test debug-reset-readback-v1 | Jan  1 1970 01:55:35
-[FPGA DEBUG] after mmap before table load
-  start=0 reset=0 done=1 clk_count=6200064
-  iterations=100000 active_nodes=5 node_mask=0x00000004 seed=0xdeadbeef
-  best_score_raw=0xfdbdfeaa best_score_q16=-578.005249 raw_order_words=0x00009003 0x000398a2
-  decoded_order_first8=3,0,4,1,2,5,6,7
-Loading dataset and precomputing...
-DEBUG score self-check: pasted-order=-1362.718506 initial-order=-1362.718506
-Writing databases to FPGA Broadcast Memory...
-Reset FPGA
-[FPGA DEBUG] before reset assert
-  start=0 reset=0 done=1 clk_count=6200064
-  iterations=100000 active_nodes=5 node_mask=0x00000004 seed=0xdeadbeef
-  best_score_raw=0xfdbdfeaa best_score_q16=-578.005249 raw_order_words=0x00009003 0x000398a2
-  decoded_order_first8=3,0,4,1,2,5,6,7
-[FPGA DEBUG] during reset assert
-  start=0 reset=1 done=0 clk_count=0
-  iterations=100000 active_nodes=5 node_mask=0x00000004 seed=0xdeadbeef
-  best_score_raw=0x80000000 best_score_q16=-32768.000000 raw_order_words=0x00009003 0x000398a2
-  decoded_order_first8=3,0,4,1,2,5,6,7
-[FPGA DEBUG] after reset deassert before config
-  start=0 reset=0 done=0 clk_count=0
-  iterations=100000 active_nodes=5 node_mask=0x00000004 seed=0xdeadbeef
-  best_score_raw=0x80000000 best_score_q16=-32768.000000 raw_order_words=0x00009003 0x000398a2
-  decoded_order_first8=3,0,4,1,2,5,6,7
-[FPGA DEBUG] after config before start
-  start=0 reset=0 done=0 clk_count=0
-  iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0x80000000 best_score_q16=-32768.000000 raw_order_words=0x00009003 0x000398a2
-  decoded_order_first8=3,0,4,1,2,5,6,7
-Starting 32-Node Engine...
-[FPGA DEBUG] after start assert
-  start=1 reset=0 done=0 clk_count=10149
-  iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0xfb25c05e best_score_q16=-1242.248535 raw_order_words=0x00028c80 0x00038826
-  decoded_order_first8=0,4,3,5,6,1,2,7
-[FPGA DEBUG] done observed before start clear
-  start=1 reset=0 done=1 clk_count=14000142
-  iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0xfb2704f2 best_score_q16=-1240.980713 raw_order_words=0x000090c0 0x00011467
-  decoded_order_first8=0,6,4,1,7,3,5,2
-[FPGA DEBUG] after start clear
-  start=0 reset=0 done=1 clk_count=14000142
-  iterations=100000 active_nodes=8 node_mask=0x00000007 seed=0xdeadbeef
-  best_score_raw=0xfb2704f2 best_score_q16=-1240.980713 raw_order_words=0x000090c0 0x00011467
-  decoded_order_first8=0,6,4,1,7,3,5,2
 
-=== MCMC Hardware Complete ===
-Hardware Iterations: 100000
-Cycle Count:         14000142 clocks
-Execution Time:      0.280003 seconds
-
-Raw HW best_score:   0xfb2704f2 (-1240.980713 Q16.16)
-Raw best-order words: 0x000090c0 0x00011467
-either -> tub -> lung -> xray -> asia -> bronc -> smoke -> dysp
-Order log-sum score: -1240.993652
-Initial-order log-sum score: -1362.718506
-Best compatible graph score: -1244.862671
-Learned DAG edges:
-  either -> tub
-  either -> lung
-  tub -> lung
-  either -> xray
-  bronc -> smoke
-  lung -> smoke
-  either -> dysp
-  bronc -> dysp
-Parent sets by node:
-  either <- (none)
-  tub <- either
-  lung <- either, tub
-  xray <- either
-  asia <- (none)
-  bronc <- (none)
-  smoke <- bronc, lung
-  dysp <- either, bronc
+mcmc_partition_demo.c:23:1: error: unknown type name ‘LearnedGlobalParentSet’
+mcmc_partition_demo.c: In function ‘count_partitioned_edges’:
+mcmc_partition_demo.c:27:27: error: request for member ‘learned’ in something not a structure or union
+mcmc_partition_demo.c:27:60: error: request for member ‘parent_count’ in something not a structure or union
+mcmc_partition_demo.c: At top level:
+mcmc_partition_demo.c:32:1: error: unknown type name ‘LearnedGlobalParentSet’
+mcmc_partition_demo.c:33:40: error: unknown type name ‘NodePartition’
+mcmc_partition_demo.c: In function ‘draw_partitioned_graph_vga’:
+mcmc_partition_demo.c:66:28: error: request for member ‘learned’ in something not a structure or union
+mcmc_partition_demo.c:67:43: error: request for member ‘parent_count’ in something not a structure or union
+mcmc_partition_demo.c:68:40: error: request for member ‘parents’ in something not a structure or union
+mcmc_partition_demo.c:75:52: error: request for member ‘partition_id’ in something not a structure or union
+mcmc_partition_demo.c:85:31: error: request for member ‘id’ in something not a structure or union
+mcmc_partition_demo.c:85:49: error: request for member ‘core_count’ in something not a structure or union
+mcmc_partition_demo.c:85:75: error: request for member ‘total_count’ in something not a structure or union
+mcmc_partition_demo.c:87:82: error: request for member ‘id’ in something not a structure or union
+mcmc_partition_demo.c: In function ‘run_partitioned_solver’:
+mcmc_partition_demo.c:95:5: error: unknown type name ‘NodePartition’
+mcmc_partition_demo.c:96:5: error: unknown type name ‘LearnedGlobalParentSet’
+mcmc_partition_demo.c:98:5: warning: implicit declaration of function ‘validate_partition_config_or_die’ [-Wimplicit-function-declaration]
+mcmc_partition_demo.c:99:5: warning: implicit declaration of function ‘build_node_partitions’ [-Wimplicit-function-declaration]
+mcmc_partition_demo.c:99:46: error: ‘CandidateLoadConfig’ has no member named ‘partition_size’
+mcmc_partition_demo.c:99:70: error: ‘CandidateLoadConfig’ has no member named ‘partition_overlap’
+mcmc_partition_demo.c:101:5: warning: implicit declaration of function ‘print_partitions’ [-Wimplicit-function-declaration]
+mcmc_partition_demo.c:104:22: error: request for member ‘learned’ in something not a structure or union
+mcmc_partition_demo.c:105:22: error: request for member ‘parent_count’ in something not a structure or union
+mcmc_partition_demo.c:106:22: error: request for member ‘local_score’ in something not a structure or union
+mcmc_partition_demo.c:107:22: error: request for member ‘partition_id’ in something not a structure or union
+mcmc_partition_demo.c:111:28: error: ‘MCMC_HW_MAX_NODES’ undeclared (first use in this function)
+mcmc_partition_demo.c:111:28: note: each undeclared identifier is reported only once for each function it appears in
+mcmc_partition_demo.c:111:47: error: ‘MCMC_HW_CANDIDATE_SLOTS_PER_NODE’ undeclared (first use in this function)
+mcmc_partition_demo.c:124:9: warning: implicit declaration of function ‘stage_partition_candidates’ [-Wimplicit-function-declaration]
+mcmc_partition_demo.c:126:65: error: request for member ‘id’ in something not a structure or union
+mcmc_partition_demo.c:127:42: error: request for member ‘total_count’ in something not a structure or union
+mcmc_partition_demo.c:135:29: error: request for member ‘id’ in something not a structure or union
+mcmc_partition_demo.c:135:47: error: request for member ‘total_count’ in something not a structure or union
+mcmc_partition_demo.c:135:74: error: request for member ‘core_count’ in something not a structure or union
+mcmc_partition_demo.c:136:9: warning: implicit declaration of function ‘run_hw_solver_for_table’ [-Wimplicit-function-declaration]
+mcmc_partition_demo.c:136:74: error: request for member ‘total_count’ in something not a structure or union
+mcmc_partition_demo.c:143:9: warning: implicit declaration of function ‘score_order_logsum_from_table’ [-Wimplicit-function-declaration]
+mcmc_partition_demo.c:143:78: error: request for member ‘total_count’ in something not a structure or union
+mcmc_partition_demo.c:145:9: warning: implicit declaration of function ‘choose_best_graph_for_order_from_table’ [-Wimplicit-function-declaration]
+mcmc_partition_demo.c:145:87: error: request for member ‘total_count’ in something not a structure or union
+mcmc_partition_demo.c:148:9: warning: implicit declaration of function ‘merge_partition_graph’ [-Wimplicit-function-declaration]
+mcmc_partition_demo.c:151:29: error: request for member ‘id’ in something not a structure or union
+mcmc_partition_demo.c:157:9: warning: implicit declaration of function ‘print_partitioned_learned_graph’ [-Wimplicit-function-declaration]
+mcmc_partition_demo.c: In function ‘main’:
+mcmc_partition_demo.c:175:5: warning: implicit declaration of function ‘should_use_partitioned_solver’ [-Wimplicit-function-declaration]
