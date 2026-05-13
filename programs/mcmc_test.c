@@ -18,6 +18,7 @@
 #include <sys/time.h> 
 
 #include "address_map_arm_brl4.h"
+#include "mcmc_hw_config.h"
 
 #define PIO_START_OFFSET        0x00
 #define PIO_SEED_OFFSET         0x10
@@ -37,9 +38,6 @@
 #endif
 #define ITERATIONS 1000000
 #define SEED 0xDEADBEEF
-#define MAX_PARENTS_PER_NODE 64 
-#define HW_CANDIDATE_SLOTS_PER_NODE 64
-#define HW_MAX_CANDIDATES_PER_NODE (HW_CANDIDATE_SLOTS_PER_NODE - 1)
 #define DEFAULT_ML_TABLE_DIR "ml"
 #define ML_DEBUG_CSV_NAME "readable_debug.csv"
 #define DONE_TIMEOUT_US 10000000
@@ -53,6 +51,11 @@
 #define INFERENCE_THREADS 4
 #define INFERENCE_SAMPLES 200000
 #define INFERENCE_ALPHA 1.0f
+#define MCMC_SW_MAX_PARENTS_PER_CANDIDATE MCMC_HW_MAX_NODES
+#define DEFAULT_PARTITION_OVERLAP 8
+#ifndef MCMC_PARTITION_DEMO_BUILD
+#define MCMC_PARTITION_DEMO_BUILD 0
+#endif
 
 char node_names[NUM_NODES][64];
 int node_cardinalities[NUM_NODES];
@@ -60,7 +63,9 @@ int node_cardinalities[NUM_NODES];
 // --- Database Data Structures ---
 typedef struct {
     unsigned int parent_bitmask;
-    float local_score;           
+    float local_score;
+    int parent_count;
+    int parent_indices[MCMC_SW_MAX_PARENTS_PER_CANDIDATE];
 } ParentSet;
 
 typedef enum {
@@ -72,7 +77,26 @@ typedef struct {
     CandidateSource source;
     char ml_dir[256];
     bool dry_run_candidates;
+    bool partition_solver;
+    int partition_size;
+    int partition_overlap;
 } CandidateLoadConfig;
+
+typedef struct {
+    int id;
+    int core_count;
+    int total_count;
+    int global_nodes[MCMC_HW_MAX_NODES];
+    int local_index[NUM_NODES];
+} NodePartition;
+
+typedef struct {
+    bool learned;
+    int parent_count;
+    int parents[MCMC_SW_MAX_PARENTS_PER_CANDIDATE];
+    float local_score;
+    int partition_id;
+} LearnedGlobalParentSet;
 
 typedef struct {
     unsigned int parent_mask;
@@ -95,7 +119,7 @@ typedef struct {
     double target_value_weight;
 } InferenceWorkerArgs;
 
-ParentSet precomputed_db[NUM_NODES][MAX_PARENTS_PER_NODE];
+ParentSet precomputed_db[NUM_NODES][MCMC_HW_CANDIDATE_SLOTS_PER_NODE];
 int num_candidates[NUM_NODES]; 
 
 // FPGA Pointers
@@ -135,12 +159,25 @@ void precompute_fixed_k(int** dataset, int num_samples);
 void load_ml_candidate_table(const char* ml_dir);
 void normalize_candidate_scores(void);
 void validate_candidate_capacity_or_die(const char* source_name);
+void validate_single_solver_capacity_or_die(void);
+bool should_use_partitioned_solver(const CandidateLoadConfig* config);
+void validate_partition_config_or_die(const CandidateLoadConfig* config);
 void build_learned_cpts(int** dataset, int num_samples,
                         const unsigned int* parent_masks, LearnedCPT* cpts);
 void free_learned_cpts(LearnedCPT* cpts);
 void run_inference_console(int** dataset, int num_samples, const int* order, int active_count,
                            const unsigned int* parent_masks);
 void strip_newline(char* line);
+NodePartition* build_node_partitions(int partition_size, int partition_overlap,
+                                     int* out_partition_count);
+void print_partitions(const NodePartition* partitions, int partition_count);
+void stage_partition_candidates(const NodePartition* partition,
+                                ParentSet local_db[][MCMC_HW_CANDIDATE_SLOTS_PER_NODE],
+                                int* local_counts);
+int run_partitioned_solver(const CandidateLoadConfig* config, int dry_run);
+int run_hw_solver_for_table(ParentSet table[][MCMC_HW_CANDIDATE_SLOTS_PER_NODE],
+                            const int* candidate_counts, int active_count,
+                            unsigned int seed, int* best_order, uint32_t* out_clocks);
 
 // --- Precomputation Math ---
 int count_set_bits(unsigned int n) {
@@ -160,14 +197,23 @@ void print_usage(const char* program_name) {
     printf("  %s ml --ml-dir DIR # load ML candidates from DIR/%s\n",
            program_name, ML_DEBUG_CSV_NAME);
     printf("  %s ml --ml-dir DIR --dry-run-candidates\n", program_name);
+#if MCMC_PARTITION_DEMO_BUILD
+    printf("  %s ml --ml-dir DIR --partition --partition-size N --partition-overlap N\n",
+           program_name);
+#endif
     printf("\n");
     printf("Current bitstream table capacity: %d candidates/node plus one sentinel.\n",
-           HW_MAX_CANDIDATES_PER_NODE);
+           MCMC_HW_USABLE_CANDIDATES_PER_NODE);
+    printf("Current bitstream node capacity: %d active nodes/solver run.\n",
+           MCMC_HW_MAX_NODES);
 }
 
 void parse_candidate_args(int argc, char** argv, CandidateLoadConfig* config) {
     config->source = CANDIDATE_SOURCE_FIXED;
     config->dry_run_candidates = false;
+    config->partition_solver = false;
+    config->partition_size = MCMC_HW_MAX_NODES;
+    config->partition_overlap = DEFAULT_PARTITION_OVERLAP;
     strncpy(config->ml_dir, DEFAULT_ML_TABLE_DIR, sizeof(config->ml_dir) - 1);
     config->ml_dir[sizeof(config->ml_dir) - 1] = '\0';
 
@@ -194,6 +240,37 @@ void parse_candidate_args(int argc, char** argv, CandidateLoadConfig* config) {
         } else if (strcmp(argv[arg], "--dry-run-candidates") == 0 ||
                    strcmp(argv[arg], "--validate-candidates") == 0) {
             config->dry_run_candidates = true;
+        } else if (strcmp(argv[arg], "--partition") == 0 ||
+                   strcmp(argv[arg], "--partitioned") == 0) {
+#if MCMC_PARTITION_DEMO_BUILD
+            config->partition_solver = true;
+#else
+            printf("ERROR: partitioning is a separate demo build. Use programs/mcmc_partition_demo.c.\n");
+            exit(1);
+#endif
+        } else if (strcmp(argv[arg], "--no-partition") == 0) {
+#if MCMC_PARTITION_DEMO_BUILD
+            config->partition_solver = false;
+#else
+            printf("ERROR: --no-partition is only valid for the partition demo build.\n");
+            exit(1);
+#endif
+        } else if (strcmp(argv[arg], "--partition-size") == 0 && arg + 1 < argc) {
+#if MCMC_PARTITION_DEMO_BUILD
+            arg++;
+            config->partition_size = atoi(argv[arg]);
+#else
+            printf("ERROR: --partition-size is only valid for the partition demo build.\n");
+            exit(1);
+#endif
+        } else if (strcmp(argv[arg], "--partition-overlap") == 0 && arg + 1 < argc) {
+#if MCMC_PARTITION_DEMO_BUILD
+            arg++;
+            config->partition_overlap = atoi(argv[arg]);
+#else
+            printf("ERROR: --partition-overlap is only valid for the partition demo build.\n");
+            exit(1);
+#endif
         } else if (strcmp(argv[arg], "--help") == 0 || strcmp(argv[arg], "-h") == 0) {
             print_usage(argv[0]);
             exit(0);
@@ -205,21 +282,50 @@ void parse_candidate_args(int argc, char** argv, CandidateLoadConfig* config) {
     }
 }
 
-void add_candidate_or_die(int node, int* candidate_count, unsigned int parent_mask,
-                          float local_score, const char* source_name) {
-    if (*candidate_count >= HW_MAX_CANDIDATES_PER_NODE ||
-        *candidate_count >= MAX_PARENTS_PER_NODE) {
+void fill_parent_indices_from_mask(ParentSet* candidate, unsigned int parent_mask) {
+    candidate->parent_count = 0;
+    for (int parent = 0; parent < MCMC_HW_MAX_NODES; parent++) {
+        if (parent_mask & (1U << parent)) {
+            candidate->parent_indices[candidate->parent_count++] = parent;
+        }
+    }
+}
+
+void add_candidate_with_parents_or_die(int node, int* candidate_count,
+                                       unsigned int parent_mask, int parent_count,
+                                       const int* parent_indices, float local_score,
+                                       const char* source_name) {
+    if (*candidate_count >= MCMC_HW_USABLE_CANDIDATES_PER_NODE) {
         printf("ERROR: %s produced too many candidate parent sets for node %d (%s).\n",
                source_name, node, node_names[node]);
-        printf("       C array capacity is %d; current RTL usable capacity is %d candidates plus sentinel.\n",
-               MAX_PARENTS_PER_NODE, HW_MAX_CANDIDATES_PER_NODE);
+        printf("       Current RTL/C table layout has %d slots: %d candidates plus one sentinel.\n",
+               MCMC_HW_CANDIDATE_SLOTS_PER_NODE, MCMC_HW_USABLE_CANDIDATES_PER_NODE);
         printf("       Reduce ML pruning params or use a bitstream compiled with deeper per-node RAM.\n");
+        exit(1);
+    }
+    if (parent_count < 0 || parent_count > MCMC_SW_MAX_PARENTS_PER_CANDIDATE) {
+        printf("ERROR: %s parent set for node %d (%s) has %d parents; max supported locally is %d.\n",
+               source_name, node, node_names[node], parent_count,
+               MCMC_SW_MAX_PARENTS_PER_CANDIDATE);
         exit(1);
     }
 
     precomputed_db[node][*candidate_count].parent_bitmask = parent_mask;
     precomputed_db[node][*candidate_count].local_score = local_score;
+    precomputed_db[node][*candidate_count].parent_count = parent_count;
+    for (int i = 0; i < parent_count; i++) {
+        precomputed_db[node][*candidate_count].parent_indices[i] = parent_indices[i];
+    }
     (*candidate_count)++;
+}
+
+void add_candidate_or_die(int node, int* candidate_count, unsigned int parent_mask,
+                          float local_score, const char* source_name) {
+    ParentSet candidate;
+    fill_parent_indices_from_mask(&candidate, parent_mask);
+    add_candidate_with_parents_or_die(node, candidate_count, parent_mask,
+                                      candidate.parent_count, candidate.parent_indices,
+                                      local_score, source_name);
 }
 
 void normalize_candidate_scores(void) {
@@ -250,11 +356,11 @@ void validate_candidate_capacity_or_die(const char* source_name) {
             failed = true;
         }
 
-        if (num_candidates[node] > HW_MAX_CANDIDATES_PER_NODE) {
+        if (num_candidates[node] > MCMC_HW_USABLE_CANDIDATES_PER_NODE) {
             printf("ERROR: %s candidate table for node %d (%s) has %d entries; "
                    "current RTL supports %d plus sentinel.\n",
                    source_name, node, node_names[node],
-                   num_candidates[node], HW_MAX_CANDIDATES_PER_NODE);
+                   num_candidates[node], MCMC_HW_USABLE_CANDIDATES_PER_NODE);
             failed = true;
         }
     }
@@ -266,6 +372,48 @@ void validate_candidate_capacity_or_die(const char* source_name) {
                "candidates if one sentinel is kept.\n");
         printf("               Reduce ML --max-candidates-per-node/--max-parent-size, "
                "or change RTL RAM/address widths and recompile the FPGA bitstream.\n");
+        exit(1);
+    }
+}
+
+bool should_use_partitioned_solver(const CandidateLoadConfig* config) {
+#if MCMC_PARTITION_DEMO_BUILD
+    return config->partition_solver || NUM_NODES > MCMC_HW_MAX_NODES;
+#else
+    (void)config;
+    return false;
+#endif
+}
+
+void validate_single_solver_capacity_or_die(void) {
+    if (NUM_NODES > MCMC_HW_MAX_NODES) {
+        printf("ERROR: NUM_NODES=%d exceeds current solver capacity %d.\n",
+               NUM_NODES, MCMC_HW_MAX_NODES);
+        printf("       Use ML candidate mode with --partition, or rebuild RTL/C for more active nodes.\n");
+        exit(1);
+    }
+}
+
+void validate_partition_config_or_die(const CandidateLoadConfig* config) {
+    if (config->source != CANDIDATE_SOURCE_ML) {
+        printf("ERROR: partitioned solver mode requires ML candidate tables.\n");
+        printf("       Fixed-k precompute still uses 32-bit global masks and is limited to %d nodes.\n",
+               MCMC_HW_MAX_NODES);
+        exit(1);
+    }
+    if (config->partition_size <= 0 || config->partition_size > MCMC_HW_MAX_NODES) {
+        printf("ERROR: --partition-size must be 1..%d; got %d.\n",
+               MCMC_HW_MAX_NODES, config->partition_size);
+        exit(1);
+    }
+    if (config->partition_overlap < 0) {
+        printf("ERROR: --partition-overlap must be nonnegative; got %d.\n",
+               config->partition_overlap);
+        exit(1);
+    }
+    if (config->partition_overlap >= config->partition_size) {
+        printf("ERROR: --partition-overlap (%d) must be smaller than --partition-size (%d).\n",
+               config->partition_overlap, config->partition_size);
         exit(1);
     }
 }
@@ -305,6 +453,75 @@ unsigned int parse_ml_parent_mask_or_die(const char* raw_mask, int line_number) 
     return (unsigned int)mask64;
 }
 
+int parse_ml_parent_indices_or_die(const char* raw_indices, int expected_count,
+                                   int node, int line_number, int* out_parents) {
+    char scratch[1024];
+    char* token;
+    int count = 0;
+
+    if (expected_count < 0 || expected_count > MCMC_SW_MAX_PARENTS_PER_CANDIDATE) {
+        printf("ERROR: ML candidate CSV line %d parent_count=%d exceeds local mask capacity %d.\n",
+               line_number, expected_count, MCMC_SW_MAX_PARENTS_PER_CANDIDATE);
+        exit(1);
+    }
+
+    strncpy(scratch, raw_indices ? raw_indices : "", sizeof(scratch) - 1);
+    scratch[sizeof(scratch) - 1] = '\0';
+    token = strtok(scratch, " \t");
+    while (token) {
+        char* end_ptr;
+        long parent = strtol(token, &end_ptr, 10);
+        while (*end_ptr && isspace((unsigned char)*end_ptr)) end_ptr++;
+        if (*end_ptr != '\0' || parent < 0 || parent >= NUM_NODES) {
+            printf("ERROR: ML candidate CSV line %d has invalid parent index '%s'.\n",
+                   line_number, token);
+            exit(1);
+        }
+        if ((int)parent == node) {
+            printf("ERROR: ML candidate CSV line %d has node %s as its own parent.\n",
+                   line_number, node_names[node]);
+            exit(1);
+        }
+        if (count >= MCMC_SW_MAX_PARENTS_PER_CANDIDATE) {
+            printf("ERROR: ML candidate CSV line %d has too many parent indices.\n",
+                   line_number);
+            exit(1);
+        }
+        for (int i = 0; i < count; i++) {
+            if (out_parents[i] == (int)parent) {
+                printf("ERROR: ML candidate CSV line %d repeats parent index %ld.\n",
+                       line_number, parent);
+                exit(1);
+            }
+        }
+        out_parents[count++] = (int)parent;
+        token = strtok(NULL, " \t");
+    }
+
+    if (count != expected_count) {
+        printf("ERROR: ML candidate CSV line %d parent_count=%d but parent_indices has %d entries.\n",
+               line_number, expected_count, count);
+        exit(1);
+    }
+
+    return count;
+}
+
+unsigned int parent_indices_to_mask32_or_die(const int* parents, int parent_count,
+                                             int line_number) {
+    unsigned int mask = 0;
+    for (int i = 0; i < parent_count; i++) {
+        int parent = parents[i];
+        if (parent < 0 || parent >= MCMC_HW_MAX_NODES) {
+            printf("ERROR: ML candidate CSV line %d parent index %d exceeds 32-node hardware mask.\n",
+                   line_number, parent);
+            exit(1);
+        }
+        mask |= (1U << parent);
+    }
+    return mask;
+}
+
 void load_ml_candidate_table(const char* ml_dir) {
     char path[512];
     char line[4096];
@@ -333,6 +550,9 @@ void load_ml_candidate_table(const char* ml_dir) {
         int field_count;
         int node;
         unsigned int parent_mask;
+        unsigned int debug_mask;
+        int parent_count;
+        int parent_indices[MCMC_SW_MAX_PARENTS_PER_CANDIDATE];
         float log_score;
 
         line_number++;
@@ -359,15 +579,26 @@ void load_ml_candidate_table(const char* ml_dir) {
             exit(1);
         }
 
-        parent_mask = parse_ml_parent_mask_or_die(fields[6], line_number);
-        if (parent_mask & (1U << node)) {
-            printf("ERROR: ML candidate CSV line %d has node %s as its own parent.\n",
-                   line_number, node_names[node]);
-            fclose(file);
-            exit(1);
+        parent_count = atoi(fields[3]);
+        parent_count = parse_ml_parent_indices_or_die(fields[4], parent_count, node,
+                                                      line_number, parent_indices);
+        if (NUM_NODES <= MCMC_HW_MAX_NODES) {
+            parent_mask = parent_indices_to_mask32_or_die(parent_indices, parent_count,
+                                                          line_number);
+            debug_mask = parse_ml_parent_mask_or_die(fields[6], line_number);
+            if (debug_mask != parent_mask) {
+                printf("ERROR: ML candidate CSV line %d parent_indices mask 0x%08x "
+                       "does not match parent_mask_chunks_hex 0x%08x.\n",
+                       line_number, parent_mask, debug_mask);
+                fclose(file);
+                exit(1);
+            }
+        } else {
+            parent_mask = 0;
         }
         log_score = strtof(fields[7], NULL);
-        add_candidate_or_die(node, &num_candidates[node], parent_mask, log_score, "ML");
+        add_candidate_with_parents_or_die(node, &num_candidates[node], parent_mask,
+                                          parent_count, parent_indices, log_score, "ML");
     }
 
     fclose(file);
@@ -485,6 +716,8 @@ int cmp_candidates(const void* a, const void* b) {
 }
 
 void precompute_fixed_k(int** dataset, int num_samples) {
+    validate_single_solver_capacity_or_die();
+
     for (int i = 0; i < NUM_NODES; i++) {
         int candidate_count = 0;
         unsigned int mask_k0 = 0;
@@ -494,7 +727,7 @@ void precompute_fixed_k(int** dataset, int num_samples) {
 
         for (int p1 = 0; p1 < NUM_NODES; p1++) {
             if (p1 == i) continue;
-            unsigned int mask_k1 = (1 << p1);
+            unsigned int mask_k1 = (1U << p1);
             add_candidate_or_die(i, &candidate_count, mask_k1,
                                  calculate_bde_score(dataset, num_samples, i, mask_k1),
                                  "fixed-k");
@@ -504,7 +737,7 @@ void precompute_fixed_k(int** dataset, int num_samples) {
             if (p1 == i) continue;
             for (int p2 = p1 + 1; p2 < NUM_NODES; p2++) {
                 if (p2 == i) continue;
-                unsigned int mask_k2 = (1 << p1) | (1 << p2);
+                unsigned int mask_k2 = (1U << p1) | (1U << p2);
                 add_candidate_or_die(i, &candidate_count, mask_k2,
                                      calculate_bde_score(dataset, num_samples, i, mask_k2),
                                      "fixed-k");
@@ -657,22 +890,28 @@ bool candidate_compatible(unsigned int parent_mask, unsigned int allowed_mask) {
     return (parent_mask & allowed_mask) == parent_mask;
 }
 
-float score_order_logsum(const int* order, int active_count) {
+float score_order_logsum_from_table(const int* order, int active_count,
+                                    ParentSet table[][MCMC_HW_CANDIDATE_SLOTS_PER_NODE],
+                                    const int* candidate_counts) {
     float total_score = 0.0f;
     for (int order_pos = 0; order_pos < active_count; order_pos++) {
         int node = order[order_pos];
         unsigned int allowed_mask = allowed_mask_for_order(order, order_pos);
         float node_score = -INFINITY;
 
-        for (int p = 0; p < num_candidates[node]; p++) {
-            unsigned int parent_mask = precomputed_db[node][p].parent_bitmask;
+        for (int p = 0; p < candidate_counts[node]; p++) {
+            unsigned int parent_mask = table[node][p].parent_bitmask;
             if (candidate_compatible(parent_mask, allowed_mask)) {
-                node_score = log_add_float(node_score, precomputed_db[node][p].local_score);
+                node_score = log_add_float(node_score, table[node][p].local_score);
             }
         }
         total_score += node_score;
     }
     return total_score;
+}
+
+float score_order_logsum(const int* order, int active_count) {
+    return score_order_logsum_from_table(order, active_count, precomputed_db, num_candidates);
 }
 
 int node_index_by_name(const char* name) {
@@ -710,10 +949,13 @@ void print_known_order_score_check(void) {
            score_order_logsum(initial_order, NUM_NODES));
 }
 
-float choose_best_graph_for_order(const int* order, int active_count, unsigned int* best_parent_masks) {
+float choose_best_graph_for_order_from_table(const int* order, int active_count,
+                                             ParentSet table[][MCMC_HW_CANDIDATE_SLOTS_PER_NODE],
+                                             const int* candidate_counts,
+                                             unsigned int* best_parent_masks) {
     float graph_score = 0.0f;
 
-    for (int i = 0; i < NUM_NODES; i++) {
+    for (int i = 0; i < active_count; i++) {
         best_parent_masks[i] = 0;
     }
 
@@ -723,9 +965,9 @@ float choose_best_graph_for_order(const int* order, int active_count, unsigned i
         float best_local_score = -INFINITY;
         unsigned int best_parent_mask = 0;
 
-        for (int p = 0; p < num_candidates[node]; p++) {
-            unsigned int parent_mask = precomputed_db[node][p].parent_bitmask;
-            float local_score = precomputed_db[node][p].local_score;
+        for (int p = 0; p < candidate_counts[node]; p++) {
+            unsigned int parent_mask = table[node][p].parent_bitmask;
+            float local_score = table[node][p].local_score;
             if (candidate_compatible(parent_mask, allowed_mask) && local_score > best_local_score) {
                 best_local_score = local_score;
                 best_parent_mask = parent_mask;
@@ -737,6 +979,14 @@ float choose_best_graph_for_order(const int* order, int active_count, unsigned i
     }
 
     return graph_score;
+}
+
+float choose_best_graph_for_order(const int* order, int active_count, unsigned int* best_parent_masks) {
+    for (int i = 0; i < NUM_NODES; i++) {
+        best_parent_masks[i] = 0;
+    }
+    return choose_best_graph_for_order_from_table(order, active_count, precomputed_db,
+                                                  num_candidates, best_parent_masks);
 }
 
 int parent_state_from_values(unsigned int parent_mask, const int* values) {
@@ -1395,6 +1645,484 @@ void draw_learned_graph_vga(const int* order, int active_count, const unsigned i
     }
 }
 
+int partition_contains_node(const NodePartition* partition, int global_node) {
+    if (global_node < 0 || global_node >= NUM_NODES) return 0;
+    return partition->local_index[global_node] >= 0;
+}
+
+void init_partition(NodePartition* partition, int id) {
+    partition->id = id;
+    partition->core_count = 0;
+    partition->total_count = 0;
+    for (int node = 0; node < NUM_NODES; node++) {
+        partition->local_index[node] = -1;
+    }
+}
+
+void add_partition_node(NodePartition* partition, int global_node, bool core_node) {
+    if (partition->total_count >= MCMC_HW_MAX_NODES) {
+        printf("ERROR: partition %d exceeded hardware node capacity %d.\n",
+               partition->id, MCMC_HW_MAX_NODES);
+        exit(1);
+    }
+    if (partition_contains_node(partition, global_node)) return;
+
+    partition->local_index[global_node] = partition->total_count;
+    partition->global_nodes[partition->total_count] = global_node;
+    partition->total_count++;
+    if (core_node) partition->core_count++;
+}
+
+int partition_connection_score(const int* weights, const NodePartition* partition,
+                               int global_node, bool core_only) {
+    int score = 0;
+    int limit = core_only ? partition->core_count : partition->total_count;
+    for (int idx = 0; idx < limit; idx++) {
+        int other = partition->global_nodes[idx];
+        score += weights[global_node * NUM_NODES + other];
+    }
+    return score;
+}
+
+int select_unassigned_seed(const bool* assigned_core, const int* degree) {
+    int best = -1;
+    int best_degree = -1;
+    for (int node = 0; node < NUM_NODES; node++) {
+        if (assigned_core[node]) continue;
+        if (degree[node] > best_degree) {
+            best = node;
+            best_degree = degree[node];
+        }
+    }
+    return best;
+}
+
+int select_next_core_node(const bool* assigned_core, const int* weights,
+                          const int* degree, const NodePartition* partition) {
+    int best = -1;
+    int best_score = -1;
+    int best_degree = -1;
+
+    for (int node = 0; node < NUM_NODES; node++) {
+        int score;
+        if (assigned_core[node]) continue;
+        score = partition_connection_score(weights, partition, node, true);
+        if (score > best_score || (score == best_score && degree[node] > best_degree)) {
+            best = node;
+            best_score = score;
+            best_degree = degree[node];
+        }
+    }
+
+    return best;
+}
+
+int select_context_node(const NodePartition* partition, const int* weights, const int* degree) {
+    int best = -1;
+    int best_score = 0;
+    int best_degree = -1;
+
+    for (int node = 0; node < NUM_NODES; node++) {
+        int score;
+        if (partition_contains_node(partition, node)) continue;
+        score = partition_connection_score(weights, partition, node, true);
+        if (score > best_score || (score == best_score && degree[node] > best_degree)) {
+            best = node;
+            best_score = score;
+            best_degree = degree[node];
+        }
+    }
+
+    return best;
+}
+
+NodePartition* build_node_partitions(int partition_size, int partition_overlap,
+                                     int* out_partition_count) {
+    int core_limit = partition_size - partition_overlap;
+    int* weights = (int*)calloc((size_t)NUM_NODES * (size_t)NUM_NODES, sizeof(int));
+    int* degree = (int*)calloc(NUM_NODES, sizeof(int));
+    bool* assigned_core = (bool*)calloc(NUM_NODES, sizeof(bool));
+    NodePartition* partitions = (NodePartition*)calloc(NUM_NODES, sizeof(NodePartition));
+    int assigned_count = 0;
+    int partition_count = 0;
+
+    if (!weights || !degree || !assigned_core || !partitions) {
+        printf("ERROR: failed to allocate partition planner state.\n");
+        exit(1);
+    }
+    if (core_limit < 1) core_limit = 1;
+
+    for (int child = 0; child < NUM_NODES; child++) {
+        for (int c = 0; c < num_candidates[child]; c++) {
+            ParentSet* candidate = &precomputed_db[child][c];
+            for (int p = 0; p < candidate->parent_count; p++) {
+                int parent = candidate->parent_indices[p];
+                if (parent < 0 || parent >= NUM_NODES || parent == child) continue;
+                weights[child * NUM_NODES + parent]++;
+                weights[parent * NUM_NODES + child]++;
+            }
+        }
+    }
+
+    for (int node = 0; node < NUM_NODES; node++) {
+        for (int other = 0; other < NUM_NODES; other++) {
+            degree[node] += weights[node * NUM_NODES + other];
+        }
+    }
+
+    while (assigned_count < NUM_NODES) {
+        NodePartition* partition = &partitions[partition_count];
+        int seed;
+
+        init_partition(partition, partition_count);
+        seed = select_unassigned_seed(assigned_core, degree);
+        if (seed < 0) break;
+
+        add_partition_node(partition, seed, true);
+        assigned_core[seed] = true;
+        assigned_count++;
+
+        while (partition->core_count < core_limit && assigned_count < NUM_NODES) {
+            int next = select_next_core_node(assigned_core, weights, degree, partition);
+            if (next < 0) break;
+            add_partition_node(partition, next, true);
+            assigned_core[next] = true;
+            assigned_count++;
+        }
+
+        while (partition->total_count < partition_size) {
+            int context = select_context_node(partition, weights, degree);
+            if (context < 0) break;
+            add_partition_node(partition, context, false);
+        }
+
+        partition_count++;
+    }
+
+    free(weights);
+    free(degree);
+    free(assigned_core);
+    *out_partition_count = partition_count;
+    return partitions;
+}
+
+void print_partitions(const NodePartition* partitions, int partition_count) {
+    printf("\n=== Software Partitions ===\n");
+    printf("NUM_NODES=%d hardware_active_limit=%d partitions=%d\n",
+           NUM_NODES, MCMC_HW_MAX_NODES, partition_count);
+    for (int p = 0; p < partition_count; p++) {
+        const NodePartition* partition = &partitions[p];
+        printf("Partition %d: core=%d active=%d\n",
+               partition->id, partition->core_count, partition->total_count);
+        printf("  core:");
+        for (int i = 0; i < partition->core_count; i++) {
+            int node = partition->global_nodes[i];
+            printf(" %d:%s", node, node_names[node]);
+        }
+        printf("\n");
+        if (partition->total_count > partition->core_count) {
+            printf("  context:");
+            for (int i = partition->core_count; i < partition->total_count; i++) {
+                int node = partition->global_nodes[i];
+                printf(" %d:%s", node, node_names[node]);
+            }
+            printf("\n");
+        }
+    }
+}
+
+void stage_partition_candidates(const NodePartition* partition,
+                                ParentSet local_db[][MCMC_HW_CANDIDATE_SLOTS_PER_NODE],
+                                int* local_counts) {
+    for (int local_node = 0; local_node < partition->total_count; local_node++) {
+        int global_node = partition->global_nodes[local_node];
+        int out_count = 0;
+
+        for (int c = 0; c < num_candidates[global_node]; c++) {
+            ParentSet* src = &precomputed_db[global_node][c];
+            ParentSet* dst;
+            unsigned int local_mask = 0;
+            int local_parent_indices[MCMC_SW_MAX_PARENTS_PER_CANDIDATE];
+            int local_parent_count = 0;
+            bool all_parents_in_partition = true;
+
+            for (int p = 0; p < src->parent_count; p++) {
+                int global_parent = src->parent_indices[p];
+                int local_parent;
+                if (global_parent < 0 || global_parent >= NUM_NODES) {
+                    all_parents_in_partition = false;
+                    break;
+                }
+                local_parent = partition->local_index[global_parent];
+                if (local_parent < 0) {
+                    all_parents_in_partition = false;
+                    break;
+                }
+                local_mask |= (1U << local_parent);
+                local_parent_indices[local_parent_count++] = local_parent;
+            }
+
+            if (!all_parents_in_partition) continue;
+            if (out_count >= MCMC_HW_USABLE_CANDIDATES_PER_NODE) {
+                printf("ERROR: partition %d local node %d (%s) exceeded candidate capacity.\n",
+                       partition->id, local_node, node_names[global_node]);
+                exit(1);
+            }
+
+            dst = &local_db[local_node][out_count++];
+            dst->parent_bitmask = local_mask;
+            dst->local_score = src->local_score;
+            dst->parent_count = local_parent_count;
+            for (int p = 0; p < local_parent_count; p++) {
+                dst->parent_indices[p] = local_parent_indices[p];
+            }
+        }
+
+        if (out_count <= 0) {
+            printf("ERROR: partition %d has no usable candidates for node %d (%s).\n",
+                   partition->id, global_node, node_names[global_node]);
+            exit(1);
+        }
+        local_counts[local_node] = out_count;
+    }
+}
+
+void write_candidate_table_to_fpga(ParentSet table[][MCMC_HW_CANDIDATE_SLOTS_PER_NODE],
+                                   const int* candidate_counts, int active_count) {
+    printf("Writing partition candidate scores to FPGA memory...\n");
+    for (int i = 0; i < active_count; i++) {
+        for (int p = 0; p < candidate_counts[i]; p++) {
+            uint32_t mask = table[i][p].parent_bitmask;
+            int32_t q16_score = float_to_q16(table[i][p].local_score);
+            int base_offset = mcmc_hw_candidate_score_offset(i, p);
+
+            *(mcmc_system_base + base_offset) = (uint32_t)q16_score;
+            *(mcmc_system_base + base_offset + 1) = mask;
+        }
+
+        int sentinel_offset = mcmc_hw_candidate_score_offset(i, candidate_counts[i]);
+        *(mcmc_system_base + sentinel_offset) = 0x00000000;
+        *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF;
+    }
+
+    for (int i = active_count; i < MCMC_HW_MAX_NODES; i++) {
+        int sentinel_offset = mcmc_hw_candidate_score_offset(i, 0);
+        *(mcmc_system_base + sentinel_offset) = 0x00000000;
+        *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF;
+    }
+}
+
+int run_hw_solver_for_table(ParentSet table[][MCMC_HW_CANDIDATE_SLOTS_PER_NODE],
+                            const int* candidate_counts, int active_count,
+                            unsigned int seed, int* best_order, uint32_t* out_clocks) {
+    if (active_count <= 0 || active_count > MCMC_HW_MAX_NODES) {
+        printf("ERROR: active_count=%d outside hardware range 1..%d.\n",
+               active_count, MCMC_HW_MAX_NODES);
+        return 1;
+    }
+
+    write_candidate_table_to_fpga(table, candidate_counts, active_count);
+
+    *pio_start = 0;
+    *pio_reset = 1;
+    usleep(10);
+    *pio_reset = 0;
+    usleep(10);
+
+    *pio_iterations = ITERATIONS;
+    *pio_active_nodes = (unsigned int)active_count;
+    *pio_node_mask = (unsigned int)(active_count - 1);
+    *pio_seed = seed;
+
+    *pio_start = 1;
+    usleep(10);
+
+    if (wait_for_done_or_timeout(DONE_TIMEOUT_US) != 0) {
+        *pio_start = 0;
+        return 1;
+    }
+
+    *pio_start = 0;
+    *out_clocks = *pio_clock_count;
+
+    for (int i = 0; i < active_count; i++) {
+        uint32_t word = *(mcmc_system_base + 2048 + (i / 4));
+        best_order[i] = (word >> ((i % 4) * 5)) & 0x1F;
+    }
+
+    return 0;
+}
+
+bool learned_parent_contains(const LearnedGlobalParentSet* learned, int child, int parent) {
+    for (int i = 0; i < learned[child].parent_count; i++) {
+        if (learned[child].parents[i] == parent) return true;
+    }
+    return false;
+}
+
+bool learned_has_path_dfs(const LearnedGlobalParentSet* learned, int current,
+                          int target, bool* visited) {
+    if (current == target) return true;
+    if (visited[current]) return false;
+    visited[current] = true;
+
+    for (int child = 0; child < NUM_NODES; child++) {
+        if (!learned[child].learned) continue;
+        if (!learned_parent_contains(learned, child, current)) continue;
+        if (learned_has_path_dfs(learned, child, target, visited)) return true;
+    }
+
+    return false;
+}
+
+bool learned_would_create_cycle(const LearnedGlobalParentSet* learned, int parent, int child) {
+    bool visited[NUM_NODES];
+    for (int i = 0; i < NUM_NODES; i++) visited[i] = false;
+    return learned_has_path_dfs(learned, child, parent, visited);
+}
+
+int merge_partition_graph(const NodePartition* partition, const unsigned int* local_parent_masks,
+                          LearnedGlobalParentSet* learned) {
+    int skipped_cycles = 0;
+
+    for (int local_child = 0; local_child < partition->core_count; local_child++) {
+        int global_child = partition->global_nodes[local_child];
+        unsigned int local_mask = local_parent_masks[local_child];
+        LearnedGlobalParentSet* dst = &learned[global_child];
+
+        dst->learned = true;
+        dst->parent_count = 0;
+        dst->partition_id = partition->id;
+
+        for (int local_parent = 0; local_parent < partition->total_count; local_parent++) {
+            int global_parent;
+            if ((local_mask & (1U << local_parent)) == 0) continue;
+            global_parent = partition->global_nodes[local_parent];
+            if (global_parent == global_child) continue;
+            if (learned_would_create_cycle(learned, global_parent, global_child)) {
+                skipped_cycles++;
+                continue;
+            }
+            if (dst->parent_count >= MCMC_SW_MAX_PARENTS_PER_CANDIDATE) {
+                printf("ERROR: merged parent set for %s exceeded %d parents.\n",
+                       node_names[global_child], MCMC_SW_MAX_PARENTS_PER_CANDIDATE);
+                exit(1);
+            }
+            dst->parents[dst->parent_count++] = global_parent;
+        }
+    }
+
+    return skipped_cycles;
+}
+
+void print_partitioned_learned_graph(const LearnedGlobalParentSet* learned, int skipped_cycles) {
+    bool printed_edge = false;
+
+    printf("\n=== Partitioned Learned DAG ===\n");
+    printf("Skipped cycle-closing merged edges: %d\n", skipped_cycles);
+    printf("Learned DAG edges:\n");
+    for (int child = 0; child < NUM_NODES; child++) {
+        if (!learned[child].learned) continue;
+        for (int p = 0; p < learned[child].parent_count; p++) {
+            int parent = learned[child].parents[p];
+            printf("  %s -> %s\n", node_names[parent], node_names[child]);
+            printed_edge = true;
+        }
+    }
+    if (!printed_edge) {
+        printf("  (none)\n");
+    }
+
+    printf("Parent sets by node:\n");
+    for (int child = 0; child < NUM_NODES; child++) {
+        printf("  %s <- ", node_names[child]);
+        if (!learned[child].learned || learned[child].parent_count == 0) {
+            printf("(none)");
+        } else {
+            for (int p = 0; p < learned[child].parent_count; p++) {
+                int parent = learned[child].parents[p];
+                printf("%s%s", p == 0 ? "" : ", ", node_names[parent]);
+            }
+        }
+        if (learned[child].learned) {
+            printf("  [partition %d]", learned[child].partition_id);
+        }
+        printf("\n");
+    }
+}
+
+int run_partitioned_solver(const CandidateLoadConfig* config, int dry_run) {
+    int partition_count = 0;
+    int skipped_cycles = 0;
+    NodePartition* partitions;
+    LearnedGlobalParentSet learned[NUM_NODES];
+
+    validate_partition_config_or_die(config);
+    partitions = build_node_partitions(config->partition_size, config->partition_overlap,
+                                       &partition_count);
+    print_partitions(partitions, partition_count);
+
+    for (int node = 0; node < NUM_NODES; node++) {
+        learned[node].learned = false;
+        learned[node].parent_count = 0;
+        learned[node].local_score = 0.0f;
+        learned[node].partition_id = -1;
+    }
+
+    for (int p = 0; p < partition_count; p++) {
+        ParentSet local_db[MCMC_HW_MAX_NODES][MCMC_HW_CANDIDATE_SLOTS_PER_NODE];
+        int local_counts[MCMC_HW_MAX_NODES];
+        int best_order[MCMC_HW_MAX_NODES];
+        unsigned int local_parent_masks[MCMC_HW_MAX_NODES];
+        uint32_t clocks = 0;
+        float order_score;
+        float graph_score;
+
+        for (int i = 0; i < MCMC_HW_MAX_NODES; i++) {
+            local_counts[i] = 0;
+            local_parent_masks[i] = 0;
+        }
+
+        stage_partition_candidates(&partitions[p], local_db, local_counts);
+
+        printf("\nPartition %d candidate counts:", partitions[p].id);
+        for (int i = 0; i < partitions[p].total_count; i++) {
+            printf(" %d:%d", i, local_counts[i]);
+        }
+        printf("\n");
+
+        if (dry_run) continue;
+
+        printf("Starting partition %d solver: active=%d core=%d\n",
+               partitions[p].id, partitions[p].total_count, partitions[p].core_count);
+        if (run_hw_solver_for_table(local_db, local_counts, partitions[p].total_count,
+                                    SEED ^ (0x9E3779B9u * (unsigned int)(p + 1)),
+                                    best_order, &clocks) != 0) {
+            free(partitions);
+            return 1;
+        }
+
+        order_score = score_order_logsum_from_table(best_order, partitions[p].total_count,
+                                                    local_db, local_counts);
+        graph_score = choose_best_graph_for_order_from_table(best_order, partitions[p].total_count,
+                                                             local_db, local_counts,
+                                                             local_parent_masks);
+        skipped_cycles += merge_partition_graph(&partitions[p], local_parent_masks, learned);
+
+        printf("Partition %d complete: clocks=%u order_score=%.6f graph_score=%.6f\n",
+               partitions[p].id, clocks, order_score, graph_score);
+    }
+
+    if (dry_run) {
+        printf("\nDry run complete: partitioned candidate tables fit current solver capacity.\n");
+    } else {
+        print_partitioned_learned_graph(learned, skipped_cycles);
+    }
+
+    free(partitions);
+    return 0;
+}
+
 void print_fpga_debug_status(const char* label) {
     uint32_t raw_order0 = 0;
     uint32_t raw_order1 = 0;
@@ -1455,13 +2183,21 @@ int wait_for_done_or_timeout(unsigned int timeout_us) {
 int main(int argc, char** argv)
 {
     CandidateLoadConfig candidate_config;
+    bool partitioned_solver;
     parse_candidate_args(argc, argv, &candidate_config);
+    partitioned_solver = should_use_partitioned_solver(&candidate_config);
+    if (partitioned_solver) {
+        validate_partition_config_or_die(&candidate_config);
+    } else {
+        validate_single_solver_capacity_or_die();
+    }
 
     printf("Build ID: %s | %s %s\n", DEBUG_BUILD_TAG, __DATE__, __TIME__);
     printf("Candidate source: %s%s%s\n",
            candidate_config.source == CANDIDATE_SOURCE_FIXED ? "fixed-k" : "ML table",
            candidate_config.source == CANDIDATE_SOURCE_ML ? " from " : "",
            candidate_config.source == CANDIDATE_SOURCE_ML ? candidate_config.ml_dir : "");
+    printf("Solver mode: %s\n", partitioned_solver ? "software-partitioned" : "single hardware run");
 
     // Load Dataset & Precompute/Load candidate tables (ARM)
     printf("Loading dataset and candidate tables...\n");
@@ -1477,6 +2213,9 @@ int main(int argc, char** argv)
     print_known_order_score_check();
 
     if (candidate_config.dry_run_candidates) {
+        if (partitioned_solver) {
+            return run_partitioned_solver(&candidate_config, 1);
+        }
         printf("Dry run complete: candidate tables fit this C build and current RTL capacity.\n");
         return 0;
     }
@@ -1499,31 +2238,37 @@ int main(int argc, char** argv)
     pio_reset         = (unsigned int *)(h2p_lw_virtual_base + PIO_RESET_OFFSET);
     pio_clock_count   = (unsigned int *)(h2p_lw_virtual_base + PIO_CLK_COUNT_OFFSET);
 
-    init_vga(fd);
+    if (!partitioned_solver) {
+        init_vga(fd);
+    }
     
     fpga_ram_virtual_base = mmap( NULL, FPGA_ONCHIP_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, FPGA_ONCHIP_BASE); 
     if( fpga_ram_virtual_base == MAP_FAILED ) { printf( "ERROR: mmap3() failed...\n" ); close( fd ); return(1); }
     mcmc_system_base = (unsigned int *)fpga_ram_virtual_base;
     print_fpga_debug_status("after mmap before table write");
 
+    if (partitioned_solver) {
+        return run_partitioned_solver(&candidate_config, 0);
+    }
+
     printf("Writing precomputed scores to FPGA broadcast memory...\n");
     for (int i = 0; i < NUM_NODES; i++) {
         for (int p = 0; p < num_candidates[i]; p++) {
             uint32_t mask = precomputed_db[i][p].parent_bitmask;
             int32_t q16_score = float_to_q16(precomputed_db[i][p].local_score);
-            int base_offset = (i << 7) | (p << 1); 
+            int base_offset = mcmc_hw_candidate_score_offset(i, p);
             
             *(mcmc_system_base + base_offset)     = (uint32_t)q16_score; 
             *(mcmc_system_base + base_offset + 1) = mask; 
         }
         
-        int sentinel_offset = (i << 7) | (num_candidates[i] << 1); 
+        int sentinel_offset = mcmc_hw_candidate_score_offset(i, num_candidates[i]);
         *(mcmc_system_base + sentinel_offset)     = 0x00000000;
         *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF;
     }
     
-    for (int i = NUM_NODES; i < 32; i++) {
-        int sentinel_offset = (i << 7) | (0 << 1); 
+    for (int i = NUM_NODES; i < MCMC_HW_MAX_NODES; i++) {
+        int sentinel_offset = mcmc_hw_candidate_score_offset(i, 0);
         *(mcmc_system_base + sentinel_offset)     = 0x00000000; 
         *(mcmc_system_base + sentinel_offset + 1) = 0xFFFFFFFF; 
     }

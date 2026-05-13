@@ -8,10 +8,15 @@ asic/build*
 
 autom4te.cache/
 __pycache__/
+.pytest_cache/
 */.pytest_cache
 *.py[cod]
 .DS_Store
 .cache/
+.uv-cache/
+.venv/
+build/
+out_bn_tables/
 *~
 *.*.swp
 
@@ -19,6 +24,8 @@ __pycache__/
 .claude/
 
 # Playground C build artifacts
+playground/
+prompts/
 playground/fixed_point_experiment
 playground/test_fixed_point_logadd
 ml_experiments/candidate_table_results/mcmc_candidate_exp
