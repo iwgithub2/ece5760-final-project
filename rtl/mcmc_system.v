@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "mcmc_hw_config.vh"
 
 // ============================================================================
 // Single-Core MCMC System Wrapper (Parameterizable)
@@ -78,8 +79,8 @@ module mcmc_system #(
     genvar i;
     generate
         for (i = 0; i < N_NODES; i = i + 1) begin : gen_rams
-            // Top 5 bits [11:7] select the Node (0 to 31)
-            wire local_we = avs_write && (avs_address[11:7] == i);
+            // Top address bits select node; lower bits select score/mask slot.
+            wire local_we = avs_write && (avs_address[`MCMC_NODE_ADDR_MSB:`MCMC_NODE_ADDR_LSB] == i);
             
             wire [9:0]  read_addr = packed_addrs[(i*10)+:10];
             wire [63:0] read_data;
@@ -87,9 +88,9 @@ module mcmc_system #(
             mcmc_node_ram ram_inst (
                 .clk(clk),
                 .we(local_we),
-                .write_addr(avs_address[6:0]), // Pass [6:0] to handle the word split
+                .write_addr(avs_address[`MCMC_CANDIDATE_WORD_ADDR_MSB:0]),
                 .write_data(avs_writedata),
-                .read_addr(read_addr[5:0]),
+                .read_addr(read_addr[`MCMC_CANDIDATE_PAIR_ADDR_MSB:0]),
                 .read_data(read_data)
             );
             assign packed_datas[(i*64)+:64] = read_data;
@@ -752,22 +753,22 @@ endmodule
 module mcmc_node_ram (
     input  wire        clk,
     input  wire        we,
-    input  wire [6:0]  write_addr, 
+    input  wire [`MCMC_CANDIDATE_WORD_ADDR_MSB:0] write_addr,
     input  wire [31:0] write_data,
-    input  wire [5:0]  read_addr,
+    input  wire [`MCMC_CANDIDATE_PAIR_ADDR_MSB:0] read_addr,
     output reg  [63:0] read_data
 );
 
     // Splitting into two 32-bit arrays
-    reg [31:0] ram_lower [0:63];
-    reg [31:0] ram_upper [0:63];
+    reg [31:0] ram_lower [0:`MCMC_CANDIDATE_SLOTS_PER_NODE-1];
+    reg [31:0] ram_upper [0:`MCMC_CANDIDATE_SLOTS_PER_NODE-1];
 
     always @(posedge clk) begin
         if (we) begin
             if (write_addr[0] == 1'b0)
-                ram_lower[write_addr[6:1]] <= write_data;
+                ram_lower[write_addr[`MCMC_CANDIDATE_WORD_ADDR_MSB:1]] <= write_data;
             else
-                ram_upper[write_addr[6:1]] <= write_data;
+                ram_upper[write_addr[`MCMC_CANDIDATE_WORD_ADDR_MSB:1]] <= write_data;
         end
     end
 

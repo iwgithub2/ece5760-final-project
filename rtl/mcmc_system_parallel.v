@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "mcmc_hw_config.vh"
 
 // ============================================================================
 // Parallel MCMC System Wrapper
@@ -106,14 +107,15 @@ module mcmc_system_parallel #(
             assign chain_scores_packed[(c*32)+:32] = chain_score;
 
             for (n = 0; n < N_NODES; n = n + 1) begin : gen_rams
-                wire local_we = avs_write && (avs_address[11:7] == n);
-                wire [5:0] read_addr = chain_addrs[(n*10)+:6];
+                wire local_we = avs_write && (avs_address[`MCMC_NODE_ADDR_MSB:`MCMC_NODE_ADDR_LSB] == n);
+                wire [`MCMC_CANDIDATE_PAIR_ADDR_MSB:0] read_addr =
+                    chain_addrs[(n*10)+:`MCMC_CANDIDATE_PAIR_ADDR_W];
                 wire [63:0] read_data;
 
                 mcmc_node_ram ram_inst (
                     .clk(clk),
                     .we(local_we),
-                    .write_addr(avs_address[6:0]),
+                    .write_addr(avs_address[`MCMC_CANDIDATE_WORD_ADDR_MSB:0]),
                     .write_data(avs_writedata),
                     .read_addr(read_addr),
                     .read_data(read_data)

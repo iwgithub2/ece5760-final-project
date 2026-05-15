@@ -1,4 +1,8 @@
-// gcc -std=gnu99 mcmc_test.c -o mcmc_test -pg -lm -pthread
+// gcc -std=gnu99 mcmc_fixed.c -o mcmc_fixed -pg -lm -pthread
+//
+// Legacy binary-precompute path. This keeps the old 256-entry file format used
+// with programs/precompute.c. The active 64-slot FPGA/HPS path is
+// programs/mcmc_test.c plus programs/mcmc_hw_config.h.
 
 #include <stdio.h>
 #include <string.h>

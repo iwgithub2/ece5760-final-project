@@ -1,4 +1,8 @@
-// Compile with: gcc -std=gnu99 pc_precompute.c -o pc_precompute -lm -O3
+// Compile with: gcc -std=gnu99 precompute.c -o precompute -lm -O3
+//
+// Legacy binary-precompute generator for programs/mcmc_fixed.c. This uses the
+// old 256-entry file format, not the current 64-slot FPGA/HPS table layout in
+// programs/mcmc_hw_config.h.
 
 #include <stdio.h>
 #include <string.h>
