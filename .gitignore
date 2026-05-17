@@ -29,3 +29,46 @@ prompts/
 playground/fixed_point_experiment
 playground/test_fixed_point_logadd
 ml_experiments/candidate_table_results/mcmc_candidate_exp
+
+# ==========================================
+# Quartus Prime .gitignore
+# ==========================================
+
+# 1. Heavy Database Folders
+db/
+incremental_db/
+greybox_tmp/
+slld_project_dir/
+
+# 2. Output Files & Compiled Binaries
+# (If you want to keep your .sof, remove it from this list, 
+# but it is highly recommended to leave this as-is)
+output_files/
+*.sof
+*.pof
+*.jdi
+*.jam
+*.jbc
+*.ekp
+*.rbf
+
+# 3. Reports, Logs, and Summaries
+*.rpt
+*.smsg
+*.summary
+*.done
+*.pin
+*.qdf
+*.qws  
+
+# 4. Archives and Backups
+*.qar
+*.qarlog
+*.bak
+*~
+
+# 5. Simulation Output (Optional but recommended)
+# Note: Do NOT ignore your actual testbench source files (.v or .sv). 
+# This just ignores the heavy tool-generated simulation outputs.
+simulation/modelsim/
+simulation/qsim/
