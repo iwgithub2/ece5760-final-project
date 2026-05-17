@@ -72,3 +72,25 @@ output_files/
 # This just ignores the heavy tool-generated simulation outputs.
 simulation/modelsim/
 simulation/qsim/
+
+# ==========================================
+# Platform Designer (Qsys) & SoC Files
+# ==========================================
+*.sopcinfo
+*.cmp
+.qsys_edit/
+hps_isw_handoff/
+
+# Ignore Qsys generated HDL folders (Keep the .qsys files!)
+Computer_System/
+VGA_Subsystem/
+Video_In_Subsystem/
+Audio_Subsystem/
+
+# Extra Quartus Compilation Outputs
+*.sld
+*.out.sdc
+*.cdf
+*.txt
+*.csv
+qar_info.json
