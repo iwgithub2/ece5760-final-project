@@ -1,6 +1,6 @@
 ### Bayesian Network learning using MCMC on FPGA
 
-This project was built as a final project for Cornell's ECE 5760: Hardware Acceleration via FPGA. To learn more, visit our website link!
+This project was built as a final project for Cornell's ECE 5760: Hardware Acceleration via FPGA. To learn more, visit our website link: iwgithub2.github.io/ece5760-final-project-mkdocs/
 
 # File Structure
 - "Quartus Project Files/mcmc_system.v" Contains the RTL for our accelerator. 
